@@ -12,9 +12,9 @@ namespace ThirdVendingWebApi
       var adminEmail = "admin@mail.com";
       var password = "!Qw12345";
 
-      if (await roleManager.FindByNameAsync("ROLE_ADMIN") == null) { await roleManager.CreateAsync(new IdentityRole("ROLE_ADMIN")); }
+      if (await roleManager.FindByNameAsync(Roles.Admin) == null) { await roleManager.CreateAsync(new IdentityRole(Roles.Admin)); }
 
-      if (await roleManager.FindByNameAsync("ROLE_USER") == null) { await roleManager.CreateAsync(new IdentityRole("ROLE_USER")); }
+      if (await roleManager.FindByNameAsync(Roles.User) == null) { await roleManager.CreateAsync(new IdentityRole(Roles.User)); }
 
       if (await userManager.FindByNameAsync(adminEmail) == null)
       {
@@ -29,8 +29,8 @@ namespace ThirdVendingWebApi
         var result = await userManager.CreateAsync(admin, password);
         if (result.Succeeded)
         {
-          await userManager.AddToRoleAsync(admin, "ROLE_USER");
-          await userManager.AddToRoleAsync(admin, "ROLE_ADMIN");
+          await userManager.AddToRoleAsync(admin, Roles.User);
+          await userManager.AddToRoleAsync(admin, Roles.Admin);
         }
       }
 
@@ -45,7 +45,7 @@ namespace ThirdVendingWebApi
           PhoneNumber = "+79922313003"
         };
         var result = await userManager.CreateAsync(user, password);
-        if (result.Succeeded) { await userManager.AddToRoleAsync(user, "ROLE_USER"); }
+        if (result.Succeeded) { await userManager.AddToRoleAsync(user, Roles.User); }
       }
     }
   }

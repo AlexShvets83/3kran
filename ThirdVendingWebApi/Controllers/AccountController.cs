@@ -241,7 +241,7 @@ namespace ThirdVendingWebApi.Controllers
       var result = await _userManager.CreateAsync(userApp, user.Password);
       if (result.Succeeded)
       {
-        await _userManager.AddToRoleAsync(userApp, "ROLE_USER");
+        await _userManager.AddToRoleAsync(userApp, Roles.User);
         return Ok();
       }
 
@@ -282,10 +282,11 @@ namespace ThirdVendingWebApi.Controllers
 
         //var message = $"Уважаемый {user.FirstName} {user.LastName}\r\nДля вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.Чтобы сбросить пароль нажмите на";
         var message = new StringBuilder();
-        message.AppendLine($"Уважаемый {user.FirstName} {user.Patronymic}!");
-        message.AppendLine("Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.Чтобы сбросить пароль нажмите на");
+        message.AppendLine($"<div>Уважаемый {user.FirstName} {user.Patronymic}!</div>");
+        message.AppendLine("<div>Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.</div>");
+        message.AppendLine("<div>Чтобы сбросить пароль нажмите на");
         var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
-        await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.");
+        await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.</div>");
         return Ok();
       }
       catch (Exception ex)
@@ -330,12 +331,34 @@ namespace ThirdVendingWebApi.Controllers
 
     // PUT api/<ValuesController>/5
     [HttpPut("{id}")]
-    [Authorize(Roles = "ROLE_ADMIN")]
-    public void Put(int id, [FromBody] string value) { }
+    public async Task<IActionResult> Put(int id, [FromBody] string value)
+    {
+      //check admin
+      var admin = await _userManager.GetUserAsync(HttpContext.User);
+      if (admin == null) return NotFound("Invalid ADMIN account!");
+      if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      
+      //check admin role
+      var adminRoles = await _userManager.GetRolesAsync(admin);
+      if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+
+      return Ok();
+    }
 
     // DELETE api/<ValuesController>/5
     [HttpDelete("{id}")]
-    [Authorize(Roles = "ROLE_ADMIN")]
-    public void Delete(int id) { }
+    public async Task<IActionResult> Delete(int id)
+    {
+      //check admin
+      var admin = await _userManager.GetUserAsync(HttpContext.User);
+      if (admin == null) return NotFound("Invalid ADMIN account!");
+      if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      
+      //check admin role
+      var adminRoles = await _userManager.GetRolesAsync(admin);
+      if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+      
+      return Ok();
+    }
   }
 }

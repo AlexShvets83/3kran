@@ -72,7 +72,7 @@ namespace ThirdVendingWebApi.Models
 
     /// <summary>
     /// </summary>
-    public string[] Authorities { get; set; } // = new[] {"ROLE_USER"};
+    public string[] Authorities { get; set; }
 
     /// <summary>
     ///   Организация

@@ -1,7 +1,6 @@
 ﻿using CommonVending;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -78,9 +77,17 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet("{email}")]
-    //[Authorize(Roles = "ROLE_ADMIN")]
     public async Task<IActionResult> Get(string email)
     {
+      //check admin
+      var admin = await _userManager.GetUserAsync(HttpContext.User);
+      if (admin == null) return NotFound("Invalid ADMIN account!");
+      if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      
+      //check admin role
+      var adminRoles = await _userManager.GetRolesAsync(admin);
+      if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+
       var user = await _userManager.FindByNameAsync(email) ?? await _userManager.FindByEmailAsync(email);
       if (user == null) { return BadRequest("Invalid email!"); }
       
@@ -96,18 +103,23 @@ namespace ThirdVendingWebApi.Controllers
     /// <param name="user"></param>
     /// <returns></returns>
     [HttpPut]
-    //[Authorize(Roles = "ROLE_ADMIN")]
     public async Task<IActionResult> Put([FromBody] UserAccountAdminEdit user)
     {
       try
       {
-        var admin = await _userManager.GetUserAsync(HttpContext.User); 
-        if(admin == null) return BadRequest("Invalid ADMIN account!");
-
+        //check admin
+        var admin = await _userManager.GetUserAsync(HttpContext.User);
+        if (admin == null) return NotFound("Invalid ADMIN account!");
+        if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      
+        //check admin role
+        var adminRoles = await _userManager.GetRolesAsync(admin);
+        if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+        
         var userApp = await _userManager.FindByIdAsync(user.Id);
         if (userApp == null) return BadRequest("Invalid user account!");
 
-        userApp.Activated = user.Activated;
+        //userApp.Activated = user.Activated;
         userApp.FirstName = user.FirstName;
         userApp.LastName = user.LastName;
         userApp.Patronymic = user.Patronymic;
@@ -120,6 +132,7 @@ namespace ThirdVendingWebApi.Controllers
 
         if ((userApp.UserName != "admin@mail.com") && (admin.NormalizedEmail != user.Email.ToUpper()))
         {
+          userApp.Activated = user.Activated;
           var userRoles = await _userManager.GetRolesAsync(userApp);
           var roles = user.Authorities;
           var addedRoles = roles.Except(userRoles);
@@ -128,7 +141,7 @@ namespace ThirdVendingWebApi.Controllers
           await _userManager.RemoveFromRolesAsync(userApp, removedRoles);
         }
 
-        if (!string.IsNullOrEmpty(user.Password) && (user.Password.Length > 3))
+        if (!string.IsNullOrEmpty(user.Password) && (user.Password.Length > 3) && (user.UserName != "admin@mail.com"))
         {
           var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
           var passwordHasher = HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;
