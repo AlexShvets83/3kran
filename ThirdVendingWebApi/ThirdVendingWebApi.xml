@@ -84,7 +84,13 @@
             <param name = "user"></param>
             <returns></returns>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPasswordFinish(System.String,System.String)">
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPassword">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPasswordFinish(ThirdVendingWebApi.Models.ChangePasswordModel)">
             api/account/reset-password/finish
         </member>
         <member name="T:ThirdVendingWebApi.Controllers.DevicesController">
@@ -99,11 +105,14 @@
             <param name="userManager"></param>
             <param name="signInManager"></param>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Get(System.Int32)">
+        <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Get(System.String,System.Int32,System.Int32,System.String)">
             <summary>
             
             </summary>
+            <param name = "page"></param>
             <param name="size"></param>
+            <param name = "query"></param>
+            <param name = "sort"></param>
             <returns></returns>
         </member>
         <member name="T:ThirdVendingWebApi.Controllers.ManagementController">
@@ -113,7 +122,7 @@
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.ManagementController.Info">
             <summary>
-            for stupid front
+            for front
             </summary>
             <returns></returns>
         </member>

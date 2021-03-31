@@ -34,17 +34,37 @@ namespace ThirdVendingWebApi.Controllers
     /// <summary>
     /// 
     /// </summary>
+    /// <param name = "page"></param>
     /// <param name="size"></param>
+    /// <param name = "query"></param>
+    /// <param name = "sort"></param>
     /// <returns></returns>
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Get(int size)
+    public async Task<IActionResult> Get(string query, int page, int size, string sort) //Get(int size)
     {
-      var user = await _userManager.GetUserAsync(HttpContext.User);
-      if (user == null) return NotFound();
-      if (!user.Activated) return NotFound();
+      //var user = await _userManager.GetUserAsync(HttpContext.User);
+      //if (user == null) return NotFound();
+      //if (!user.Activated) return NotFound();
 
-      return new ObjectResult(null);
+      var headerStr = $@"</api/devices?page=1&size={size}>; rel=""next"",</api/devices?page=1&size={size}>; rel=""last"",</api/devices?page=0&size={size}>; rel=""first""";
+      Response.Headers.Add("Link", headerStr);
+      Response.Headers.Add("X-Total-Count", "0");
+      return new ObjectResult(new string [0]);
+    }
+
+    [HttpGet("/api/_search/devices")]
+    [Authorize]
+    public async Task<IActionResult> GetDevices(string query, int page, int size, string sort) //Get(int size)
+    {
+      //var user = await _userManager.GetUserAsync(HttpContext.User);
+      //if (user == null) return NotFound();
+      //if (!user.Activated) return NotFound();
+      //http: //95.183.10.198/api/_search/devices?query=f2f196db-4cb1-47a4-9b74-2f602c2c5517&page=0&size=10&sort=id.keyword,desc
+      var headerStr = $@"</api/devices?page=1&size={size}>; rel=""next"",</api/devices?page=1&size={size}>; rel=""last"",</api/devices?page=0&size={size}>; rel=""first""";
+      Response.Headers.Add("Link", headerStr);
+      Response.Headers.Add("X-Total-Count", "0");
+      return new ObjectResult(new string [0]);
     }
   }
 }

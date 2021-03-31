@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
@@ -16,21 +17,30 @@ namespace ThirdVendingWebApi.Controllers
   public class ManagementController : ControllerBase
   {
     /// <summary>
-    /// for stupid front
+    /// for front
     /// </summary>
     /// <returns></returns>
     [HttpGet("/management/info")]
     public async Task Info()
     {
-      //var response = new {activeProfiles = [{"prod"}]};
-      //activeProfiles: ["prod"]
-     // 0: "prod"
-      //display-ribbon-on-profiles: "dev"
-      //mailEnabled: false
-
-      // сериализация ответа
+      var mg = new ManagementInfo();
       Response.ContentType = "application/json";
-      await Response.WriteAsync(JsonConvert.SerializeObject(null, new JsonSerializerSettings {Formatting = Formatting.Indented}));
+      await Response.WriteAsync(JsonConvert.SerializeObject(mg, new JsonSerializerSettings {Formatting = Formatting.Indented}));
     }
+  }
+
+  public class ManagementInfo
+  {
+    [JsonPropertyName("display-ribbon-on-profiles")]
+    [JsonProperty("display-ribbon-on-profiles")]
+    public string DisplayRibbonOnProfiles => "dev";
+
+    [JsonPropertyName("activeProfiles")]
+    [JsonProperty("activeProfiles")]
+    public string[] ActiveProfiles => new[] {"prod"};
+
+    [JsonPropertyName("mailEnabled")]
+    [JsonProperty("mailEnabled")]
+    public bool MailEnabled => false;
   }
 }

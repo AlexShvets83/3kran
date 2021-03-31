@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -14,7 +15,6 @@ using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Internal;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -67,33 +67,45 @@ namespace ThirdVendingWebApi.Controllers
     [AllowAnonymous]
     public async Task Authenticate([FromBody] Person person)
     {
-      var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == person.UserName);
-      if (appUser != null)
+      try
       {
-        var result = await _signInManager.CheckPasswordSignInAsync(appUser, person.Password, false);
-        if (result.Succeeded)
+        var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == person.UserName) ??
+                      _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper());
+        if (appUser != null)
         {
-          var now = DateTime.UtcNow;
-          var claims = new List<Claim>
+          var result = await _signInManager.CheckPasswordSignInAsync(appUser, person.Password, false);
+          if (result.Succeeded)
           {
-            new Claim(JwtRegisteredClaimNames.Email, appUser.Email), new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, appUser.Id)
-          };
+            var now = DateTime.UtcNow;
+            var claims = new List<Claim>
+            {
+              new Claim(JwtRegisteredClaimNames.Email, appUser.Email), new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+              new Claim(ClaimTypes.NameIdentifier, appUser.Id)
+            };
 
-          // создаем JWT-токен
-          var jwt = new JwtSecurityToken(AuthOptions.JwtIssuer, AuthOptions.JwtAudience, notBefore: now, claims: claims,
-                                         expires: now.Add(TimeSpan.FromMinutes(AuthOptions.JwtExpireMinutes)),
-                                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+            // создаем JWT-токен
+            var jwt = new JwtSecurityToken(AuthOptions.JwtIssuer, AuthOptions.JwtAudience, notBefore: now, claims: claims,
+                                           expires: now.Add(TimeSpan.FromMinutes(AuthOptions.JwtExpireMinutes)),
+                                           signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
 
-          var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-          //var response = new {id_token = encodedJwt, username = appUser.UserName};
-          var response = new {id_token = encodedJwt};
+            //var response = new {id_token = encodedJwt, username = appUser.UserName};
+            var response = new {id_token = encodedJwt};
 
-          // сериализация ответа
-          Response.ContentType = "application/json";
-          Response.Headers.Add("Authorization", "Bearer " + encodedJwt);
-          await Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings {Formatting = Formatting.Indented}));
+            // сериализация ответа
+            Response.ContentType = "application/json";
+            Response.Headers.Add("Authorization", "Bearer " + encodedJwt);
+            Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+            
+            await Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings {Formatting = Formatting.Indented}));
+          }
+          else
+          {
+            Response.StatusCode = 400;
+            await Response.WriteAsync("Invalid username or password.");
+          }
         }
         else
         {
@@ -101,10 +113,10 @@ namespace ThirdVendingWebApi.Controllers
           await Response.WriteAsync("Invalid username or password.");
         }
       }
-      else
+      catch (Exception ex)
       {
         Response.StatusCode = 400;
-        await Response.WriteAsync("Invalid username or password.");
+        await Response.WriteAsync(ex.Message);
       }
     }
 
@@ -157,7 +169,7 @@ namespace ThirdVendingWebApi.Controllers
 
       userApp.CopyObjectProperties(user);
 
-      //todo ROLES
+      //without roles
 
       userApp.InfoEmails = string.Empty;
       if ((user.InfoEmails != null) || (user.InfoEmails.Length > 0))
@@ -207,18 +219,13 @@ namespace ThirdVendingWebApi.Controllers
       //  entityName = "userManagement", errorKey = "userexists", type = "https://www.jhipster.tech/problem/login-already-used", title = "Login name already used!",
       //  status = 400, message = "error.userexists", "params" = "userManagement"
       //};
-      var retBad = @"{""entityName"":""userManagement"",""errorKey"":""userexists"",""type"":""https://www.jhipster.tech/problem/login-already-used"",""title"":""Login name already used!"",""status"":400,""message"":""error.userexists"",""params"":""userManagement""}";
+      var retBad =
+        @"{""entityName"":""userManagement"",""errorKey"":""userexists"",""type"":""https://www.jhipster.tech/problem/login-already-used"",""title"":""Login name already used!"",""status"":400,""message"":""error.userexists"",""params"":""userManagement""}";
       var userCheck = await _userManager.FindByEmailAsync(user.Email);
-      if (userCheck != null)
-      {
-        return BadRequest(retBad);
-      }
+      if (userCheck != null) { return BadRequest(retBad); }
 
       userCheck = await _userManager.FindByNameAsync(user.UserName);
-      if (userCheck != null)
-      {
-        return BadRequest(retBad);
-      }
+      if (userCheck != null) { return BadRequest(retBad); }
 
       //var userApp1 = await _userManager.GetUserAsync(HttpContext.User);
       //if ((userApp == null) || (userApp.UserName != user.UserName)) return;
@@ -239,20 +246,26 @@ namespace ThirdVendingWebApi.Controllers
       return BadRequest(result.Errors);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     [HttpPost("reset-password/init")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResetPassword(string email)
+    public async Task<IActionResult> ResetPassword()
     {
-      var user = await _userManager.FindByEmailAsync(email);
-
-      if (user == null)
-      {
-        var resp = new {type = "https://www.jhipster.tech/problem/email-not-found", title = "Email address not registered", status = 400};
-        return BadRequest(resp);
-      }
-
       try
       {
+        string email;
+        using (var bodyStream = new StreamReader(Request.Body)) { email = await bodyStream.ReadToEndAsync(); }
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+          var resp = new {type = "https://www.jhipster.tech/problem/email-not-found", title = "Email address not registered", status = 400};
+          return BadRequest(resp);
+        }
+
         var code = Crypto.Encrypt(user.Id);
         var ecode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
         var host = HttpContext.Request.Host;
@@ -270,8 +283,7 @@ namespace ThirdVendingWebApi.Controllers
         message.AppendLine($"Уважаемый {user.FirstName} {user.Patronymic}!");
         message.AppendLine("Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.Чтобы сбросить пароль нажмите на");
         var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
-        await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", 
-                                          $"{message} \r\n \r\n <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.");
+        await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.");
         return Ok();
       }
       catch (Exception ex)
@@ -284,25 +296,20 @@ namespace ThirdVendingWebApi.Controllers
     ///api/account/reset-password/finish
     [HttpPost("reset-password/finish")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResetPasswordFinish(string key, string newPassword)
+    public async Task<IActionResult> ResetPasswordFinish([FromBody] ChangePasswordModel model)
     {
-      var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(key));
+      var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Key));
       var id = Crypto.Decrypt(code);
       var user = await _userManager.FindByIdAsync(id);
-      if (user == null)
-      {
-        return BadRequest();
-      }
+      if (user == null) { return BadRequest(); }
 
-      var passwordValidator = 
-        HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
-      var passwordHasher =
-        HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;
-     
-      var result = await passwordValidator.ValidateAsync(_userManager, user, newPassword);
-      if(result.Succeeded)
+      var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
+      var passwordHasher = HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;
+
+      var result = await passwordValidator.ValidateAsync(_userManager, user, model.NewPassword);
+      if (result.Succeeded)
       {
-        user.PasswordHash = passwordHasher.HashPassword(user, newPassword);
+        user.PasswordHash = passwordHasher.HashPassword(user, model.NewPassword);
         await _userManager.UpdateAsync(user);
         return Ok();
       }

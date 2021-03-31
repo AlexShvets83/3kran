@@ -62,7 +62,7 @@ namespace ThirdVendingWebApi
       var connStr = MainSettings.Settings.ConnectionStrings.DefaultConnection;
       services.AddDbContext<IdentityDbContext<ApplicationUser>>(options => options.UseSnakeCaseNamingConvention().UseNpgsql(connStr));
 
-      services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>().AddDefaultTokenProviders();
+      services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>();//.AddDefaultTokenProviders();
 
       //services.AddIdentityCore<ApplicationUser>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
       //services.AddDefaultIdentity<ApplicationUser>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
@@ -141,6 +141,38 @@ namespace ThirdVendingWebApi
           };
         });
 
+      services.ConfigureApplicationCookie(options =>
+      {
+        // Cookie settings
+        options.Cookie.HttpOnly = true;
+
+        //options.Cookie.Expiration = TimeSpan.FromDays(150);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(600);
+
+        // If the LoginPath isn't set, ASP.NET Core defaults 
+        // the path to /Account/Login.
+        options.LoginPath = "/#/";
+
+        // If the AccessDeniedPath isn't set, ASP.NET Core defaults 
+        // the path to /Account/AccessDenied.
+        options.AccessDeniedPath = "/accessdenied";
+        options.SlidingExpiration = true;
+      });
+
+      //services.ConfigureApplicationCookie(options =>
+      //{
+      //  options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+      //  options.Cookie.Name = "YourAppCookieName";
+      //  options.Cookie.HttpOnly = true;
+      //  options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+      //  options.LoginPath = "/Identity/Account/Login";
+      //  // ReturnUrlParameter requires 
+      //  //using Microsoft.AspNetCore.Authentication.Cookies;
+      //  options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+      //  options.SlidingExpiration = true;
+      //});
+
+
       //services.Configure<ForwardedHeadersOptions>(options => { options.KnownProxies.Add(IPAddress.Parse("10.0.0.100")); });
       services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
 
@@ -207,7 +239,7 @@ namespace ThirdVendingWebApi
       //app.UseHttpsRedirection();
 
       app.UseRouting();
-      app.UseCors(builder => builder.AllowAnyOrigin());
+      app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
       app.UseForwardedHeaders(new ForwardedHeadersOptions {ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto});
       app.UseResponseCompression();
       app.UseAuthentication();
