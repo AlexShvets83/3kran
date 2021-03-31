@@ -1,0 +1,18 @@
+{
+  "ConnectionStrings": {
+    "Password": "qwerty"
+  },
+  "SmtpClientSettings": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "EnableSsl": true,
+    "UserName": "3karan.supp@gmail.com",
+    "Password": "!Qw12345"
+  },
+  "AuthOptions": {
+    "JwtIssuer": "ThirdVendingAuthServer",
+    "JwtAudience": "http://3kran.ru/",
+    "JwtKey": "_9chCek!L{\n.y6ZQ)&6X@P?25?>H2Kb",
+    "JwtExpireMinutes": "60"
+  }
+}

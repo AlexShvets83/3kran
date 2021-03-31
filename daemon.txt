@@ -1,0 +1,28 @@
+sudo nano /etc/systemd/system/3kran-web.service
+
+
+[Unit]
+Description=Sempal Cloud Device Manager
+DefaultDependencies=no
+Wants=postgresql.service
+After=postgresql.service
+
+[Service]
+RemainAfterExit=no
+ExecStart=dotnet ThirdVendingWebApi.dll
+WorkingDirectory=/home/3kran/service
+SyslogIdentifier=3kran-web
+Restart=always
+RestartSec=30
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable 3kran-web.service
+sudo systemctl start 3kran-web.service
+sudo systemctl status 3kran-web.service
+
+sudo systemctl restart 3kran-web.service
