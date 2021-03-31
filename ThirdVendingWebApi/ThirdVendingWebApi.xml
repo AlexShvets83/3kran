@@ -126,6 +126,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.Put(ThirdVendingWebApi.Models.UserAccountAdminEdit)">
+            <summary>
+            
+            </summary>
+            <param name="user"></param>
+            <returns></returns>
+        </member>
         <member name="T:ThirdVendingWebApi.Models.AlertTypes">
             <summary>
             Тип аварий и событий
@@ -284,6 +291,108 @@
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Patronymic">
             <summary>
             Отчество
+            </summary>
+        </member>
+        <member name="T:ThirdVendingWebApi.Models.UserAccountAdminEdit">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Id">
+            <summary>
+              Ид пользователя из базы данных
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.UserName">
+            <summary>
+              Логин или имя пользователя
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.FirstName">
+            <summary>
+              Имя
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LastName">
+            <summary>
+              Фамилия
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Email">
+            <summary>
+              Email, электронная почта
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.ImageUrl">
+            <summary>
+              Ссылка на изображение
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Activated">
+            <summary>
+              Активирован ли пользователь
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LangKey">
+            <summary>
+              Язык
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.CreatedBy">
+            <summary>
+              Кем создан
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.CreatedDate">
+            <summary>
+              Когда создан
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LastModifiedBy">
+            <summary>
+              Кем последний раз изменен
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LastModifiedDate">
+            <summary>
+              Когда последний раз изменен
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Authorities">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Organization">
+            <summary>
+              Организация
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.PhoneNumber">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.City">
+            <summary>
+              Город
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.InfoEmails">
+            <summary>
+              Массив имейлов для рассылки писем с авариями и событиями
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Alerts">
+            <summary>
+              Массив аварий и событий
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Patronymic">
+            <summary>
+              Отчество
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Password">
+            <summary>
+            Пароль
             </summary>
         </member>
         <member name="T:ThirdVendingWebApi.Models.UserAccountEdit">

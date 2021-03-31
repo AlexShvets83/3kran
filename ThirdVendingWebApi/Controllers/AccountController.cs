@@ -167,9 +167,11 @@ namespace ThirdVendingWebApi.Controllers
       var userApp = await _userManager.GetUserAsync(HttpContext.User);
       if ((userApp == null) || (userApp.UserName != user.UserName)) return;
 
-      userApp.CopyObjectProperties(user);
+      //userApp.CopyObjectProperties(user);
 
       //without roles
+      userApp.LastModifiedBy = userApp.UserName;
+      userApp.LastModifiedDate = DateTime.Now;
 
       userApp.InfoEmails = string.Empty;
       if ((user.InfoEmails != null) || (user.InfoEmails.Length > 0))
