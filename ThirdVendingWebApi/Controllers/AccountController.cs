@@ -11,6 +11,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using CommonVending;
 using CommonVending.Crypt;
+using DeviceDbModel;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -237,14 +238,14 @@ namespace ThirdVendingWebApi.Controllers
       var userApp = new ApplicationUser();
       userApp.CopyObjectProperties(user);
       userApp.Activated = false;
-      userApp.CreatedBy = "anonymousUser";
+      userApp.CreatedBy = user.UserName;
       userApp.CreatedDate = DateTime.Now;
       userApp.UserAlerts = 15;
 
       var result = await _userManager.CreateAsync(userApp, user.Password);
       if (result.Succeeded)
       {
-        await _userManager.AddToRoleAsync(userApp, Roles.User);
+        await _userManager.AddToRoleAsync(userApp, Roles.Technician);
         return Ok();
       }
 
@@ -334,11 +335,17 @@ namespace ThirdVendingWebApi.Controllers
 
     // PUT api/<ValuesController>/5
     [HttpPut("{id}")]
+    [Authorize(Roles = "asdasd")]
+    //[Authorize(Roles = $"{nameof(Roles.SuperAdmin)}")]
+
+    //[Authorize(Roles = $"{SuperAdmin}, {Admin}, {Dealer}, {DealerAdmin}")]
     public async Task<IActionResult> Put(int id, [FromBody] string value)
     {
       //check admin
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Invalid ADMIN account!");
+
+      //redundant check
       if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
       
       //check admin role

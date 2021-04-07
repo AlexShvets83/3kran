@@ -1,12 +1,8 @@
-﻿using CommonVending;
-using DeviceDbModel.Models;
+﻿using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System.Threading.Tasks;
-using ThirdVendingWebApi.Models;
 
 namespace ThirdVendingWebApi.Controllers
 {

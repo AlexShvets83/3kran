@@ -3,7 +3,9 @@
   public class JsonSettings
   {
     public Connectionstrings ConnectionStrings { get; set; }
+
     public SmtpClientSettings SmtpClientSettings { get; set; }
+
     public Authoptions AuthOptions { get; set; }
   }
 
@@ -30,17 +32,24 @@
   public class SmtpClientSettings
   {
     public string Host { get; set; }
+
     public int Port { get; set; }
+
     public bool EnableSsl { get; set; }
+
     public string UserName { get; set; }
+
     public string Password { get; set; }
   }
 
   public class Authoptions
   {
     public string JwtIssuer { get; set; }
+
     public string JwtAudience { get; set; }
+
     public string JwtKey { get; set; }
+
     public string JwtExpireMinutes { get; set; }
   }
 }

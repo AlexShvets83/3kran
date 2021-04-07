@@ -1,4 +1,4 @@
-using CommonVending.DbProvider;
+using DeviceDbModel;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,10 +20,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
-using DeviceDbModel;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Newtonsoft.Json.Serialization;
 using ThirdVendingWebApi.Services;
 
 namespace ThirdVendingWebApi
@@ -38,36 +35,39 @@ namespace ThirdVendingWebApi
     {
       services.AddCors();
 
-      services.AddControllers().AddNewtonsoftJson(options =>
-      {
-        options.SerializerSettings.ContractResolver = new DefaultContractResolver
-        {
-          //NamingStrategy = new DefaultNamingStrategy { OverrideSpecifiedNames = true }
-          NamingStrategy = new CamelCaseNamingStrategy() { OverrideSpecifiedNames = true },
-          IgnoreIsSpecifiedMembers = false
-        };
-        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-      }).AddXmlSerializerFormatters();
-
-      //services.AddControllers()
-      //  .AddJsonOptions(options =>
+      //services.AddControllers().AddNewtonsoftJson(options =>
+      //{
+      //  options.SerializerSettings.ContractResolver = new DefaultContractResolver
       //  {
-      //    JsonConvert.DefaultSettings = () => new JsonSerializerSettings();
-      //    options.JsonSerializerOptions.PropertyNamingPolicy = null;
-      //    //options.JsonSerializerOptions.DictionaryKeyPolicy = null;
-      //    options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-      //    //options.JsonSerializerOptions.IgnoreNullValues = true;
-      //  });
+      //    //NamingStrategy = new DefaultNamingStrategy { OverrideSpecifiedNames = true }
+      //    NamingStrategy = new CamelCaseNamingStrategy() { OverrideSpecifiedNames = true },
+      //    IgnoreIsSpecifiedMembers = false
+      //  };
+      //  options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+      //}).AddXmlSerializerFormatters();
+
+      services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+          JsonConvert.DefaultSettings = () => new JsonSerializerSettings();
+          options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+
+          //options.JsonSerializerOptions.DictionaryKeyPolicy = null;
+          options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+
+          //options.JsonSerializerOptions.IgnoreNullValues = true;
+        })
+        .AddXmlSerializerFormatters();
 
       var connStr = MainSettings.Settings.ConnectionStrings.DefaultConnection;
       services.AddDbContext<IdentityDbContext<ApplicationUser>>(options => options.UseSnakeCaseNamingConvention().UseNpgsql(connStr));
 
-      services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>();//.AddDefaultTokenProviders();
+      services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
 
       //services.AddIdentityCore<ApplicationUser>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
       //services.AddDefaultIdentity<ApplicationUser>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
       //services.AddScoped<IUserStore<ApplicationUser>>();
-      
+
       //services.ConfigureApplicationCookie(options =>
       //{
       //  options.
@@ -81,7 +81,7 @@ namespace ThirdVendingWebApi
       //  options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
       //  options.SlidingExpiration = true;
       //});
-      
+
       // Add application services.
       services.AddTransient<IEmailSender, AuthMessageSender>();
       services.AddTransient<ISmsSender, AuthMessageSender>();
@@ -172,7 +172,6 @@ namespace ThirdVendingWebApi
       //  options.SlidingExpiration = true;
       //});
 
-
       //services.Configure<ForwardedHeadersOptions>(options => { options.KnownProxies.Add(IPAddress.Parse("10.0.0.100")); });
       services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
 
@@ -231,11 +230,8 @@ namespace ThirdVendingWebApi
       }
 
       //app.UseHttpsRedirection();
-
       //app.UseRouting();
-
       //app.UseAuthorization();
-
       //app.UseHttpsRedirection();
 
       app.UseRouting();
