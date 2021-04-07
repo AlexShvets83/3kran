@@ -76,12 +76,15 @@ namespace ThirdVendingWebApi.Controllers
           var result = await _signInManager.CheckPasswordSignInAsync(appUser, person.Password, false);
           if (result.Succeeded)
           {
+            var roles = await _userManager.GetRolesAsync(appUser);
             var now = DateTime.UtcNow;
             var claims = new List<Claim>
             {
-              new Claim(JwtRegisteredClaimNames.Email, appUser.Email), new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-              new Claim(ClaimTypes.NameIdentifier, appUser.Id)
+              new(JwtRegisteredClaimNames.Email, appUser.Email),
+              new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+              new(ClaimTypes.NameIdentifier, appUser.Id)
             };
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(AuthOptions.JwtIssuer, AuthOptions.JwtAudience, notBefore: now, claims: claims,

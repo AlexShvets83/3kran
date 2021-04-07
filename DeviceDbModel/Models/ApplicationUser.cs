@@ -1,11 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 
 namespace DeviceDbModel.Models
 {
   /// <inheritdoc />
   public class ApplicationUser : IdentityUser
   {
+    public ApplicationUser()
+    {
+      Devices = new HashSet<Device>();
+      UserDevicePermissions = new HashSet<UserDevicePermission>();
+    }
+
     public string FirstName { get; set; }
 
     public string LastName { get; set; }
@@ -33,5 +40,13 @@ namespace DeviceDbModel.Models
     public DateTime LastModifiedDate { get; set; }
 
     public int UserAlerts { get; set; }
+
+    public string CountryId { get; set; }
+
+    public Country Country { get; set; }
+
+    public ICollection<Device> Devices { get; set; }
+
+    public ICollection<UserDevicePermission> UserDevicePermissions { get; set; }
   }
 }

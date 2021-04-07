@@ -29,11 +29,36 @@ namespace DeviceDbModel
   {
     public DeviceDBContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions) { }
 
+    public DbSet<Device> Devices { get; set; }
+
+    public DbSet<UserDevicePermission> UserDevicePermissions { get; set; }
+
+    public DbSet<Country> Countries { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
+
+      modelBuilder.Entity<Device>(entity =>
+      {
+        entity.HasIndex(e => e.DeviceId).IsUnique();
+        entity.HasIndex(e => e.Address);
+        entity.HasOne(d => d.User).WithMany(p => p.Devices).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Restrict);
+      });
+
+      modelBuilder.Entity<UserDevicePermission>(entity =>
+      {
+        entity.HasIndex(e => e.UserId);
+        entity.HasOne(d => d.User).WithMany(p => p.UserDevicePermissions).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(d => d.Device).WithMany(p => p.UserDevicePermissions).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+      
+      modelBuilder.Entity<ApplicationUser>(entity =>
+      {
+        entity.HasOne(d => d.Country).WithMany(p => p.Users).HasForeignKey(d => d.CountryId).OnDelete(DeleteBehavior.Restrict);
+      });
 
       OnModelCreatingPartial(modelBuilder);
     }
