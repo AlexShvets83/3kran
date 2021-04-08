@@ -35,6 +35,8 @@ namespace DeviceDbModel
 
     public DbSet<Country> Countries { get; set; }
 
+    public DbSet<InviteRegistration> InviteRegistrations { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -57,7 +59,14 @@ namespace DeviceDbModel
       
       modelBuilder.Entity<ApplicationUser>(entity =>
       {
+        entity.HasIndex(e => e.CountryId);
         entity.HasOne(d => d.Country).WithMany(p => p.Users).HasForeignKey(d => d.CountryId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne(d => d.Master).WithMany(p => p.Slaves).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Restrict);
+      });
+
+      modelBuilder.Entity<InviteRegistration>(entity =>
+      {
+        entity.HasOne(d => d.User).WithMany(p => p.InviteRegistrations).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Cascade);
       });
 
       OnModelCreatingPartial(modelBuilder);

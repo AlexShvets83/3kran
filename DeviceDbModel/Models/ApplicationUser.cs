@@ -9,8 +9,10 @@ namespace DeviceDbModel.Models
   {
     public ApplicationUser()
     {
+      Slaves = new HashSet<ApplicationUser>();
       Devices = new HashSet<Device>();
       UserDevicePermissions = new HashSet<UserDevicePermission>();
+      InviteRegistrations = new HashSet<InviteRegistration>();
     }
 
     public string FirstName { get; set; }
@@ -45,8 +47,18 @@ namespace DeviceDbModel.Models
 
     public Country Country { get; set; }
 
+    public string OwnerId { get; set; }
+
+    public string InviteCode { get; set; }
+
+    public ApplicationUser Master { get; set; }
+
+    public ICollection<ApplicationUser> Slaves { get; set; }
+
     public ICollection<Device> Devices { get; set; }
 
     public ICollection<UserDevicePermission> UserDevicePermissions { get; set; }
+
+    public ICollection<InviteRegistration> InviteRegistrations { get; set; }
   }
 }
