@@ -1,0 +1,20 @@
+[
+  {
+    "outputFileName": "wwwroot/css/navbar.min.css",
+    "inputFiles": [
+      "wwwroot/css/navbar.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/global.min.css",
+    "inputFiles": [
+      "wwwroot/css/global.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/login.min.css",
+    "inputFiles": [
+      "wwwroot/css/login.css"
+    ]
+  }
+]

@@ -1,0 +1,48 @@
+/* ==========================================================================
+Main page styles
+========================================================================== */
+
+.hipster {
+    display: inline-block;
+    width: 347px;
+    height: 497px;
+    background: url('../../content/images/hipster.png') no-repeat center top;
+    background-size: contain;
+}
+
+/* wait autoprefixer update to allow simple generation of high pixel density media query */
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and (-moz-min-device-pixel-ratio: 2),
+    only screen and (-o-min-device-pixel-ratio: 2/1),
+    only screen and (min-resolution: 192dpi),
+    only screen and (min-resolution: 2dppx) {
+    .hipster {
+        background: url('../../content/images/hipster2x.png') no-repeat center top;
+        background-size: contain;
+    }
+}
+.welcome {
+    padding-top: 20px;
+    min-height: calc(100vh - 219px);
+}
+
+.welcome-form {
+    background-color: rgba(255, 255, 255, 0.6);
+    width: 320px;
+    height: auto;
+    padding: 15px;
+    margin: 0 auto; /* Центровка блока */
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.welcome-header {
+    width: 320px;
+    height: auto;
+    margin: 0 auto; /* Центровка блока */
+}
+.welcome-footer {
+    padding-top: 10px;
+    width: 320px;
+    height: auto;
+    margin: 0 auto; /* Центровка блока */
+}

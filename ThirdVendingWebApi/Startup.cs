@@ -45,7 +45,7 @@ namespace ThirdVendingWebApi
       //  };
       //  options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
       //}).AddXmlSerializerFormatters();
-
+      services.AddRazorPages();
       services.AddControllers()
         .AddJsonOptions(options =>
         {
@@ -251,7 +251,13 @@ namespace ThirdVendingWebApi
         c.RoutePrefix = "api/doc"; //string.Empty;
       });
 
-      app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+      //app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+      app.UseEndpoints(endpoints =>
+      {
+        endpoints.MapControllers();
+        endpoints.MapRazorPages();
+      });
     }
   }
 }

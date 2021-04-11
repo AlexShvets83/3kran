@@ -1,0 +1,148 @@
+﻿@page
+@model ThirdVendingFrontEnd.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+@*<h1>@ViewData["Title"]</h1>*@
+
+<div class="row">
+    <!-- Левая колонка -->
+    <aside class="col-12 col-lg-3 order-lg-1 float-sm-left">
+        <div class="alert alert-info" role="alert">
+            <p>
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                &nbsp;&nbsp;<b>Все поля обязательные.</b> После отправки заполненной формы, на
+                указанный вами Email поступит автоматическое сообщение с запросом на подтверждение регистрации.
+            </p>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <p>
+                <i class="bi bi-exclamation-triangle" role="alert" aria-hidden="true"></i>
+                &nbsp;&nbsp;<b>Если сообщение не приходит</b>, то стоит поискать его в папке «Спам»
+                или «Нежелательная почта».
+            </p>
+        </div>
+    </aside>
+
+
+    <article class="col-12 col-lg-6 order-lg-2 article">
+        <h3 class="text-center pb-3">Заявка на регистрацию</h3>
+        @*<div class="col-md-4">*@
+            <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                @*<h4>Create a new account.</h4>*@
+                <hr />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Input.Email"></label>
+                    <input asp-for="Input.Email" class="form-control" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.Password"></label>
+                    <input asp-for="Input.Password" class="form-control" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.ConfirmPassword"></label>
+                    <input asp-for="Input.ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        @*</div>*@
+    </article>
+    
+    @*<form class="row g-3">
+        <div class="col-md-4">
+            <label for="validationServer01" class="form-label">First name</label>
+            <input type="text" class="form-control is-valid" id="validationServer01" value="Mark" required>
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="validationServer02" class="form-label">Last name</label>
+            <input type="text" class="form-control is-valid" id="validationServer02" value="Otto" required>
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="validationServerUsername" class="form-label">Username</label>
+            <div class="input-group has-validation">
+                <span class="input-group-text" id="inputGroupPrepend3">#</span>
+                <input type="text" class="form-control is-invalid" id="validationServerUsername" aria-describedby="inputGroupPrepend3 validationServerUsernameFeedback" required>
+                <div id="validationServerUsernameFeedback" class="invalid-feedback">
+                    Please choose a username.
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="validationServer03" class="form-label">City</label>
+            <input type="text" class="form-control is-invalid" id="validationServer03" aria-describedby="validationServer03Feedback" required>
+            <div id="validationServer03Feedback" class="invalid-feedback">
+                Please provide a valid city.
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="validationServer04" class="form-label">State</label>
+            <select class="form-select is-invalid" id="validationServer04" aria-describedby="validationServer04Feedback" required>
+                <option selected disabled value="">Choose...</option>
+                <option>...</option>
+            </select>
+            <div id="validationServer04Feedback" class="invalid-feedback">
+                Please select a valid state.
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="validationServer05" class="form-label">Zip</label>
+            <input type="text" class="form-control is-invalid" id="validationServer05" aria-describedby="validationServer05Feedback" required>
+            <div id="validationServer05Feedback" class="invalid-feedback">
+                Please provide a valid zip.
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-check">
+                <input class="form-check-input is-invalid" type="checkbox" value="" id="invalidCheck3" aria-describedby="invalidCheck3Feedback" required>
+                <label class="form-check-label" for="invalidCheck3">
+                    Agree to terms and conditions
+                </label>
+                <div id="invalidCheck3Feedback" class="invalid-feedback">
+                    You must agree before submitting.
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Submit form</button>
+        </div>
+    </form>*@
+
+
+    <!-- Правая колонка -->
+    <aside class="col-12 col-lg-3 order-lg-3 right">
+        <div>
+            <p>Уже зарегистрированы? Авторизуйтесь.</p>
+            <a href="#" (click)="openLogin()" class="btn btn-warning btn-block" role="link"><i class="bi bi-box-arrow-in-right"></i>&nbsp;&nbsp;Войти в систему</a><br />
+            <a href="http://3voda.ru/vopros-otvet" target="_blank" class="btn btn-info btn-block" role="link">
+                <i class="bi bi-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;Частые вопросы
+            </a><br />
+            <p>
+                Актуальная информация о продукции, услугах и деятельности компании размещена на нашем сайте
+                <a href="http://3voda.ru" target="top" title="Перейти на сайт компании">
+                    <span style="text-decoration: underline; color: #333333"><b>3voda.ru</b></span>
+                </a>. Будьте в курсе, узнайте больше!
+            </p>
+        </div>
+        <br />
+    </aside>
+</div>
+
+
+@*@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}*@
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
