@@ -1,16 +1,18 @@
 ﻿@page
-@model ThirdVendingFrontEnd.Pages.Account.LoginModel
+@model ThirdVendingWebApi.Pages.Account.LoginModel
 @{
 }
 <div class="row welcome">
     <!-- Контент -->
     <section class="col-12 article" *ngIf="canShowForm">
-        <h4 class="text-center">Добро пожаловать в систему мониторинга<br />«Третий кран»</h4>
+        <h4 class="text-center">Добро пожаловать в систему мониторинга<br/>«Третий кран»</h4>
         <p class="text-center">Для начала работы нужно войти в систему</p>
 
-        <div class="welcome-form">
+        @*<div class="welcome-form">
             <form class="form" role="form" (ngSubmit)="login()">
-                <div class="alert alert-danger" *ngIf="authenticationError" role="alert"><i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;Неверный email или пароль.</div>
+                <div class="alert alert-danger" role="alert"><i class="fa fa-warning" aria-hidden="true">
+
+                </i>&nbsp;&nbsp;Неверный email или пароль.</div>
                 <div class="alert alert-warning" *ngIf="capsLock" role="alert"><i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;«CapsLock» включен.</div>
                 <input type="text" class="form-control mb-2 mr-sm-2" name="username" id="username"
                        [(ngModel)]="username" placeholder="Введите Email">
@@ -27,17 +29,192 @@
                        class="text" title="Вы забыли пароль?">Вы забыли пароль?</a>
                 </div>
             </form>
+        </div>*@
+    <div class="welcome-form">
+        @*<form asp-controller="Account" asp-action="Authenticate" method="post" id="Form">
+            <div id="login"></div>
+            <div id="password"></div>
+            <div id="rememberme"></div>
+            <div id="validateAndSubmit"></div>
+
+        </form>*@
+
+
+        <div id="formWidget"></div>
+
+        <div class="form-inline">
+            <button onclick="login_post()" class="btn btn-primary mb-2 mt-2 mr-4"><i class="fa fa-sign-in pr-2"></i>&nbsp;Войти</button>
+            <a [routerLink]="['/', { outlets: { popup: 'reset/request'}}]"
+               class="text" title="Вы забыли пароль?">Вы забыли пароль?</a>
         </div>
+    </div>
+
+        @*<form action="/Login" method="post">
+                <div id="formWidget"></div>
+            </form>
+            <form method="post" id="form-container">
+                <div id="form"></div>
+            </form>*@
         <div class="welcome-footer">
             <p class="text-center">У вас нет аккаунта? Создайте новый.</p>
             <a (click)="register()" class="btn btn-warning btn-block" role="link"><i class="fa fa fa-user-plus" aria-hidden="true"></i>&nbsp;&nbsp;Зарегистрироваться</a>
             <a href="http://3voda.ru/vopros-otvet" target="_blank" class="btn btn-info btn-block mt-3" role="link"><i class="fa fa-question-circle-o" aria-hidden="true"></i>&nbsp;&nbsp;Частые вопросы</a>
             <p>
-                Актуальная информация о продукции, услугах и деятельности компании размещена на нашем сайте <a href="http://3voda.ru" target="top" title="Перейти на сайт компании">
-                    <span style="text-decoration: underline; color:#333333;"><b>3voda.ru</b></span>
+                Актуальная информация о продукции, услугах и деятельности компании размещена на нашем сайте
+                <a href="http://3voda.ru" target="top" title="Перейти на сайт компании">
+                    <span style="text-decoration: underline; color: #333333;">
+                        <b>3voda.ru</b>
+                    </span>
                 </a>. Будьте в курсе событий!
             </p>
         </div>
-        <br />
+        <br/>
     </section>
 </div>
+
+<script>
+    function login_post() {
+        var valid = $('#formWidget').dxForm('instance').validate();
+        if (valid.isValid === false) return;
+
+        var data = $('#formWidget').dxForm('instance').option('formData');
+
+        var request = $.postJSON('/api/Authenticate', data, postOk);
+
+        //request.done(function( msg ) {
+        //    $( "#log" ).html( msg );
+        //});
+ 
+        request.fail(function( data ) {
+            alert('Failed login: ' + data.status + ', ' + data.responseText);
+        });
+        //postAjax('/api/Authenticate', data, null);
+
+        //$.postJSON = function ('/api/Authenticate', values, callback) {
+        //    return jQuery.ajax({
+        //        headers: { 
+        //            'Accept': 'application/json',
+        //            'Content-Type': 'application/json' 
+        //        },
+        //        'type': 'POST',
+        //        'url': url,
+        //        'data': JSON.stringify(data),
+        //        'dataType': 'json',
+        //        'success': callback
+        //    });
+        //};
+
+        //$.post('/api/Authenticate', {'': values}).done(function (data) {
+        //    DevExpress.ui.dialog.alert(data, "Error");
+        //    //$('#Form').dxForm('instance').updateData(data.Items[0]);
+        //});
+    }
+
+    function postOk(data) {
+        tokenKey = data.id_token;
+        window.location.replace("/");
+    }
+    function handleData (data) {
+        if (data.status == 'OK') {
+            
+            window.location.replace("/");
+        }
+        else
+            alert('Failed login: ' + data.status + ', ' + data.responseText);
+    }
+
+    $(function() {
+        $("#login").dxTextBox({
+            name: "username",
+            placeholder: "Введите Email"
+        }).dxValidator({
+            validationRules: [
+                { type: "required" }
+            ]
+        });
+
+        $("#password").dxTextBox({
+            name: "password",
+            mode: "password",
+            placeholder: "Введите пароль"
+        }).dxValidator({
+            validationRules: [
+                { type: "required" }
+            ]
+        });
+
+        //$("#validateAndSubmit").dxButton({
+        //    text: "Submit",
+        //    type: "success",
+        //    useSubmitBehavior: true
+        //});
+    });
+
+    $(function() {
+        $("#formWidget").dxForm({
+            formData: {
+                username: "",
+                password: ""
+            },
+            items: [
+                {
+                    dataField: "username",
+                    placeholder: "Введите Email",
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите Email"
+                        },
+                        //    {
+                        //    type: "pattern",
+                        //    pattern: "^[a-zA-Z]+$",
+                        //    message: "The name should not contain digits"
+                        //}
+                    ]
+                },
+                {
+                    dataField: "password",
+                    placeholder: "Введите пароль",
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите пароль"
+                        }
+                    ]
+                },
+                //{
+                //    itemType: "button",
+                //    horizontalAlignment: "left",
+                //    buttonOptions: {
+                //        text: 'Войти',
+                //        icon: 'add',
+                //        type: "success",
+                //        useSubmitBehavior: true,
+
+                //    }
+                //}
+            ]
+        });
+    });
+
+    //$(function() {
+    //    $("#formContainer").dxForm({
+    //        formData: {
+    //            username: "",
+    //            password: ""
+    //        },
+    //        customizeItem: function(item) {
+    //            if(item.dataField === "FirstName" || item.dataField === "LastName") {
+    //                item.validationRules = [{
+    //                    type: "required",
+    //                    message: "The value is required"
+    //                }, {
+    //                    type: "pattern",
+    //                    pattern: "^[a-zA-Z]+$",
+    //                    message: "The value should not contain digits"
+    //                }]
+    //            }
+    //        }
+    //    });
+    //});
+</script>

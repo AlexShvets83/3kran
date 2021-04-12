@@ -22,7 +22,14 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.min.js" asp-append-version="true"></script>
+    
+    
+    <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.common.css" />
+    <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.light.css" />
+    <script src="~/lib/devextreme/dist/js/dx.all.js"></script>
+    <script src="~/lib/devextreme/dist/js/dx.aspnet.mvc.js"></script>
+    <script src="~/lib/devextreme/dist/js/localization/dx.messages.ru.js"></script>
 
 </head>
 <body>
@@ -44,14 +51,14 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
+                    @*<li class="nav-item active">
                         <a class="nav-link" asp-area="" asp-page="/Account/Register">Register <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
                     
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-page="/Account/Login">Login</a>
-                    </li>
+                    </li>*@
 
                     @if (SignInManager.IsSignedIn(User))
                     {

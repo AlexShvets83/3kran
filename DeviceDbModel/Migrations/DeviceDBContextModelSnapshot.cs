@@ -607,15 +607,15 @@ namespace DeviceDbModel.Migrations
                         .HasConstraintName("fk_asp_net_users_countries_country_id")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "Master")
-                        .WithMany("Slaves")
+                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "Owner")
+                        .WithMany("Сustomers")
                         .HasForeignKey("OwnerId")
-                        .HasConstraintName("fk_asp_net_users_asp_net_users_master_id")
+                        .HasConstraintName("fk_asp_net_users_asp_net_users_owner_id")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Country");
 
-                    b.Navigation("Master");
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("DeviceDbModel.Models.Device", b =>
@@ -718,11 +718,11 @@ namespace DeviceDbModel.Migrations
 
             modelBuilder.Entity("DeviceDbModel.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Сustomers");
+
                     b.Navigation("Devices");
 
                     b.Navigation("InviteRegistrations");
-
-                    b.Navigation("Slaves");
 
                     b.Navigation("UserDevicePermissions");
                 });

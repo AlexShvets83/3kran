@@ -71,7 +71,9 @@ namespace ThirdVendingWebApi.Controllers
       try
       {
         var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == person.UserName) ??
-                      _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper());
+                      _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper()) ??
+                      _userManager.Users.SingleOrDefault(r => r.PhoneNumber == person.UserName);
+
         if (appUser != null)
         {
           var result = await _signInManager.CheckPasswordSignInAsync(appUser, person.Password, false);
@@ -286,8 +288,8 @@ namespace ThirdVendingWebApi.Controllers
 
         //var message = $"Уважаемый {user.FirstName} {user.LastName}\r\nДля вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.Чтобы сбросить пароль нажмите на";
         var message = new StringBuilder();
-        message.AppendLine($"<div>Уважаемый {user.FirstName} {user.Patronymic}!</div>");
-        message.AppendLine("<div>Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.</div>");
+        message.AppendLine($"<div>Уважаемый {user.FirstName} {user.Patronymic}!</div><br />");
+        message.AppendLine("<div>Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.</div><br />");
         message.AppendLine("<div>Чтобы сбросить пароль нажмите на");
         var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
         await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.</div>");

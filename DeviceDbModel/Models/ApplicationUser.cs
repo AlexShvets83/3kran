@@ -9,7 +9,7 @@ namespace DeviceDbModel.Models
   {
     public ApplicationUser()
     {
-      Slaves = new HashSet<ApplicationUser>();
+      Сustomers = new HashSet<ApplicationUser>();
       Devices = new HashSet<Device>();
       UserDevicePermissions = new HashSet<UserDevicePermission>();
       InviteRegistrations = new HashSet<InviteRegistration>();
@@ -51,9 +51,9 @@ namespace DeviceDbModel.Models
 
     public string InviteCode { get; set; }
 
-    public ApplicationUser Master { get; set; }
+    public ApplicationUser Owner { get; set; }
 
-    public ICollection<ApplicationUser> Slaves { get; set; }
+    public ICollection<ApplicationUser> Сustomers { get; set; }
 
     public ICollection<Device> Devices { get; set; }
 

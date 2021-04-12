@@ -1,5 +1,8 @@
 ﻿// Write your JavaScript code.
 
+var tokenKey = "accessToken";
+var account = null;
+
 function post(path, params, method) {
     method = method || "post"; // Set method to post by default if not specified.
 
@@ -23,6 +26,42 @@ function post(path, params, method) {
     document.body.appendChild(form);
     form.submit();
 }
+
+$.postJSON = function(url, data, callback) {
+    return jQuery.ajax({
+        headers: { 
+            'Accept': 'application/json',
+            'Content-Type': 'application/json' 
+        },
+        //accepts: {
+        //    json: 'application/json'
+        //},
+        //contentType: 'application/json',
+        'type': 'POST',
+        'url': url,
+        'data': JSON.stringify(data),
+        'dataType': 'json',
+        'success': callback
+    });
+};
+
+function postAjax(url, data, callback) {
+    return jQuery.ajax({
+        headers: { 
+            'Accept': 'application/json',
+            'Content-Type': 'application/json' 
+        },
+        accepts: {
+            json: 'application/json'
+        },
+        contentType: 'application/json' ,
+        'type': 'POST',
+        'url': url,
+        'data': JSON.stringify(data),
+        'dataType': 'json',
+        'success': callback
+    });
+};
 
 function httpGetAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();

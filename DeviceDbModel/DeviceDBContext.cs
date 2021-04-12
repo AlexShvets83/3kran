@@ -61,7 +61,8 @@ namespace DeviceDbModel
       {
         entity.HasIndex(e => e.CountryId);
         entity.HasOne(d => d.Country).WithMany(p => p.Users).HasForeignKey(d => d.CountryId).OnDelete(DeleteBehavior.Restrict);
-        entity.HasOne(d => d.Master).WithMany(p => p.Slaves).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasOne(d => d.Owner).WithMany(p => p.Сustomers).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Restrict);
       });
 
       modelBuilder.Entity<InviteRegistration>(entity =>
