@@ -1,5 +1,5 @@
 ﻿@page
-@model ThirdVendingFrontEnd.Pages.Account.RegisterModel
+@model ThirdVendingWebApi.Pages.Account.RegisterModel
 @{
     ViewData["Title"] = "Register";
 }
@@ -123,7 +123,7 @@
     <aside class="col-12 col-lg-3 order-lg-3 right">
         <div>
             <p>Уже зарегистрированы? Авторизуйтесь.</p>
-            <a href="#" (click)="openLogin()" class="btn btn-warning btn-block" role="link"><i class="bi bi-box-arrow-in-right"></i>&nbsp;&nbsp;Войти в систему</a><br />
+            <a href="#" onclick="openLogin()" class="btn btn-warning btn-block" role="link"><i class="bi bi-box-arrow-in-right"></i>&nbsp;&nbsp;Войти в систему</a><br />
             <a href="http://3voda.ru/vopros-otvet" target="_blank" class="btn btn-info btn-block" role="link">
                 <i class="bi bi-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;Частые вопросы
             </a><br />
@@ -138,6 +138,26 @@
     </aside>
 </div>
 
+<script>
+    $(function() {
+        //var inviteCode = getUrlParameter('code');
+        var inviteCode = GetURLParameter('code');
+        var isInvite = inviteCode ? true : false;// && inviteCode != undefined;
+        var email = GetURLParameter('email');
+
+        //todo check invite
+        //var role = GetURLParameter('role');
+
+        if (isInvite) {
+
+        } 
+        
+
+    });
+    function openLogin() {
+        window.location.replace("/");
+    }
+</script>
 
 @*@section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
@@ -146,3 +166,5 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
 }
+
+

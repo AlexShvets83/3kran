@@ -1,4 +1,5 @@
-﻿using DeviceDbModel.Models;
+﻿using DeviceDbModel.DataDb;
+using DeviceDbModel.Models;
 using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +71,11 @@ namespace DeviceDbModel
         entity.HasOne(d => d.User).WithMany(p => p.InviteRegistrations).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Cascade);
       });
 
+      modelBuilder.Entity<Country>(entity =>
+      {
+        entity.HasData(DatabaseDictionaries.CountriesDic);
+      });
+      
       OnModelCreatingPartial(modelBuilder);
     }
 

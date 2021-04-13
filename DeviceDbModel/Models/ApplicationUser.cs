@@ -45,11 +45,9 @@ namespace DeviceDbModel.Models
 
     public string CountryId { get; set; }
 
-    public Country Country { get; set; }
-
     public string OwnerId { get; set; }
 
-    public string InviteCode { get; set; }
+    public Country Country { get; set; }
 
     public ApplicationUser Owner { get; set; }
 

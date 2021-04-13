@@ -11,12 +11,14 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using CommonVending;
 using CommonVending.Crypt;
+using CommonVending.DbProvider;
 using DeviceDbModel;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -83,9 +85,7 @@ namespace ThirdVendingWebApi.Controllers
             var now = DateTime.UtcNow;
             var claims = new List<Claim>
             {
-              new(JwtRegisteredClaimNames.Email, appUser.Email),
-              new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-              new(ClaimTypes.NameIdentifier, appUser.Id)
+              new(JwtRegisteredClaimNames.Email, appUser.Email), new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), new(ClaimTypes.NameIdentifier, appUser.Id)
             };
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
@@ -104,7 +104,7 @@ namespace ThirdVendingWebApi.Controllers
             Response.Headers.Add("Authorization", "Bearer " + encodedJwt);
             Response.Headers.Add("X-Content-Type-Options", "nosniff");
             Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-            
+
             await Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings {Formatting = Formatting.Indented}));
           }
           else
@@ -222,40 +222,72 @@ namespace ThirdVendingWebApi.Controllers
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] UserAccountRegister user)
     {
-      //var resp = new
-      //{
-      //  entityName = "userManagement", errorKey = "userexists", type = "https://www.jhipster.tech/problem/login-already-used", title = "Login name already used!",
-      //  status = 400, message = "error.userexists", "params" = "userManagement"
-      //};
-      var retBad =
-        @"{""entityName"":""userManagement"",""errorKey"":""userexists"",""type"":""https://www.jhipster.tech/problem/login-already-used"",""title"":""Login name already used!"",""status"":400,""message"":""error.userexists"",""params"":""userManagement""}";
-      var userCheck = await _userManager.FindByEmailAsync(user.Email);
-      if (userCheck != null) { return BadRequest(retBad); }
-
-      userCheck = await _userManager.FindByNameAsync(user.UserName);
-      if (userCheck != null) { return BadRequest(retBad); }
-
-      //var userApp1 = await _userManager.GetUserAsync(HttpContext.User);
-      //if ((userApp == null) || (userApp.UserName != user.UserName)) return;
-      var userApp = new ApplicationUser();
-      userApp.CopyObjectProperties(user);
-      userApp.Activated = false;
-      userApp.CreatedBy = user.UserName;
-      userApp.CreatedDate = DateTime.Now;
-      userApp.UserAlerts = 15;
-
-      var result = await _userManager.CreateAsync(userApp, user.Password);
-      if (result.Succeeded)
+      try
       {
-        await _userManager.AddToRoleAsync(userApp, Roles.Technician);
-        return Ok();
-      }
+        //var resp = new
+        //{
+        //  entityName = "userManagement", errorKey = "userexists", type = "https://www.jhipster.tech/problem/login-already-used", title = "Login name already used!",
+        //  status = 400, message = "error.userexists", "params" = "userManagement"
+        //};
+        //var retBad =
+        //  @"{""entityName"":""userManagement"",""errorKey"":""userexists"",""type"":""https://www.jhipster.tech/problem/login-already-used"",""title"":""Login name already used!"",""status"":400,""message"":""error.userexists"",""params"":""userManagement""}";
 
-      return BadRequest(result.Errors);
+        var userCheck = await _userManager.FindByEmailAsync(user.Email);
+        if (userCheck != null) { return BadRequest("Пользователь с таким email уже зарегистрирован!"); }
+
+        userCheck = await _userManager.FindByNameAsync(user.UserName);
+        if (userCheck != null) { return BadRequest("Пользователь с таким логином уже зарегистрирован!"); }
+
+        userCheck = await _userManager.FindByNameAsync(user.PhoneNumber);
+        if (userCheck != null) { return BadRequest("Пользователь с таким телефоном уже зарегистрирован!"); }
+
+        InviteRegistration invite = null;
+        if (!string.IsNullOrEmpty(user.InviteCode))
+        {
+          var owner = _userManager.Users.FirstOrDefault(f => f.Id == user.InviteCode);
+          if (owner == null) return NotFound("Пользователь с таким кодом приглашения не найден!");
+
+          //get invite
+          invite = DeviceDbProvider.GetInvite(user.InviteCode, user.Email);
+          if (invite == null) return NotFound("Код приглашения недействителен!");
+
+          user.CountryId = owner.CountryId;
+          user.OwnerId = owner.Id;
+        }
+
+        //var userApp1 = await _userManager.GetUserAsync(HttpContext.User);
+        //if ((userApp == null) || (userApp.UserName != user.UserName)) return;
+        var userApp = new ApplicationUser();
+        userApp.CopyObjectProperties(user);
+        userApp.Activated = false;
+        userApp.CreatedBy = user.UserName;
+        userApp.CreatedDate = DateTime.Now;
+        userApp.UserAlerts = 15;
+
+        userApp.CountryId = user.CountryId;
+        userApp.OwnerId = user.OwnerId;
+
+        var result = await _userManager.CreateAsync(userApp, user.Password);
+        if (result.Succeeded)
+        {
+          //check role
+          if ((invite != null) && (await _roleManager.FindByNameAsync(invite.Role) == null)) invite.Role = Roles.Owner;
+          await _userManager.AddToRoleAsync(userApp, invite != null ? invite.Role : Roles.Owner);
+          
+          //delete invate
+          if (invite != null) DeviceDbProvider.RemoveIvite(invite.Id);
+          return Ok();
+        }
+
+        return BadRequest(result.Errors);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
     }
 
     /// <summary>
-    /// 
     /// </summary>
     /// <returns></returns>
     [HttpPost("reset-password/init")]
@@ -333,14 +365,8 @@ namespace ThirdVendingWebApi.Controllers
       return BadRequest(errors);
     }
 
-    //reset-password/init
-
-    // PUT api/<ValuesController>/5
     [HttpPut("{id}")]
-    [Authorize(Roles = "asdasd")]
-    //[Authorize(Roles = $"{nameof(Roles.SuperAdmin)}")]
-
-    //[Authorize(Roles = $"{SuperAdmin}, {Admin}, {Dealer}, {DealerAdmin}")]
+    [Authorize]
     public async Task<IActionResult> Put(int id, [FromBody] string value)
     {
       //check admin
@@ -349,7 +375,7 @@ namespace ThirdVendingWebApi.Controllers
 
       //redundant check
       if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
-      
+
       //check admin role
       var adminRoles = await _userManager.GetRolesAsync(admin);
       if (!adminRoles.Contains(Roles.Admin)) return Forbid();
@@ -359,17 +385,18 @@ namespace ThirdVendingWebApi.Controllers
 
     // DELETE api/<ValuesController>/5
     [HttpDelete("{id}")]
+    [Authorize(Roles = Roles.SuperAdmin)]
     public async Task<IActionResult> Delete(int id)
     {
       //check admin
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Invalid ADMIN account!");
       if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
-      
+
       //check admin role
       var adminRoles = await _userManager.GetRolesAsync(admin);
       if (!adminRoles.Contains(Roles.Admin)) return Forbid();
-      
+
       return Ok();
     }
   }

@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ThirdVendingFrontEnd</title>
+    <title>@ViewData["Title"] - ThirdVendingWebApi</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-social/bootstrap-social.min.css" />
@@ -22,7 +22,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     
     
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.common.css" />
@@ -76,9 +76,10 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Account/Register">Register</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Account/Login">Login</a>
-                        </li>
+                        <!--<li class="nav-item">-->
+                            @*<a class="nav-link text-dark" asp-area="" asp-page="/Account/Login">Login</a>*@
+                            <!--<a class="nav-link text-dark" asp-area="" asp-page="/Account/Login">Login</a>
+                        </li>-->
                     }
 
                     @*<li class="nav-item active">
@@ -149,3 +150,27 @@
     @await RenderSectionAsync("Scripts", false)
 </body>
 </html>
+
+<script>
+    $(function() {
+        (async function() { // async function expression used as an IIFE
+            await getUserAccount();
+        })().then(v => {
+            var accStr = sessionStorage.getItem(accountKey);
+            if (accStr != null) {
+                var acc = JSON.parse(accStr);
+                var name = getUserName(acc);
+
+                var asd = name;
+            }
+            //console.log(v);  // prints 60 after 2 seconds.
+        });
+       
+        //var accStr = sessionStorage.getItem(accountKey);
+        //if (accStr != null) {
+        //    var acc = JSON.parse(accStr);
+        //    var name = getUserName(acc);
+        //    var asd = name;
+        //}
+    });
+</script>

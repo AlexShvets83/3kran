@@ -515,5 +515,20 @@
             Пароль пользователя
             </summary>
         </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.OwnerId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.CountryId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.InviteCode">
+            <summary>
+            
+            </summary>
+        </member>
     </members>
 </doc>

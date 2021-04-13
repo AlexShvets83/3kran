@@ -14,6 +14,8 @@ namespace DeviceDbModel.Models
 
     public string Alpha3Code { get; set; }
 
+    public int Code { get; set; }
+
     public ICollection<ApplicationUser> Users { get; set; }
   }
 }

@@ -1,0 +1,25 @@
+﻿@page
+@model ThirdVendingWebApi.Pages.Account.SettingsModel
+@{
+}
+<div class="text-black-50" id="lbl"></div>
+
+<script>
+    $(function() {
+
+        //getAccount();
+        var request = $.getJSON('/api/account', null);
+
+        request.done(function(data) {
+            var strData = JSON.stringify(data);
+            sessionStorage.setItem(accountKey, strData);
+            $('#lbl').text(JSON.stringify(strData));
+
+        });
+
+        //getUserAccount();
+       // var data = getData("/api/account").then();
+        //$('#lbl').text(JSON.stringify(data));
+        //$('#lbl').text(JSON.stringify(account));
+    });
+</script>

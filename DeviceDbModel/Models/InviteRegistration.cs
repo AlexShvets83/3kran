@@ -14,7 +14,7 @@ namespace DeviceDbModel.Models
 
     public string Email { get; set; }
 
-    public string InviteCode { get; set; }
+    public string Role { get; set; }
 
     public DateTime ExpirationDate { get; set; }
 

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace ThirdVendingFrontEnd.Pages.Account
+namespace ThirdVendingWebApi.Pages.Account
 {
   [AllowAnonymous]
   public class RegisterModel : PageModel

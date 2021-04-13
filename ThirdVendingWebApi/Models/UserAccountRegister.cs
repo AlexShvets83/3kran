@@ -66,5 +66,20 @@ namespace ThirdVendingWebApi.Models
     /// Пароль пользователя
     /// </summary>
     public string Password { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string OwnerId { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string CountryId { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string InviteCode { get; set; }
   }
 }
