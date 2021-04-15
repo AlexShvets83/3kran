@@ -28,29 +28,13 @@
 
     <article class="col-12 col-lg-6 order-lg-2 article">
         <h3 class="text-center pb-3">Заявка на регистрацию</h3>
-        @*<div class="col-md-4">*@
-            <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                @*<h4>Create a new account.</h4>*@
-                <hr />
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="Input.Email"></label>
-                    <input asp-for="Input.Email" class="form-control" />
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Input.Password"></label>
-                    <input asp-for="Input.Password" class="form-control" />
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Input.ConfirmPassword"></label>
-                    <input asp-for="Input.ConfirmPassword" class="form-control" />
-                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-                </div>
-                <button type="submit" class="btn btn-primary">Register</button>
-            </form>
-        @*</div>*@
+        <div class="alert alert-danger" id="authenticationError" role="alert" style="display: none">
+            <i class="fa fa-warning" aria-hidden="true">
+            </i>&nbsp;&nbsp;Неверный email или пароль.
+        </div>
+
+        <div id="formWidget"></div>
+
     </article>
     
     @*<form class="row g-3">
@@ -139,13 +123,65 @@
 </div>
 
 <script>
+
+    var formData = {
+        username: "",
+        password: ""};
     $(function() {
+        $("#formWidget").dxForm({
+            formData: formData,
+            colCount: 3,
+            items: [
+                {
+                    dataField: "username",
+                    colSpan: 1,
+                    label: {
+                        text: "Email",
+                        visible: false
+                    },
+                    editorOptions: {
+                        placeholder: "Введите Email",
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите Email"
+                        },
+                        //    {
+                        //    type: "pattern",
+                        //    pattern: "^[a-zA-Z]+$",
+                        //    message: "The name should not contain digits"
+                        //}
+                    ]
+                },
+                {
+                    dataField: "password",
+                    colSpan: 2,
+                    label: {
+                        text: "Пароль",
+                        visible: false
+                    },
+                    editorOptions: {
+                        placeholder: "Введите пароль",
+                        mode: "password"
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите пароль"
+                        }
+                    ]
+                }
+            ]
+        });
+
+
         //var inviteCode = getUrlParameter('code');
         var inviteCode = GetURLParameter('code');
-        var isInvite = inviteCode ? true : false;// && inviteCode != undefined;
-        var email = GetURLParameter('email');
+        var isInvite = inviteCode ? true : false;
 
         //todo check invite
+        //var email = GetURLParameter('email');
         //var role = GetURLParameter('role');
 
         if (isInvite) {

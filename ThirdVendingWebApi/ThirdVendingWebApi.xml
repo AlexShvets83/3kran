@@ -86,7 +86,6 @@
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPassword">
             <summary>
-            
             </summary>
             <returns></returns>
         </member>

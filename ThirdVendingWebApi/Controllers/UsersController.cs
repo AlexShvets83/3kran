@@ -1,4 +1,5 @@
 ﻿using CommonVending;
+using DeviceDbModel;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -7,8 +8,8 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using DeviceDbModel;
 using ThirdVendingWebApi.Models;
 
 namespace ThirdVendingWebApi.Controllers
@@ -17,20 +18,20 @@ namespace ThirdVendingWebApi.Controllers
   [ApiController]
   public class UsersController : ControllerBase
   {
-    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _configuration;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    //private readonly SignInManager<ApplicationUser> _signInManager;
+    //private readonly IConfiguration _configuration;
+    //private readonly RoleManager<IdentityRole> _roleManager;
 
-    public UsersController(UserManager<ApplicationUser> userManager,
-                           SignInManager<ApplicationUser> signInManager,
-                           RoleManager<IdentityRole> roleManager,
-                           IConfiguration configuration)
+    public UsersController(UserManager<ApplicationUser> userManager)
+                           //SignInManager<ApplicationUser> signInManager,
+                           //RoleManager<IdentityRole> roleManager,
+                           //IConfiguration configuration)
     {
       _userManager = userManager;
-      _signInManager = signInManager;
-      _roleManager = roleManager;
-      _configuration = configuration;
+      //_signInManager = signInManager;
+      //_roleManager = roleManager;
+      //_configuration = configuration;
     }
 
     [HttpGet]
@@ -124,8 +125,13 @@ namespace ThirdVendingWebApi.Controllers
         userApp.FirstName = user.FirstName;
         userApp.LastName = user.LastName;
         userApp.Patronymic = user.Patronymic;
+        
+        //todo check email
         userApp.Email = user.Email;
+
+        //todo check number
         userApp.PhoneNumber = user.PhoneNumber;
+
         userApp.Organization = user.Organization;
         userApp.City = user.City;
         userApp.LastModifiedBy = admin.UserName;
@@ -134,14 +140,15 @@ namespace ThirdVendingWebApi.Controllers
         if ((userApp.UserName != "admin@mail.com") && (admin.NormalizedEmail != user.Email.ToUpper()))
         {
           userApp.Activated = user.Activated;
-          var userRoles = await _userManager.GetRolesAsync(userApp);
-          var roles = user.Authorities;
-          var addedRoles = roles.Except(userRoles);
-          var removedRoles = userRoles.Except(roles);
-          await _userManager.AddToRolesAsync(userApp, addedRoles);
-          await _userManager.RemoveFromRolesAsync(userApp, removedRoles);
+          ////var userRoles = await _userManager.GetRolesAsync(userApp);
+          //var roles = user.Authorities;
+          //var addedRoles = roles.Except(userRoles);
+          //var removedRoles = userRoles.Except(roles);
+          //await _userManager.AddToRolesAsync(userApp, addedRoles);
+          //await _userManager.RemoveFromRolesAsync(userApp, removedRoles);
         }
 
+        //todo if super admin change password
         if (!string.IsNullOrEmpty(user.Password) && (user.Password.Length > 3) && (user.UserName != "admin@mail.com"))
         {
           var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
@@ -171,6 +178,41 @@ namespace ThirdVendingWebApi.Controllers
       {
         return BadRequest(ex.Message);
       }
+    }
+    
+    /// <summary>
+    /// Get allowed roles
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetRoles()
+    {
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound();
+      if (!user.Activated) return NotFound();
+
+      var returnRole = new HashSet<string>();
+
+      var roles = await _userManager.GetRolesAsync(user);
+
+      foreach (var role in roles)
+      {
+        var r = Roles.RolesPermissions.Find(f => f.Name == role);
+
+        var rr = Roles.RolesPermissions.FindAll(f => f.Code > r.Code);
+        foreach (var rrs in rr)
+        {
+          returnRole.Add(rrs.Name);
+        }
+      }
+      //switch (roles)
+      //{
+      //  case Roles.Technician:
+      //    break;
+      //}
+
+      return new ObjectResult(returnRole.ToArray());
     }
   }
 }
