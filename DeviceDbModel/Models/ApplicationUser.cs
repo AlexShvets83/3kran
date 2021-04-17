@@ -43,9 +43,11 @@ namespace DeviceDbModel.Models
 
     public int UserAlerts { get; set; }
 
-    public string CountryId { get; set; }
+    public int CountryId { get; set; }
 
     public string OwnerId { get; set; }
+
+    public string AddDealerName { get; set; }
 
     public Country Country { get; set; }
 

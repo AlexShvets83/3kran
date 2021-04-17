@@ -7,189 +7,515 @@
 @*<h1>@ViewData["Title"]</h1>*@
 
 <div class="row">
-    <!-- Левая колонка -->
-    <aside class="col-12 col-lg-3 order-lg-1 float-sm-left">
-        <div class="alert alert-info" role="alert">
-            <p>
-                <i class="bi bi-info-circle" aria-hidden="true"></i>
-                &nbsp;&nbsp;<b>Все поля обязательные.</b> После отправки заполненной формы, на
-                указанный вами Email поступит автоматическое сообщение с запросом на подтверждение регистрации.
-            </p>
-        </div>
-        <div class="alert alert-info" role="alert">
-            <p>
-                <i class="bi bi-exclamation-triangle" role="alert" aria-hidden="true"></i>
-                &nbsp;&nbsp;<b>Если сообщение не приходит</b>, то стоит поискать его в папке «Спам»
-                или «Нежелательная почта».
-            </p>
-        </div>
-    </aside>
+<!-- Левая колонка -->
+<aside class="col-12 col-lg-3 order-lg-1 float-sm-left">
+    <div class="alert alert-info" role="alert">
+        <p>
+            <i class="bi-info-circle" aria-hidden="true"></i>
+            &nbsp;&nbsp;<b>Все поля обязательные.</b> После отправки заполненной формы, на
+            указанный вами Email поступит автоматическое сообщение с запросом на подтверждение регистрации.
+        </p>
+    </div>
+    <div class="alert alert-info" role="alert">
+        <p>
+            <i class="bi-exclamation-triangle" role="alert" aria-hidden="true"></i>
+            &nbsp;&nbsp;<b>Если сообщение не приходит</b>, то стоит поискать его в папке «Спам»
+            или «Нежелательная почта».
+        </p>
+    </div>
+</aside>
 
 
-    <article class="col-12 col-lg-6 order-lg-2 article">
-        <h3 class="text-center pb-3">Заявка на регистрацию</h3>
-        <div class="alert alert-danger" id="authenticationError" role="alert" style="display: none">
+<article class="col-12 col-lg-6 order-lg-2">
+    <h3 class="text-center pb-3">Заявка на регистрацию</h3>
+
+    <form id="formWidget">
+        <div class="alert alert-danger" id="inviteError" role="alert" style="display: none">
             <i class="fa fa-warning" aria-hidden="true">
-            </i>&nbsp;&nbsp;Неверный email или пароль.
+            </i>&nbsp;&nbsp;Пригласительный код недействителен.
         </div>
-
-        <div id="formWidget"></div>
-
-    </article>
-    
-    @*<form class="row g-3">
-        <div class="col-md-4">
-            <label for="validationServer01" class="form-label">First name</label>
-            <input type="text" class="form-control is-valid" id="validationServer01" value="Mark" required>
-            <div class="valid-feedback">
-                Looks good!
+        <div class="alert alert-warning" id="capsLock" role="alert" style="display: none">
+            <i class="fa fa-warning" aria-hidden="true">
+            </i>&nbsp;&nbsp;«CapsLock» включен.
+        </div>
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="country"><b>Страна</b></label>
+                <div id="country" name="country"></div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <label for="validationServer02" class="form-label">Last name</label>
-            <input type="text" class="form-control is-valid" id="validationServer02" value="Otto" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
-        </div>
-        <div class="col-md-4">
-            <label for="validationServerUsername" class="form-label">Username</label>
-            <div class="input-group has-validation">
-                <span class="input-group-text" id="inputGroupPrepend3">#</span>
-                <input type="text" class="form-control is-invalid" id="validationServerUsername" aria-describedby="inputGroupPrepend3 validationServerUsernameFeedback" required>
-                <div id="validationServerUsernameFeedback" class="invalid-feedback">
-                    Please choose a username.
+            <div class="col-md-6 mb-3">
+                <label for="dealer"><b>Дилер</b></label>
+                <div id="dealer" name="dealer">
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <label for="validationServer03" class="form-label">City</label>
-            <input type="text" class="form-control is-invalid" id="validationServer03" aria-describedby="validationServer03Feedback" required>
-            <div id="validationServer03Feedback" class="invalid-feedback">
-                Please provide a valid city.
+
+        <div class="form-row">
+            <div class="col-md-4 mb-3">
+                <label for="lastName"><b>Фамилия</b></label>
+                <div id="lastName" name="lastName"></div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="firstName"><b>Имя</b></label>
+                <div id="firstName" name="firstName"></div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="patronymic"><b>Отчество</b></label>
+                <div id="patronymic" name="patronymic"></div>
+            </div>
+
+        </div>
+
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="email"><b>Email</b></label>
+                <div id="email" name="email"></div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="phone"><b>Телефон</b></label>
+                <div id="phone" name="phone"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="city"><b>Город</b></label>
+                <div id="city" name="city"></div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="organization"><b>Наименование компании</b></label>
+                <div id="organization" name="organization"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="password"><b>Пароль</b></label>
+                <div id="password" name="password"></div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="confirmPassword"><b>Подтверждение пароля</b></label>
+                <div id="confirmPassword" name="confirmPassword"></div>
             </div>
         </div>
-        <div class="col-md-3">
-            <label for="validationServer04" class="form-label">State</label>
-            <select class="form-select is-invalid" id="validationServer04" aria-describedby="validationServer04Feedback" required>
-                <option selected disabled value="">Choose...</option>
-                <option>...</option>
-            </select>
-            <div id="validationServer04Feedback" class="invalid-feedback">
-                Please select a valid state.
-            </div>
-        </div>
-        <div class="col-md-3">
-            <label for="validationServer05" class="form-label">Zip</label>
-            <input type="text" class="form-control is-invalid" id="validationServer05" aria-describedby="validationServer05Feedback" required>
-            <div id="validationServer05Feedback" class="invalid-feedback">
-                Please provide a valid zip.
-            </div>
-        </div>
-        <div class="col-12">
+
+        <div class="form-group">
             <div class="form-check">
-                <input class="form-check-input is-invalid" type="checkbox" value="" id="invalidCheck3" aria-describedby="invalidCheck3Feedback" required>
-                <label class="form-check-label" for="invalidCheck3">
-                    Agree to terms and conditions
-                </label>
-                <div id="invalidCheck3Feedback" class="invalid-feedback">
-                    You must agree before submitting.
-                </div>
+                <div id="check" name="check"></div>
+                <a href="https://3voda.ru/user/agreement" target="_blank" title="Пользовательское соглашение">Подробнее</a>
+                @*<div>
+                    <small class="form-text text-danger" *ngIf="!confirmRules">
+                        Вы должны согласиться перед отправкой формы.
+                    </small>
+                </div>*@
             </div>
+            @*<div id="check" name="confirmPassword"></div>*@
         </div>
-        <div class="col-12">
-            <button class="btn btn-primary" type="submit">Submit form</button>
-        </div>
-    </form>*@
+    </form>
+    <div id="summary"></div>
 
+    @*<div id="sendButton"></div>*@
 
-    <!-- Правая колонка -->
-    <aside class="col-12 col-lg-3 order-lg-3 right">
-        <div>
-            <p>Уже зарегистрированы? Авторизуйтесь.</p>
-            <a href="#" onclick="openLogin()" class="btn btn-warning btn-block" role="link"><i class="bi bi-box-arrow-in-right"></i>&nbsp;&nbsp;Войти в систему</a><br />
-            <a href="http://3voda.ru/vopros-otvet" target="_blank" class="btn btn-info btn-block" role="link">
-                <i class="bi bi-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;Частые вопросы
-            </a><br />
-            <p>
-                Актуальная информация о продукции, услугах и деятельности компании размещена на нашем сайте
-                <a href="http://3voda.ru" target="top" title="Перейти на сайт компании">
-                    <span style="text-decoration: underline; color: #333333"><b>3voda.ru</b></span>
-                </a>. Будьте в курсе, узнайте больше!
-            </p>
-        </div>
-        <br />
-    </aside>
+    <button class="btn btn-primary" type="submit" id="regButton" onclick="form_post()" disabled>Отправить заявку</button>
+</article>
+
+<!-- Правая колонка -->
+<aside class="col-12 col-lg-3 order-lg-3 right">
+    <div>
+        <p>Уже зарегистрированы? Авторизуйтесь.</p>
+        <a href="#" onclick="openLogin()" class="btn btn-warning btn-block" role="link"><i class="bi-box-arrow-in-right"></i>&nbsp;&nbsp;Войти в систему</a><br/>
+        <a href="http://3voda.ru/vopros-otvet" target="_blank" class="btn btn-info btn-block" role="link">
+            <i class="bi-question-circle" aria-hidden="true"></i>&nbsp;&nbsp;Частые вопросы
+        </a><br/>
+        <p>
+            Актуальная информация о продукции, услугах и деятельности компании размещена на нашем сайте
+            <a href="http://3voda.ru" target="top" title="Перейти на сайт компании">
+                <span style="text-decoration: underline; color: #333333">
+                    <b>3voda.ru</b>
+                </span>
+            </a>. Будьте в курсе, узнайте больше!
+        </p>
+    </div>
+    <br/>
+</aside>
 </div>
 
 <script>
+    $(document).ready(
+        function () {
+            document.getElementsByTagName("html")[0].style.visibility = "visible";
+            check_capslock_form($('#formWidget')); //applies the capslock check to all input tags
+        }
+    );
 
+    document.onkeydown = function (e) {
+        e = e || event;
+        if (e.keyCode === 20) {
+            window.capsLockEnabled = !window.capsLockEnabled;
+            $('#capsLock').toggle();
+        }
+    };
+
+    function check_capslock(e) { //check what key was pressed in the form
+        var s = String.fromCharCode(e.keyCode);
+        if (s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey) {
+            $('#capsLock').show();
+        }
+        else {
+            $('#capsLock').hide();
+        }
+    }
+
+    function check_capslock_form(where) {
+        if (!where) { where = $(document); }
+        where.find('input,select,div').each(function () {
+            if (this.type !== "hidden") {
+                $(this).keypress(check_capslock);
+            }
+        });
+    }
     var formData = {
         username: "",
-        password: ""};
+        password: ""
+    };
+
+    var checkEmail = function(value) {
+        const get = $.get("/api/validation/email/" + value);
+        return get.promise();
+    }
+
+    var checkPhone = function(value) {
+        const phone = value.replace('+', '%2B');
+        const get = $.get("/api/validation?phone=" + phone);
+        return get.promise();
+    }
+
+    function getCountries() {
+        $.get("/api/countries") // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+            .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+                $("#country").dxSelectBox('instance').option('dataSource', data);
+                return data;
+            });
+    }
+
+    var dealer;
+
     $(function() {
-        $("#formWidget").dxForm({
-            formData: formData,
-            colCount: 3,
-            items: [
+        $("#country").dxSelectBox({
+            dataSource: getCountries(),
+            displayExpr: "name",
+            valueExpr: "id",
+            placeholder: "Выберите страну",
+            onValueChanged: function(data) {
+                $.get("/api/users/getDealers/" + data.value) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+                    .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+                        $("#dealer").dxSelectBox('instance').option('dataSource', data);
+                    });
+            }
+        }).dxValidator({
+            validationRules: [
                 {
-                    dataField: "username",
-                    colSpan: 1,
-                    label: {
-                        text: "Email",
-                        visible: false
-                    },
-                    editorOptions: {
-                        placeholder: "Введите Email",
-                    },
-                    validationRules: [
-                        {
-                            type: "required",
-                            message: "Введите Email"
-                        },
-                        //    {
-                        //    type: "pattern",
-                        //    pattern: "^[a-zA-Z]+$",
-                        //    message: "The name should not contain digits"
-                        //}
-                    ]
-                },
-                {
-                    dataField: "password",
-                    colSpan: 2,
-                    label: {
-                        text: "Пароль",
-                        visible: false
-                    },
-                    editorOptions: {
-                        placeholder: "Введите пароль",
-                        mode: "password"
-                    },
-                    validationRules: [
-                        {
-                            type: "required",
-                            message: "Введите пароль"
-                        }
-                    ]
+                    type: "required",
+                    message: "Выберите страну."
                 }
             ]
         });
 
+        $("#dealer").dxSelectBox({
+            displayExpr: "name",
+            valueExpr: "email",
+            placeholder: "Выберите дилера"
+            //onValueChanged: function(data) {
+            //    //$(".current-value > span").text(data.value);
+            //}
+        }).dxValidator({
+            validationRules: [
+                {
+                    type: "required",
+                    message: "Выберите дилера."
+                }
+            ]
+        });
+
+        $("#lastName").dxTextBox({
+            placeholder: "Фамилия"
+        }).dxValidator({
+            validationRules: [
+                {
+                    type: "required",
+                    message: "Введите фамилию."
+                }, 
+                //{
+                //    type: "pattern",
+                //    pattern: /^[^0-9]+$/,
+                //    message: "Do not use digits in the Name."
+                //},
+                {
+                    type: "stringLength",
+                    min: 3,
+                    message: "Фамилия должна быть не менее 3 символов."
+                }
+            ]
+        });
+
+        $("#firstName").dxTextBox({
+            placeholder: "Имя"
+        }).dxValidator({
+            validationRules: [
+                {
+                    type: "required",
+                    message: "Введите имя."
+                }, 
+                {
+                    type: "stringLength",
+                    min: 3,
+                    message: "Имя должно быть не менее 3 символов."
+                }
+            ]
+        });
+
+        $("#patronymic").dxTextBox({
+            placeholder: "Отчество"
+        }).dxValidator({
+            validationRules: [
+                {
+                    type: "required",
+                    message: "Введите отчество."
+                }, 
+                {
+                    type: "stringLength",
+                    min: 3,
+                    message: "Отчество должно быть не менее 3 символов."
+                }
+            ]
+        });
+        
+        $("#email").dxTextBox({
+                placeholder: "Email"
+            })
+            .dxValidator({
+                validationRules: [{
+                    type: "required",
+                    message: "Введите email."
+                }, {
+                    type: "email",
+                    message: "Неверный email."
+                }, {
+                    type: "async",
+                    message: "Email уже зарегистрирован.",
+                    validationCallback: function(params) {
+                        return checkEmail(params.value);
+                    }
+                }]
+            });
+
+        $("#phone").dxTextBox({
+                placeholder: "+7 XXX-XXX-XX-XX",
+                //mask: "",//"+X XXX-XXX-XX-XX",
+                //maskChar: "",
+                //maskRules: {
+                //    "X": /[01-9]/
+                //},
+                //maskInvalidMessage: "Телефон должен иметь правильный формат",
+                //useMaskedValue: true
+            })
+            .dxValidator(
+                {
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите телефон."
+                        },
+                        {
+                            type: "pattern",
+                            pattern: /^\+?[0-9-()]+$/,
+                            //pattern: /^\+\s*1\s*\(\s*[02-9]\d{2}\)\s*\d{3}\s*-\s*\d{4}$/,
+                            message: "Телефон должен иметь правильный формат."
+                        },
+                        {
+                            type: "async",
+                            message: "Телефон уже зарегистрирован.",
+                            validationCallback: function(params) {
+                                return checkPhone(params.value);
+                            }
+                        }]
+                });
+
+        $("#city").dxTextBox({
+            placeholder: "Населенный пункт"
+        }).dxValidator({
+            validationRules: [
+                {
+                    type: "required",
+                    message: "Введите населенный пункт."
+                }
+            ]
+        });
+
+        $("#organization").dxTextBox({
+            placeholder: "Населенный пункт"
+        });
+
+        $("#password").dxTextBox({
+            name: "password",
+            mode: "password",
+            placeholder: "Введите пароль"
+        }).dxValidator({
+            validationRules: [
+                {
+                    type: "required",
+                    message: "Введите пароль."
+                },
+                {
+                    type: "stringLength",
+                    min: 4,
+                    message: "Пароль должен быть не менее 4 символов."
+                },
+                {
+                    type: "stringLength",
+                    max: 50,
+                    message: "Пароль не должен быть длиннее 50 символов."
+                }
+            ]
+        });
+    
+        $("#confirmPassword").dxTextBox({
+            mode: "password",
+            placeholder: "Пароль ещё раз"
+        }).dxValidator({
+            validationRules: [{
+                    type: "compare",
+                    message: "'Пароль' и 'Подтверждение пароля' не совпадают.",
+                    comparisonTarget: function(){ 
+                        var password = $("#password").dxTextBox("instance");
+                        if(password) {
+                            return password.option("value");        
+                        }
+                    }
+                    //message: "'Пароль' и 'Подтверждение пароля' не совпадают."
+                },
+                {
+                    type: "required",
+                    message: "Введите подтверждение пароля."
+                }]
+        });
+
+        $("#check").dxCheckBox({
+            value: false,
+            text: 'Я согласен(на) на обработку моих персональных данных.',
+            onValueChanged: 
+                function(data) {
+                    //var val = data.value;
+                    //$("#sendButton").dxButton("instance").option('disabled', !val);
+                    document.getElementById("regButton").disabled = !data.value;
+                    //$("#regButton").disabled = !val;
+                }
+        }).dxValidator({
+            validationRules: [{
+                type: "compare",
+                comparisonTarget: function(){ return true; },
+                message: "Вы должны согласиться перед отправкой формы."
+            }]
+        });
+
+        $("#summary").dxValidationSummary({ });
+
+        //$("#sendButton").dxButton({
+        //    text: "Отправить заявку",
+        //    disabled: true,
+        //    //type: "success",
+        //    //elementAttr: { class: "class-name" },
+        //    //class: "btn btn-primary", 
+        //    type: "default",
+        //    //width: 150,
+        //    //height: 40,
+        //    useSubmitBehavior: true,
+        //    onClick: function(data) {
+        //        var asd = data;
+        //    }
+        //});
 
         //var inviteCode = getUrlParameter('code');
         var inviteCode = GetURLParameter('code');
         var isInvite = inviteCode ? true : false;
+        
+        //todo check invite and get
+        //counryID
+        //owner email
+        //user email
 
-        //todo check invite
         //var email = GetURLParameter('email');
         //var role = GetURLParameter('role');
 
         if (isInvite) {
 
-        } 
-        
+        }
+
 
     });
+
+    function form_post() {
+        var valid = $("#country").dxValidator("instance").validate().isValid
+            & $("#dealer").dxValidator("instance").validate().isValid
+            & $("#lastName").dxValidator("instance").validate().isValid
+            & $("#firstName").dxValidator("instance").validate().isValid
+            & $("#patronymic").dxValidator("instance").validate().isValid
+            & $("#email").dxValidator("instance").validate().isValid
+            & $("#phone").dxValidator("instance").validate().isValid
+            & $("#city").dxValidator("instance").validate().isValid
+            & $("#password").dxValidator("instance").validate().isValid
+            & $("#confirmPassword").dxValidator("instance").validate().isValid
+            & $("#check").dxValidator("instance").validate().isValid;
+       
+        var summ = $("#summary").dxValidationSummary("instance");
+        if (!valid) return;
+        
+        var email = $("#email").dxTextBox("instance").option('value');
+
+        const formData =
+        {
+            countryId: $("#country").dxSelectBox("instance").option('value'),
+            dealerEmail: $("#dealer").dxSelectBox("instance").option('value'),
+            lastName: $("#lastName").dxTextBox("instance").option('value'),
+            firstName: $("#firstName").dxTextBox("instance").option('value'),
+            patronymic: $("#patronymic").dxTextBox("instance").option('value'),
+            login: email,
+            userName: email,
+            email: email,
+            phone: $("#phone").dxTextBox("instance").option('value'),
+            city: $("#city").dxTextBox("instance").option('value'),
+            organization: $("#organization").dxTextBox("instance").option('value'),
+            password: $("#password").dxTextBox("instance").option('value'),
+        };
+        var message = "Ваша заявка на подключение к системе мониторинга «Третий кран» была принята." +
+            "Запомните и запишите ваш логин и пароль в надежном месте." +
+            "Для активации аккаунта напишите вашему персональному менеджеру ваш логин." +
+            "В течение суток ваш аккаунт будет активирован.";
+
+        var request = $.postJSON('/api/Register', formData, null);
+
+        request.then(function(data) {
+                DevExpress.ui.dialog.alert(message, "Ok" + data);
+            },
+            function(data) {
+                if (data.readyState === 4 && data.status === 200) DevExpress.ui.dialog.alert(message, "Ok" + data);
+                else {
+                DevExpress.ui.dialog.alert(data.responseText, "Ошибка");
+
+                }
+            });
+        //request.done(function(msg) {
+        //    DevExpress.ui.dialog.alert(message, "Ok");
+        //    //$("#log").html( msg );
+        //});
+  
+        //request.fail(function(data) {
+        //    DevExpress.ui.dialog.alert(data.responseText, "Ошибка");
+        //    //setAuth(false);
+        //});
+        //var valid = $('#form').dxForm('instance').validate();
+
+    }
+
+    function postOk(data) {
+        DevExpress.ui.dialog.alert(message, "Ok" + data);
+    }
     function openLogin() {
         window.location.replace("/");
     }

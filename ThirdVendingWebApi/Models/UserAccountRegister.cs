@@ -67,15 +67,20 @@ namespace ThirdVendingWebApi.Models
     /// </summary>
     public string Password { get; set; }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public string OwnerId { get; set; }
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    //public string OwnerId { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public string CountryId { get; set; }
+    public string DealerEmail { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public int CountryId { get; set; }
 
     /// <summary>
     /// 

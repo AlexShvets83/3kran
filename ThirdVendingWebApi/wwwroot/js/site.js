@@ -145,6 +145,7 @@ $.getJSON = function(url, callback) {
         'success': callback
     });
 };
+
 $.postJSON = function(url, data, callback) {
     return jQuery.ajax({
         headers: { 
@@ -155,11 +156,11 @@ $.postJSON = function(url, data, callback) {
         //    json: 'application/json'
         //},
         //contentType: 'application/json',
-        'type': 'POST',
-        'url': url,
-        'data': JSON.stringify(data),
-        'dataType': 'json',
-        'success': callback
+        type: 'POST',
+        url: url,
+        data: JSON.stringify(data),
+        dataType: 'json',
+        success: callback
     });
 };
 

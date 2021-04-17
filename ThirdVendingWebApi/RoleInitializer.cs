@@ -30,13 +30,16 @@ namespace ThirdVendingWebApi
           Email = adminEmail, UserName = "admin3kran", FirstName = "Admin", LastName = "Admin",
           Patronymic = "Admin", Activated = true, CreatedBy = "Default", CreatedDate = DateTime.Now,
           LangKey = "en", UserAlerts = 15, Organization = "3kran", City = "г Пермь",
-          PhoneNumber = "+79922313003"
+          PhoneNumber = "79922313003", CountryId = 1
         };
-        var result = await userManager.CreateAsync(admin, password);
-        if (result.Succeeded)
+        try
         {
-          await userManager.AddToRoleAsync(admin, Roles.SuperAdmin);
-          //await userManager.AddToRoleAsync(admin, Roles.Admin);
+          var result = await userManager.CreateAsync(admin, password);
+          if (result.Succeeded) await userManager.AddToRoleAsync(admin, Roles.SuperAdmin);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex);
         }
       }
 
@@ -48,10 +51,38 @@ namespace ThirdVendingWebApi
           Email = userEmail, UserName = userEmail, FirstName = "Demo", LastName = "Demo",
           Patronymic = "Demo", Activated = true, CreatedBy = "Default", CreatedDate = DateTime.Now,
           LangKey = "en", UserAlerts = 15, Organization = "3kran", City = "г Пермь",
-          PhoneNumber = "+79922313003"
+          PhoneNumber = "79922313003", CountryId = 1
         };
-        var result = await userManager.CreateAsync(user, password);
-        if (result.Succeeded) { await userManager.AddToRoleAsync(user, Roles.Technician); }
+        try
+        {
+          var result = await userManager.CreateAsync(user, password);
+          if (result.Succeeded) await userManager.AddToRoleAsync(user, Roles.Technician);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex);
+        }
+      }
+
+      const string dealerEmail = "dealer@demo.3kran";
+      if (await userManager.FindByNameAsync(dealerEmail) == null)
+      {
+        var dealer = new ApplicationUser
+        {
+          Email = dealerEmail, UserName = dealerEmail, FirstName = "Deaer", LastName = "Demo",
+          Patronymic = "Demo", Activated = true, CreatedBy = "Default", CreatedDate = DateTime.Now,
+          LangKey = "en", UserAlerts = 15, Organization = "3kran", City = "г Пермь",
+          PhoneNumber = "79922313003", CountryId = 1
+        };
+        try
+        {
+          var result = await userManager.CreateAsync(dealer, password);
+          if (result.Succeeded) { await userManager.AddToRoleAsync(dealer, Roles.Dealer); }
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex);
+        }
       }
     }
   }

@@ -21,16 +21,16 @@ namespace ThirdVendingWebApi.Controllers
     private readonly UserManager<ApplicationUser> _userManager;
     //private readonly SignInManager<ApplicationUser> _signInManager;
     //private readonly IConfiguration _configuration;
-    //private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
 
-    public UsersController(UserManager<ApplicationUser> userManager)
+    public UsersController(UserManager<ApplicationUser> userManager,
                            //SignInManager<ApplicationUser> signInManager,
-                           //RoleManager<IdentityRole> roleManager,
+                           RoleManager<IdentityRole> roleManager)
                            //IConfiguration configuration)
     {
       _userManager = userManager;
       //_signInManager = signInManager;
-      //_roleManager = roleManager;
+      _roleManager = roleManager;
       //_configuration = configuration;
     }
 
@@ -213,6 +213,34 @@ namespace ThirdVendingWebApi.Controllers
       //}
 
       return new ObjectResult(returnRole.ToArray());
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("getDealers/{countryId}")]
+    public async Task<IActionResult> GetDealers(int countryId)
+    {
+      try
+      {
+        var dealerRole = await _roleManager.FindByNameAsync(Roles.Dealer);
+
+        //var dealers = _userManager.Users.Where(w => w.CountryId == countryId).ToList();
+        var dealers = (await _userManager.GetUsersInRoleAsync(dealerRole.Name)).ToList().FindAll(f => f.CountryId == countryId);
+        var retDl = new List<DealerModel>();
+        foreach (var dl in dealers)
+        {
+          var name = !string.IsNullOrEmpty(dl.Organization) ? dl.Organization : $"{dl.LastName} {dl.FirstName} {dl.Patronymic}";
+          retDl.Add(new DealerModel {Email = dl.Email, Name = string.IsNullOrEmpty(dl.AddDealerName) ? name : $"{name} {dl.AddDealerName}"});
+        }
+
+        return new ObjectResult(retDl);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
     }
   }
 }

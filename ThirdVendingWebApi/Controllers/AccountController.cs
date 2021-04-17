@@ -17,10 +17,12 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Npgsql.NameTranslation;
 using ThirdVendingWebApi.Models;
 
 namespace ThirdVendingWebApi.Controllers
@@ -240,18 +242,28 @@ namespace ThirdVendingWebApi.Controllers
         userCheck = await _userManager.FindByNameAsync(user.PhoneNumber);
         if (userCheck != null) { return BadRequest("Пользователь с таким телефоном уже зарегистрирован!"); }
 
+        var owner = await _userManager.FindByEmailAsync(user.DealerEmail);
+        if (owner == null) { return BadRequest("Дилер с таким email не существует!"); }
+
+        var ownerId = owner.Id;
         InviteRegistration invite = null;
         if (!string.IsNullOrEmpty(user.InviteCode))
         {
-          var owner = _userManager.Users.FirstOrDefault(f => f.Id == user.InviteCode);
-          if (owner == null) return NotFound("Пользователь с таким кодом приглашения не найден!");
+          //todo encode
+          var code = Crypto.Encrypt(user.InviteCode);
+          var ecode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+          //todo parse id owner & user email == user.email
+
+          //var owner = _userManager.Users.FirstOrDefault(f => f.Id == user.InviteCode);
+          //if (owner == null) return NotFound("Пользователь с таким кодом приглашения не найден!");
 
           //get invite
           invite = DeviceDbProvider.GetInvite(user.InviteCode, user.Email);
           if (invite == null) return NotFound("Код приглашения недействителен!");
 
           user.CountryId = owner.CountryId;
-          user.OwnerId = owner.Id;
+          ownerId = owner.Id;
         }
 
         //var userApp1 = await _userManager.GetUserAsync(HttpContext.User);
@@ -264,7 +276,7 @@ namespace ThirdVendingWebApi.Controllers
         userApp.UserAlerts = 15;
 
         userApp.CountryId = user.CountryId;
-        userApp.OwnerId = user.OwnerId;
+        userApp.OwnerId = ownerId;
 
         var result = await _userManager.CreateAsync(userApp, user.Password);
         if (result.Succeeded)
@@ -272,7 +284,7 @@ namespace ThirdVendingWebApi.Controllers
           //check role
           if ((invite != null) && (await _roleManager.FindByNameAsync(invite.Role) == null)) invite.Role = Roles.Owner;
           await _userManager.AddToRoleAsync(userApp, invite != null ? invite.Role : Roles.Owner);
-          
+
           //delete invate
           if (invite != null) DeviceDbProvider.RemoveIvite(invite.Id);
           return Ok();
@@ -280,10 +292,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return BadRequest(result.Errors);
       }
-      catch (Exception ex)
-      {
-        return BadRequest(ex.Message);
-      }
+      catch (Exception ex) { return BadRequest(ex.Message); }
     }
 
     /// <summary>
@@ -397,6 +406,17 @@ namespace ThirdVendingWebApi.Controllers
       if (!adminRoles.Contains(Roles.Admin)) return Forbid();
 
       return Ok();
+    }
+
+    [HttpGet("/api/countries")]
+    public IActionResult GetCountries()
+    {
+      var countries = DeviceDbProvider.GetCountries();
+      var returnList = new List<CountryModel>();
+      foreach (var country in countries) { returnList.Add(new CountryModel {Id = country.Id, Name = country.Name}); }
+
+      //var countries = await new TaskFactory().StartNew(DeviceDbProvider.GetCountries);
+      return new ObjectResult(returnList);
     }
   }
 }

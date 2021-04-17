@@ -132,6 +132,18 @@
             <param name="user"></param>
             <returns></returns>
         </member>
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetRoles">
+            <summary>
+            Get allowed roles
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetDealers(System.Int32)">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:ThirdVendingWebApi.Models.AlertTypes">
             <summary>
             Тип аварий и событий
@@ -514,7 +526,7 @@
             Пароль пользователя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.OwnerId">
+        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.DealerEmail">
             <summary>
             
             </summary>

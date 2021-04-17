@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DeviceDbModel.Migrations
 {
-    public partial class user_test : Migration
+    public partial class start : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -23,42 +23,19 @@ namespace DeviceDbModel.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
+                name: "countries",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "text", nullable: false),
-                    first_name = table.Column<string>(type: "text", nullable: true),
-                    last_name = table.Column<string>(type: "text", nullable: true),
-                    patronymic = table.Column<string>(type: "text", nullable: true),
-                    organization = table.Column<string>(type: "text", nullable: true),
-                    city = table.Column<string>(type: "text", nullable: true),
-                    image_url = table.Column<string>(type: "text", nullable: true),
-                    info_emails = table.Column<string>(type: "text", nullable: true),
-                    activated = table.Column<bool>(type: "boolean", nullable: false),
-                    lang_key = table.Column<string>(type: "text", nullable: true),
-                    created_by = table.Column<string>(type: "text", nullable: true),
-                    created_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    last_modified_by = table.Column<string>(type: "text", nullable: true),
-                    last_modified_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    user_alerts = table.Column<int>(type: "integer", nullable: false),
-                    user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalized_email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    password_hash = table.Column<string>(type: "text", nullable: true),
-                    security_stamp = table.Column<string>(type: "text", nullable: true),
-                    concurrency_stamp = table.Column<string>(type: "text", nullable: true),
-                    phone_number = table.Column<string>(type: "text", nullable: true),
-                    phone_number_confirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    lockout_end = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    lockout_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    access_failed_count = table.Column<int>(type: "integer", nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "text", nullable: true),
+                    alpha2code = table.Column<string>(type: "text", nullable: true),
+                    alpha3code = table.Column<string>(type: "text", nullable: true),
+                    code = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_asp_net_users", x => x.id);
+                    table.PrimaryKey("pk_countries", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -119,6 +96,59 @@ namespace DeviceDbModel.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "text", nullable: false),
+                    first_name = table.Column<string>(type: "text", nullable: true),
+                    last_name = table.Column<string>(type: "text", nullable: true),
+                    patronymic = table.Column<string>(type: "text", nullable: true),
+                    organization = table.Column<string>(type: "text", nullable: true),
+                    city = table.Column<string>(type: "text", nullable: true),
+                    image_url = table.Column<string>(type: "text", nullable: true),
+                    info_emails = table.Column<string>(type: "text", nullable: true),
+                    activated = table.Column<bool>(type: "boolean", nullable: false),
+                    lang_key = table.Column<string>(type: "text", nullable: true),
+                    created_by = table.Column<string>(type: "text", nullable: true),
+                    created_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    last_modified_by = table.Column<string>(type: "text", nullable: true),
+                    last_modified_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    user_alerts = table.Column<int>(type: "integer", nullable: false),
+                    country_id = table.Column<int>(type: "integer", nullable: false),
+                    owner_id = table.Column<string>(type: "text", nullable: true),
+                    user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    normalized_email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    password_hash = table.Column<string>(type: "text", nullable: true),
+                    security_stamp = table.Column<string>(type: "text", nullable: true),
+                    concurrency_stamp = table.Column<string>(type: "text", nullable: true),
+                    phone_number = table.Column<string>(type: "text", nullable: true),
+                    phone_number_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    lockout_end = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    lockout_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    access_failed_count = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_asp_net_users", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_asp_net_users_asp_net_users_owner_id",
+                        column: x => x.owner_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_asp_net_users_countries_country_id",
+                        column: x => x.country_id,
+                        principalTable: "countries",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -206,6 +236,89 @@ namespace DeviceDbModel.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "devices",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "text", nullable: false),
+                    device_id = table.Column<string>(type: "text", nullable: true),
+                    owner_id = table.Column<string>(type: "text", nullable: true),
+                    address = table.Column<string>(type: "text", nullable: true),
+                    time_zone = table.Column<int>(type: "integer", nullable: false),
+                    currency = table.Column<string>(type: "text", nullable: true),
+                    phone = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_devices", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_devices_users_user_id",
+                        column: x => x.owner_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "invite_registrations",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "text", nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: true),
+                    email = table.Column<string>(type: "text", nullable: true),
+                    role = table.Column<string>(type: "text", nullable: true),
+                    expiration_date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_invite_registrations", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_invite_registrations_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "user_device_permissions",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "text", nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: true),
+                    device_id = table.Column<string>(type: "text", nullable: true),
+                    commerce_visible = table.Column<bool>(type: "boolean", nullable: false),
+                    tech_editable = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_user_device_permissions", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_user_device_permissions_devices_device_id",
+                        column: x => x.device_id,
+                        principalTable: "devices",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_user_device_permissions_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "countries",
+                columns: new[] { "id", "alpha2code", "alpha3code", "code", "name" },
+                values: new object[,]
+                {
+                    { 1, "RU", "RUS", 643, "Россия" },
+                    { 2, "KZ", "KAZ", 398, "Казахстан" },
+                    { 3, "AZ", "AZE", 31, "Азербайджан" },
+                    { 4, "UZ", "UZB", 860, "Узбекистан" },
+                    { 5, "BY", "BLR", 112, "Белоруссия" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_role_claims_role_id",
                 table: "AspNetRoleClaims",
@@ -238,6 +351,16 @@ namespace DeviceDbModel.Migrations
                 column: "normalized_email");
 
             migrationBuilder.CreateIndex(
+                name: "ix_asp_net_users_country_id",
+                table: "AspNetUsers",
+                column: "country_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_asp_net_users_owner_id",
+                table: "AspNetUsers",
+                column: "owner_id");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "normalized_user_name",
@@ -255,6 +378,27 @@ namespace DeviceDbModel.Migrations
                 column: "expiration");
 
             migrationBuilder.CreateIndex(
+                name: "ix_devices_address",
+                table: "devices",
+                column: "address");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_devices_device_id",
+                table: "devices",
+                column: "device_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_devices_owner_id",
+                table: "devices",
+                column: "owner_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_invite_registrations_user_id",
+                table: "invite_registrations",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_persisted_grants_expiration",
                 table: "PersistedGrants",
                 column: "expiration");
@@ -268,6 +412,16 @@ namespace DeviceDbModel.Migrations
                 name: "ix_persisted_grants_subject_id_session_id_type",
                 table: "PersistedGrants",
                 columns: new[] { "subject_id", "session_id", "type" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_device_permissions_device_id",
+                table: "user_device_permissions",
+                column: "device_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_device_permissions_user_id",
+                table: "user_device_permissions",
+                column: "user_id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -291,13 +445,25 @@ namespace DeviceDbModel.Migrations
                 name: "DeviceCodes");
 
             migrationBuilder.DropTable(
+                name: "invite_registrations");
+
+            migrationBuilder.DropTable(
                 name: "PersistedGrants");
+
+            migrationBuilder.DropTable(
+                name: "user_device_permissions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "devices");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "countries");
         }
     }
 }

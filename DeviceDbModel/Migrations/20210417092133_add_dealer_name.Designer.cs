@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeviceDbModel.Migrations
 {
     [DbContext(typeof(DeviceDBContext))]
-    [Migration("20210408091414_dev_perm")]
-    partial class dev_perm
+    [Migration("20210417092133_add_dealer_name")]
+    partial class add_dealer_name
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,6 +35,10 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("activated");
 
+                    b.Property<string>("AddDealerName")
+                        .HasColumnType("text")
+                        .HasColumnName("add_dealer_name");
+
                     b.Property<string>("City")
                         .HasColumnType("text")
                         .HasColumnName("city");
@@ -44,8 +48,8 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("text")
                         .HasColumnName("concurrency_stamp");
 
-                    b.Property<string>("CountryId")
-                        .HasColumnType("text")
+                    b.Property<int>("CountryId")
+                        .HasColumnType("integer")
                         .HasColumnName("country_id");
 
                     b.Property<string>("CreatedBy")
@@ -76,10 +80,6 @@ namespace DeviceDbModel.Migrations
                     b.Property<string>("InfoEmails")
                         .HasColumnType("text")
                         .HasColumnName("info_emails");
-
-                    b.Property<string>("InviteCode")
-                        .HasColumnType("text")
-                        .HasColumnName("invite_code");
 
                     b.Property<string>("LangKey")
                         .HasColumnType("text")
@@ -177,9 +177,11 @@ namespace DeviceDbModel.Migrations
 
             modelBuilder.Entity("DeviceDbModel.Models.Country", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Alpha2Code")
                         .HasColumnType("text")
@@ -189,6 +191,10 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("text")
                         .HasColumnName("alpha3code");
 
+                    b.Property<int>("Code")
+                        .HasColumnType("integer")
+                        .HasColumnName("code");
+
                     b.Property<string>("Name")
                         .HasColumnType("text")
                         .HasColumnName("name");
@@ -197,6 +203,48 @@ namespace DeviceDbModel.Migrations
                         .HasName("pk_countries");
 
                     b.ToTable("countries");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Alpha2Code = "RU",
+                            Alpha3Code = "RUS",
+                            Code = 643,
+                            Name = "Россия"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Alpha2Code = "KZ",
+                            Alpha3Code = "KAZ",
+                            Code = 398,
+                            Name = "Казахстан"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Alpha2Code = "AZ",
+                            Alpha3Code = "AZE",
+                            Code = 31,
+                            Name = "Азербайджан"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Alpha2Code = "UZ",
+                            Alpha3Code = "UZB",
+                            Code = 860,
+                            Name = "Узбекистан"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Alpha2Code = "BY",
+                            Alpha3Code = "BLR",
+                            Code = 112,
+                            Name = "Белоруссия"
+                        });
                 });
 
             modelBuilder.Entity("DeviceDbModel.Models.Device", b =>
@@ -259,9 +307,9 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("expiration_date");
 
-                    b.Property<string>("InviteCode")
+                    b.Property<string>("Role")
                         .HasColumnType("text")
-                        .HasColumnName("invite_code");
+                        .HasColumnName("role");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text")
@@ -607,17 +655,18 @@ namespace DeviceDbModel.Migrations
                         .WithMany("Users")
                         .HasForeignKey("CountryId")
                         .HasConstraintName("fk_asp_net_users_countries_country_id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "Master")
-                        .WithMany("Slaves")
+                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "Owner")
+                        .WithMany("Сustomers")
                         .HasForeignKey("OwnerId")
-                        .HasConstraintName("fk_asp_net_users_asp_net_users_master_id")
+                        .HasConstraintName("fk_asp_net_users_asp_net_users_owner_id")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Country");
 
-                    b.Navigation("Master");
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("DeviceDbModel.Models.Device", b =>
@@ -720,11 +769,11 @@ namespace DeviceDbModel.Migrations
 
             modelBuilder.Entity("DeviceDbModel.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Сustomers");
+
                     b.Navigation("Devices");
 
                     b.Navigation("InviteRegistrations");
-
-                    b.Navigation("Slaves");
 
                     b.Navigation("UserDevicePermissions");
                 });

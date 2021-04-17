@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DeviceDbModel;
 using DeviceDbModel.Models;
@@ -29,14 +30,14 @@ namespace CommonVending.DbProvider
       }
     }
 
-    public static InviteRegistration GetInvite(string code, string email)
+    public static InviteRegistration GetInvite(string ownerID, string email)
     {
       try
       {
         using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
         {
           var list = context.InviteRegistrations
-            .Where(w => (w.UserId == code) && (w.Email == email) && (w.ExpirationDate > DateTime.Now))
+            .Where(w => (w.UserId == ownerID) && (w.Email == email) && (w.ExpirationDate > DateTime.Now))
             .OrderByDescending(o => o.ExpirationDate)
             .ToList();
           return list.Count > 0 ? list[0] : null;
@@ -61,6 +62,23 @@ namespace CommonVending.DbProvider
         }
       }
       catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static List<Country> GetCountries()
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var list = context.Countries.OrderBy(o => o.Id).ToList();
+          return list;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
     }
   }
 }

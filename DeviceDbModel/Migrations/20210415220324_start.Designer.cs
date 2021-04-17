@@ -10,15 +10,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DeviceDbModel.Migrations
 {
     [DbContext(typeof(DeviceDBContext))]
-    [Migration("20210323093539_user_test")]
-    partial class user_test
+    [Migration("20210415220324_start")]
+    partial class start
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.4")
+                .HasAnnotation("ProductVersion", "5.0.5")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("DeviceDbModel.Models.ApplicationUser", b =>
@@ -43,6 +43,10 @@ namespace DeviceDbModel.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text")
                         .HasColumnName("concurrency_stamp");
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("country_id");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text")
@@ -111,6 +115,10 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("text")
                         .HasColumnName("organization");
 
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text")
                         .HasColumnName("password_hash");
@@ -147,6 +155,9 @@ namespace DeviceDbModel.Migrations
                     b.HasKey("Id")
                         .HasName("pk_asp_net_users");
 
+                    b.HasIndex("CountryId")
+                        .HasDatabaseName("ix_asp_net_users_country_id");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -154,7 +165,193 @@ namespace DeviceDbModel.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_asp_net_users_owner_id");
+
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.Country", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Alpha2Code")
+                        .HasColumnType("text")
+                        .HasColumnName("alpha2code");
+
+                    b.Property<string>("Alpha3Code")
+                        .HasColumnType("text")
+                        .HasColumnName("alpha3code");
+
+                    b.Property<int>("Code")
+                        .HasColumnType("integer")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_countries");
+
+                    b.ToTable("countries");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Alpha2Code = "RU",
+                            Alpha3Code = "RUS",
+                            Code = 643,
+                            Name = "Россия"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Alpha2Code = "KZ",
+                            Alpha3Code = "KAZ",
+                            Code = 398,
+                            Name = "Казахстан"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Alpha2Code = "AZ",
+                            Alpha3Code = "AZE",
+                            Code = 31,
+                            Name = "Азербайджан"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Alpha2Code = "UZ",
+                            Alpha3Code = "UZB",
+                            Code = 860,
+                            Name = "Узбекистан"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Alpha2Code = "BY",
+                            Alpha3Code = "BLR",
+                            Code = 112,
+                            Name = "Белоруссия"
+                        });
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.Device", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text")
+                        .HasColumnName("address");
+
+                    b.Property<string>("Currency")
+                        .HasColumnType("text")
+                        .HasColumnName("currency");
+
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("text")
+                        .HasColumnName("device_id");
+
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text")
+                        .HasColumnName("phone");
+
+                    b.Property<int>("TimeZone")
+                        .HasColumnType("integer")
+                        .HasColumnName("time_zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_devices");
+
+                    b.HasIndex("Address")
+                        .HasDatabaseName("ix_devices_address");
+
+                    b.HasIndex("DeviceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_devices_device_id");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_devices_owner_id");
+
+                    b.ToTable("devices");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.InviteRegistration", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("expiration_date");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invite_registrations");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_invite_registrations_user_id");
+
+                    b.ToTable("invite_registrations");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.UserDevicePermission", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("CommerceVisible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("commerce_visible");
+
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("text")
+                        .HasColumnName("device_id");
+
+                    b.Property<bool>("TechEditable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("tech_editable");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_device_permissions");
+
+                    b.HasIndex("DeviceId")
+                        .HasDatabaseName("ix_user_device_permissions_device_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_device_permissions_user_id");
+
+                    b.ToTable("user_device_permissions");
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
@@ -448,6 +645,67 @@ namespace DeviceDbModel.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("DeviceDbModel.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("DeviceDbModel.Models.Country", "Country")
+                        .WithMany("Users")
+                        .HasForeignKey("CountryId")
+                        .HasConstraintName("fk_asp_net_users_countries_country_id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "Owner")
+                        .WithMany("Сustomers")
+                        .HasForeignKey("OwnerId")
+                        .HasConstraintName("fk_asp_net_users_asp_net_users_owner_id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Country");
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.Device", b =>
+                {
+                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "User")
+                        .WithMany("Devices")
+                        .HasForeignKey("OwnerId")
+                        .HasConstraintName("fk_devices_users_user_id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.InviteRegistration", b =>
+                {
+                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "User")
+                        .WithMany("InviteRegistrations")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("fk_invite_registrations_users_user_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.UserDevicePermission", b =>
+                {
+                    b.HasOne("DeviceDbModel.Models.Device", "Device")
+                        .WithMany("UserDevicePermissions")
+                        .HasForeignKey("DeviceId")
+                        .HasConstraintName("fk_user_device_permissions_devices_device_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DeviceDbModel.Models.ApplicationUser", "User")
+                        .WithMany("UserDevicePermissions")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("fk_user_device_permissions_users_user_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Device");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -503,6 +761,27 @@ namespace DeviceDbModel.Migrations
                         .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("Сustomers");
+
+                    b.Navigation("Devices");
+
+                    b.Navigation("InviteRegistrations");
+
+                    b.Navigation("UserDevicePermissions");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.Country", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.Device", b =>
+                {
+                    b.Navigation("UserDevicePermissions");
                 });
 #pragma warning restore 612, 618
         }
