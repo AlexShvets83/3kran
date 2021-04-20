@@ -22,5 +22,11 @@
     "inputFiles": [
       "wwwroot/js/site.js"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/css/dashboard.min.css",
+    "inputFiles": [
+      "wwwroot/css/dashboard.css"
+    ]
   }
 ]

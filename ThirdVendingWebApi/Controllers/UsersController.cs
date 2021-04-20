@@ -36,7 +36,7 @@ namespace ThirdVendingWebApi.Controllers
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Get(string query, int page, int size, string sort)
+    public async Task<IActionResult> Get()
     {
       try
       {
@@ -51,9 +51,9 @@ namespace ThirdVendingWebApi.Controllers
         } 
       
         //   </api/devices?page=0&size=1000>; rel="last",</api/devices?page=0&size=1000>; rel="first"
-        var headerStr = $@"</api/users?page=1&size={size}>; rel=""next"",</api/users?page=5&size={size}>; rel=""last"",</api/users?page=0&size={size}>; rel=""first""";
-        Response.Headers.Add("Link", headerStr);
-        Response.Headers.Add("X-Total-Count", retUsers.Count.ToString());
+        //var headerStr = $@"</api/users?page=1&size={size}>; rel=""next"",</api/users?page=5&size={size}>; rel=""last"",</api/users?page=0&size={size}>; rel=""first""";
+        //Response.Headers.Add("Link", headerStr);
+        //Response.Headers.Add("X-Total-Count", retUsers.Count.ToString());
 
         //retUsers.Sort((x, y) => string.Compare(x.Id, y.Id, StringComparison.Ordinal));
 
@@ -79,7 +79,7 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet("{email}")]
-    public async Task<IActionResult> Get(string email)
+    public async Task<IActionResult> GetByEmail(string email)
     {
       //check admin
       var admin = await _userManager.GetUserAsync(HttpContext.User);
@@ -184,7 +184,7 @@ namespace ThirdVendingWebApi.Controllers
     /// Get allowed roles
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet("GetRoles")]
     [Authorize]
     public async Task<IActionResult> GetRoles()
     {

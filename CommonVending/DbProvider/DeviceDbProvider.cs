@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DeviceDbModel;
 using DeviceDbModel.Models;
 using Microsoft.EntityFrameworkCore;
@@ -78,6 +79,42 @@ namespace CommonVending.DbProvider
       {
         Console.WriteLine(ex);
         return null;
+      }
+    }
+
+    public static List<Device> GetDevices()
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var list = context.Devices.OrderBy(o => o.Id).ToList();
+          return list;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
+    public static async Task<bool> AddDevice(Device dev)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var result = await context.Devices.AddAsync(dev);
+          var asd = await context.SaveChangesAsync();
+
+          return true;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return false;
       }
     }
   }

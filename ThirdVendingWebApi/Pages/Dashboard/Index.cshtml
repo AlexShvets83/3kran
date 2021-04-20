@@ -1,0 +1,247 @@
+﻿@page
+@model ThirdVendingWebApi.Pages.Dashboard.IndexModel
+@{
+}
+
+<style>
+    #gridContainer .dx-toolbar .dx-texteditor { width: 100% !important; }
+
+    #gridContainer .dx-toolbar .dx-toolbar-after {
+        padding-left: 0px;
+        width: 100% !important;
+    }
+
+    #gridContainer .dx-datagrid-search-panel { margin-left: 0px; }
+</style>
+
+<div class="row dashboard">
+    <section class="col-12 col-lg-4 order-lg-1 left">
+        <div id="gridContainer"></div>
+
+    </section>
+</div>
+
+<script>
+    $(function() {
+        $("#gridContainer").dxDataGrid({
+            //dataSource: dataS,
+            showColumnLines: true,
+            showRowLines: true,
+            keyExpr: "id",
+            //allowColumnResizing: true,
+            //columnResizingMode: 'widget',
+            columnAutoWidth: true,
+            columnFixing: { enabled: true },
+            cellHintEnabled: true,
+            paging: { pageSize: 10 },
+            //pager: {
+            //    showPageSizeSelector: true,
+            //    allowedPageSizes: [10, 20, 30, 50, 100],
+            //    showInfo: true
+            //},
+            filterRow: {
+                visible: true,
+                applyFilter: "auto"
+            },
+            headerFilter: { visible: true },
+            showBorders: true,
+            wordWrapEnabled: true,
+            selection: { mode: 'single' },
+            //scrolling: {mode: "virtual"},
+            //height: 800,
+            hoverStateEnabled: true,
+            //columns: GetColumns(headers),
+            //columnChooser: { enabled: true, mode: 'select', title: 'ColumnChooser' },
+            @* "export": {
+            ignoreExcelErrors: true,
+                enabled: true,
+                    fileName: document.title,
+                        allowExportSelectedData: false,
+                            texts: {
+                exportAll: '@Localizer["ExportAll"]',
+                    exportSelectedRows: '@Localizer["Export selected rows"]',
+                        exportTo: '@Localizer["Export"]'
+            }
+        },*@
+            loadPanel: { enabled: true },
+
+
+            //paging: {
+            //    pageSize: 10
+            //},
+            //pager: {
+            //    showPageSizeSelector: true,
+            //    allowedPageSizes: [10, 25, 50, 100]
+            //},
+            //remoteOperations: false,
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+                placeholder: "Начните вводить адрес автомата или IMEI...",
+                width: '100%'
+            },
+            //groupPanel: { visible: true },
+            //grouping: {
+            //    autoExpandAll: false
+            //},
+            //allowColumnReordering: true,
+            //rowAlternationEnabled: true,
+            //showBorders: true,
+
+            onCellPrepared: function(options) {
+                var fieldData = options.value,
+                    fieldHtml = "";
+                var column = options.column;
+                if (options.rowType === "data" && column.dataField === "alerts") {
+                    fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
+                    options.cellElement.html(fieldHtml);
+                }
+                if (fieldData && fieldData.value) {
+                    if (fieldData.diff) {
+                        options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
+                        fieldHtml += "<div class='current-value'>" +
+                            DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
+                            "</div> <div class='diff'>" +
+                            Math.abs(fieldData.diff).toFixed(2) +
+                            "  </div>";
+                    } else {
+                        fieldHtml = fieldData.value;
+                    }
+                    options.cellElement.html(fieldHtml);
+                }
+            },
+            //onCellPrepared: function(cellElement, cellInfo) {
+            //    if (!cellInfo) return;
+            //    if (cellInfo.column.dataField === 'alerts') {
+            //        var arr = cellInfo.data;
+            //        if (!cellInfo.data) { cellElement.addClass('Red'); }
+
+            //        if (jQuery.inArray("NO_LINK", arr)){cellElement.addClass('Red');}
+            //        if (jQuery.inArray("TANK_EMPTY", arr)){cellElement.addClass('Orange');}
+            //        if (jQuery.inArray("NO_SALES", arr)){cellElement.addClass('Yellow');}
+            //        //if(cellInfo.data[0] === 'Green'){cellElement.addClass('Green');}
+            //    }
+            //},
+            columns: [
+                //{
+                //    dataField: "Id",
+                //    groupIndex: 0
+                //},
+                {
+                    //width: '170px',
+                    dataField: "deviceId",
+                    caption: "IMEI",
+                    headerCellTemplate: function(header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    }
+                    //dataType: "number",
+                    //format: "currency",
+                    //alignment: "right"
+                },
+                //{
+                //    dataField: "Discount",
+                //    caption: "Discount %",
+                //    dataType: "number",
+                //    format: "percent",
+                //    alignment: "right",
+                //    allowGrouping: false,
+                //    //cellTemplate: discountCellTemplate,
+                //    cssClass: "bullet"
+                //},
+                //{
+                //    dataField: "SaleDate",
+                //    dataType: "date"
+                //},
+                {
+                    dataField: "address",
+                    caption: "Адрес автомата",
+                    dataType: "string",
+                    headerCellTemplate: function(header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    }
+                },
+                {
+                    dataField: "alerts",
+                    caption: "Состояние",
+                    //width: '110px',
+                    headerCellTemplate: function(header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    },
+                    //cellTemplate: function(element, info) {
+                    //    if (!info.text)
+                    //        element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
+                    //           // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                    //}
+                },
+                {
+                    //caption: "Удалить",
+                    width: 30,
+                    minWidth: 30,
+                    headerCellTemplate: function(header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    },
+                    type: "buttons",
+                    buttons: [
+                        //{
+                        //    name: "delete",
+                        //    cssClass: "fa fa-window-close text-danger"
+                        //},
+                        {
+
+                            hint: "Удалить",
+                            //icon: "repeat",
+                            cssClass: "fa fa-window-close text-danger",
+                            //visible: function(e) {
+                            //    return !e.row.isEditing && !isChief(e.row.data.Position);
+                            //},
+                            onClick: function(e) {
+
+                                //var clonedItem = $.extend({}, e.row.data, { ID: ++maxID });
+
+                                //employees.splice(e.row.rowIndex, 0, clonedItem);
+                                e.component.refresh(true);
+                                e.event.preventDefault();
+                            }
+                        }
+                    ]
+                }
+                //{
+                //    dataField: "Sector",
+                //    dataType: "string",
+                //},
+                //{
+                //    dataField: "Channel",
+                //    dataType: "string",
+                //},
+                //{
+                //    dataField: "Customer",
+                //    dataType: "string",
+                //    width: 150
+                //}
+            ]
+        });
+
+        $.get("/api/devices") // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+            .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+                $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
+            });
+
+    });
+
+    //function GetDataSourceStr() {
+    //    var urlStr = "/api/devices";
+    //    return urlStr;
+    //}
+</script>

@@ -18,6 +18,8 @@ namespace ThirdVendingWebApi
     {
       //CreateHostBuilder(args).Build().Run();
       
+
+
       var host = CreateHostBuilder(args).Build();
       using (var scope = host.Services.CreateScope())
       {
@@ -34,6 +36,9 @@ namespace ThirdVendingWebApi
           logger.LogError(ex, "An error occurred while seeding the database.");
         }
       }
+
+
+      //var initDev = new InitDevice();
 
       await host.RunAsync();
     }

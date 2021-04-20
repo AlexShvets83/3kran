@@ -77,7 +77,7 @@ namespace ThirdVendingWebApi.Controllers
                       _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper()) ??
                       _userManager.Users.SingleOrDefault(r => r.PhoneNumber == person.UserName);
 
-        if (appUser != null)
+        if ((appUser != null) && appUser.Activated)
         {
           var result = await _signInManager.CheckPasswordSignInAsync(appUser, person.Password, false);
           if (result.Succeeded)
@@ -270,7 +270,8 @@ namespace ThirdVendingWebApi.Controllers
         //if ((userApp == null) || (userApp.UserName != user.UserName)) return;
         var userApp = new ApplicationUser();
         userApp.CopyObjectProperties(user);
-        userApp.Activated = false;
+        //todo userApp.Activated = false;
+        userApp.Activated = true;
         userApp.CreatedBy = user.UserName;
         userApp.CreatedDate = DateTime.Now;
         userApp.UserAlerts = 15;

@@ -104,14 +104,10 @@
             <param name="userManager"></param>
             <param name="signInManager"></param>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Get(System.String,System.Int32,System.Int32,System.String)">
+        <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Get">
             <summary>
             
             </summary>
-            <param name = "page"></param>
-            <param name="size"></param>
-            <param name = "query"></param>
-            <param name = "sort"></param>
             <returns></returns>
         </member>
         <member name="T:ThirdVendingWebApi.Controllers.ManagementController">

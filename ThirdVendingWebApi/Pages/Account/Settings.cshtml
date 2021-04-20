@@ -2,24 +2,34 @@
 @model ThirdVendingWebApi.Pages.Account.SettingsModel
 @{
 }
-<div class="text-black-50" id="lbl"></div>
+
+<div id="form"></div>
 
 <script>
     $(function() {
+        var form = $("#form").dxForm({
+            //formData: companies[0],
+            readOnly: true,
+            showColonAfterLabel: true,
+            labelLocation: "top",
+            minColWidth: 300,
+            colCount: 4
+        }).dxForm("instance");
 
-        //getAccount();
-        var request = $.getJSON('/api/account', null);
+        const accStr = sessionStorage.getItem(accountKey);
+        if (!accStr) {
+            const request = $.getJSON('/api/account', null);
 
-        request.done(function(data) {
-            var strData = JSON.stringify(data);
-            sessionStorage.setItem(accountKey, strData);
-            $('#lbl').text(JSON.stringify(strData));
+            request.done(function(data) {
+                const strData = JSON.stringify(data);
+                sessionStorage.setItem(accountKey, strData);
+                //$('#lbl').text(JSON.stringify(strData));
+                $("#form").dxForm('instance').option('formData', data);
+            });
+        } else {
+            //$('#lbl').text(accStr);
 
-        });
-
-        //getUserAccount();
-       // var data = getData("/api/account").then();
-        //$('#lbl').text(JSON.stringify(data));
-        //$('#lbl').text(JSON.stringify(account));
+            $("#form").dxForm('instance').option('formData', JSON.parse(accStr));
+        }
     });
 </script>
