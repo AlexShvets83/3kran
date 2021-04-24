@@ -17,12 +17,52 @@
 <div class="row dashboard">
     <section class="col-12 col-lg-4 order-lg-1 left">
         <div id="gridContainer"></div>
-
+        @*<div> <br /></div>*@
+        <br />
+        <!-- Кнопка вызова окна добавления автомата -->
+        <div align="right">
+            <span data-toggle="tooltip" data-placement="left" title="Добавить (зарегистрировать) автомат">
+                <button [routerLink]="['/', { outlets: { popup: 'device-new' } }]"
+                        class="btn btn-primary btn-sm mb-3" data-toggle="modal"
+                        data-target="#popupContainer">
+                    <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
+                </button>
+            </span>
+        </div>
     </section>
 </div>
 
+<div class="modal" tabindex="-1" role="dialog" id="popupContainer">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fa fa-list-ul text-secondary">Добавить (зарегистрировать) автомат</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="deviceForm">
+
+                </div>
+                <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <span class="fa fa-ban"></span>&nbsp;<span>Отмена</span>
+                </button>
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" class="btn btn-primary fa fa-plus-square"> Добавить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
+    var device;
     $(function() {
+
         $("#gridContainer").dxDataGrid({
             //dataSource: dataS,
             showColumnLines: true,
@@ -87,7 +127,15 @@
             //allowColumnReordering: true,
             //rowAlternationEnabled: true,
             //showBorders: true,
-
+            onSelectionChanged: function (e) {
+                var device = e.selectedRowsData[0];
+                //var asd = data;
+                //var dataGrid = $("#devices").dxDataGrid("instance");
+                //var selectedData = dataGrid.getSelectedRowsData();
+                //if (selectedData.length === 0) return;
+                //var list = selectedData[0].DataTypes;
+                //selectBoxDataType.option("dataSource", list);
+            },
             onCellPrepared: function(options) {
                 var fieldData = options.value,
                     fieldHtml = "";
@@ -199,20 +247,68 @@
                         //    cssClass: "fa fa-window-close text-danger"
                         //},
                         {
-
                             hint: "Удалить",
-                            //icon: "repeat",
+                            //icon: "fa fa-window-close",
                             cssClass: "fa fa-window-close text-danger",
                             //visible: function(e) {
                             //    return !e.row.isEditing && !isChief(e.row.data.Position);
                             //},
                             onClick: function(e) {
+                                var row = e.row.data;
+                                var id = row.id;
+                                if (!id) return;
 
+                                DevExpress.ui.dialog.custom({
+                                    title: `Удаление автомата ${row.deviceId}`,
+                                    message: 'Вы уверены, что хотите удалить этот автомат из списка?',
+                                    buttons: [{
+                                            text: "Отмена",
+                                            icon: 'fa fa-ban',
+                                            onClick: function () {
+                                                return {
+                                                    dialogResult: false
+                                                    //buttonText: e.component.option("text"), /* ... */
+                                                }
+                                            }
+                                        },
+                                        {
+                                            text: "Удалить",
+                                            type: "danger",
+                                            icon: 'fa fa-remove',
+                                            onClick: function () {
+                                                return {
+                                                    dialogResult: true
+                                                    //buttonText: e.component.option("text"), /* ... */
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }).show().done(function(dialogResult){
+                                    //todo delete device
+                                    if (dialogResult) return;
+                                });
+
+                                //var result = DevExpress.ui.dialog.confirm('Удаление автомата', 'Вы уверены, что хотите удалить этот автомат из списка?');
+                                //result.done(function (dialogResult) {
+                                //    if (dialogResult) {
+                                //        //$.delete
+                                //        //post(urlStr, { __RequestVerificationToken: token, id: data[0].ID });
+                                //    } else
+                                //        return;
+                                //});
+
+                                //$("#popupContainer").dxPopup({
+                                //    showTitle: true,
+                                //    visible: true
+                                //}).show();
+
+                                //popup.show();
                                 //var clonedItem = $.extend({}, e.row.data, { ID: ++maxID });
 
                                 //employees.splice(e.row.rowIndex, 0, clonedItem);
-                                e.component.refresh(true);
-                                e.event.preventDefault();
+
+                                //e.component.refresh(true);
+                                //e.event.preventDefault();
                             }
                         }
                     ]

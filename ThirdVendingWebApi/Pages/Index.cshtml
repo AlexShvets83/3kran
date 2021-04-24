@@ -8,16 +8,17 @@
     $(function() {
         const request = $.getJSON('/api/account', null);
         request.then(function(data) {
-            sessionStorage.setItem(accountKey, JSON.stringify(data));
-            //const name = getUserName(data);
-            //const menu = document.getElementById("navbarDropdown");
-            //menu.style.visibility = "visible";
-            //menu.innerHTML = name;
-            window.location.replace("/Account/Settings");
-        }, function() {
+                sessionStorage.setItem(accountKey, JSON.stringify(data));
+                //const name = getUserName(data);
+                //const menu = document.getElementById("navbarDropdown");
+                //menu.style.visibility = "visible";
+                //menu.innerHTML = name;
+                window.location.replace("/Account/Settings");
+            },
+            function() {
                 window.location.replace("/Account/Login");
             }
-            );
+        );
 
         //const accStr = sessionStorage.getItem(accountKey);
         //if (accStr != null) {

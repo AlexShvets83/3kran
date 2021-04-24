@@ -124,14 +124,14 @@
         const accStr = sessionStorage.getItem(accountKey);
         if (accStr) {
             const acc = JSON.parse(accStr);
-            const name = getUserName(acc);
+            const name = ` ${getUserName(acc)}`;
             menu.style.display = "block";
             //$('#navbarDropdown').show();
-            menu.innerHTML = name;
+            menu.innerHTML = ` ${name}`;
         } else {
             menu.style.display = "block";
             //$('#navbarDropdown').hide();
-            menu.innerHTML = "Инкогнито";
+            menu.innerHTML = " Инкогнито";
         }
     });
 </script>
