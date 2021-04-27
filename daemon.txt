@@ -26,3 +26,7 @@ sudo systemctl start 3kran-web.service
 sudo systemctl status 3kran-web.service
 
 sudo systemctl restart 3kran-web.service
+
+journalctl -u 3kran-web.service # read all log
+journalctl --vacuum-time=2d # clear system journal
+

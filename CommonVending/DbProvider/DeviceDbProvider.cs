@@ -99,6 +99,23 @@ namespace CommonVending.DbProvider
       }
     }
 
+    public static Device GetDevice(string emei)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var list = context.Devices.Where(w => w.DeviceId == emei).ToList();
+          return list.Count == 1 ? list[0] : null;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
     public static async Task<bool> AddDevice(Device dev)
     {
       try

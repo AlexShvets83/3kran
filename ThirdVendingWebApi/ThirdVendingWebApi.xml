@@ -537,5 +537,28 @@
             
             </summary>
         </member>
+        <member name="M:ThirdVendingWebApi.Program.LogMessage(MQTTnet.Server.MqttSubscriptionInterceptorContext,System.Boolean)">
+            <summary>
+              Logs the message from the MQTT subscription interceptor context.
+            </summary>
+            <param name = "context">The MQTT subscription interceptor context.</param>
+            <param name = "successful">A <see cref = "T:System.Boolean" /> value indicating whether the subscription was successful or not.</param>
+        </member>
+        <member name="M:ThirdVendingWebApi.Program.LogMessage(MQTTnet.Server.MqttApplicationMessageInterceptorContext)">
+            <summary>
+              Logs the message from the MQTT message interceptor context.
+            </summary>
+            <param name = "context">The MQTT message interceptor context.</param>
+        </member>
+        <member name="M:ThirdVendingWebApi.Program.LogMessage(MQTTnet.Server.MqttConnectionValidatorContext,System.Boolean)">
+            <summary>
+              Logs the message from the MQTT connection validation context.
+            </summary>
+            <param name = "context">The MQTT connection validation context.</param>
+            <param name = "showPassword">
+              A <see cref = "T:System.Boolean" /> value indicating whether the password is written to the log or
+              not.
+            </param>
+        </member>
     </members>
 </doc>

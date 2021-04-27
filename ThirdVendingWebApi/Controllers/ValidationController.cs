@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommonVending.DbProvider;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -24,6 +25,15 @@ namespace ThirdVendingWebApi.Controllers
     public async Task<IActionResult> Email(string email)
     {
       var user = await _userManager.FindByEmailAsync(email);
+      if (user == null) return Ok();
+
+      return BadRequest();
+    }
+
+    [HttpGet("/api/validation/imei/{imei}")]
+    public IActionResult Imei(string imei)
+    {
+      var user = DeviceDbProvider.GetDevice(imei);
       if (user == null) return Ok();
 
       return BadRequest();

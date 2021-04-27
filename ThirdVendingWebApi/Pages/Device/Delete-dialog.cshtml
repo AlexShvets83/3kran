@@ -1,0 +1,33 @@
+﻿@page
+@model ThirdVendingWebApi.Pages.Device.Delete_dialogModel
+@{
+}
+
+<!-- Модальное окно подтверждения удаления автомата -->
+<form name="deleteForm" role="form" (ngSubmit)="confirmDelete(device.id, device.deviceId)" #deleteForm="ngForm">
+    <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Удаление автомата</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">
+            &times;
+        </button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        Вы уверены, что хотите удалить этот автомат из списка?
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span>Отмена</span>
+        </button>
+        <button type="submit" class="btn btn-danger">
+            <span class="fa fa-remove"></span>&nbsp;<span>Удалить</span>
+        </button>
+    </div>
+</form>
+
+
+
+
+
+

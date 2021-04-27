@@ -22,7 +22,7 @@ namespace ThirdVendingWebApi
 
       //if (await roleManager.FindByNameAsync(Roles.User) == null) { await roleManager.CreateAsync(new IdentityRole(Roles.User)); }
 
-      if (await userManager.FindByNameAsync(adminEmail) == null)
+      if (await userManager.FindByNameAsync("admin3kran") == null)
       {
         //var admin = new ApplicationUser {Email = adminEmail, UserName = adminEmail};
         var admin = new ApplicationUser

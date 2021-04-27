@@ -18,11 +18,11 @@
     <section class="col-12 col-lg-4 order-lg-1 left">
         <div id="gridContainer"></div>
         @*<div> <br /></div>*@
-        <br />
+        <br/>
         <!-- Кнопка вызова окна добавления автомата -->
         <div align="right">
             <span data-toggle="tooltip" data-placement="left" title="Добавить (зарегистрировать) автомат">
-                <button [routerLink]="['/', { outlets: { popup: 'device-new' } }]"
+                <button onclick="addDevice(device, user)"
                         class="btn btn-primary btn-sm mb-3" data-toggle="modal"
                         data-target="#popupContainer">
                     <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
@@ -42,17 +42,11 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div id="deviceForm">
-
-                </div>
-                <p>Modal body text goes here.</p>
+                <div id="deviceForm"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <span class="fa fa-ban"></span>&nbsp;<span>Отмена</span>
-                </button>
                 <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
-                <button type="button" class="btn btn-primary fa fa-plus-square"> Добавить</button>
+                <button type="button" class="btn btn-primary fa fa-plus-square" onclick="postDevice()"> Добавить</button>
             </div>
         </div>
     </div>
@@ -60,6 +54,18 @@
 
 
 <script>
+    var user;
+    //sessionStorage.removeItem(accountKey);
+    //const request = $.getJSON('/api/account', null);
+    //request.done(function(data) {
+    //    const strData = JSON.stringify(data);
+    //    sessionStorage.setItem(accountKey, strData);
+    //});
+
+    //const accStr = sessionStorage.getItem(accountKey);
+    //var user = JSON.parse(accStr);
+    //if (!user) window.location.replace("/");
+    
     var device;
     $(function() {
 
@@ -79,11 +85,11 @@
             //    allowedPageSizes: [10, 20, 30, 50, 100],
             //    showInfo: true
             //},
-            filterRow: {
-                visible: true,
-                applyFilter: "auto"
-            },
-            headerFilter: { visible: true },
+            //filterRow: {
+            //    visible: true,
+            //    applyFilter: "auto"
+            //},
+            //headerFilter: { visible: true },
             showBorders: true,
             wordWrapEnabled: true,
             selection: { mode: 'single' },
@@ -127,8 +133,8 @@
             //allowColumnReordering: true,
             //rowAlternationEnabled: true,
             //showBorders: true,
-            onSelectionChanged: function (e) {
-                var device = e.selectedRowsData[0];
+            onSelectionChanged: function(e) {
+                device = e.selectedRowsData[0];
                 //var asd = data;
                 //var dataGrid = $("#devices").dxDataGrid("instance");
                 //var selectedData = dataGrid.getSelectedRowsData();
@@ -261,10 +267,11 @@
                                 DevExpress.ui.dialog.custom({
                                     title: `Удаление автомата ${row.deviceId}`,
                                     message: 'Вы уверены, что хотите удалить этот автомат из списка?',
-                                    buttons: [{
+                                    buttons: [
+                                        {
                                             text: "Отмена",
                                             icon: 'fa fa-ban',
-                                            onClick: function () {
+                                            onClick: function() {
                                                 return {
                                                     dialogResult: false
                                                     //buttonText: e.component.option("text"), /* ... */
@@ -275,7 +282,7 @@
                                             text: "Удалить",
                                             type: "danger",
                                             icon: 'fa fa-remove',
-                                            onClick: function () {
+                                            onClick: function() {
                                                 return {
                                                     dialogResult: true
                                                     //buttonText: e.component.option("text"), /* ... */
@@ -283,7 +290,7 @@
                                             }
                                         }
                                     ]
-                                }).show().done(function(dialogResult){
+                                }).show().done(function(dialogResult) {
                                     //todo delete device
                                     if (dialogResult) return;
                                 });
@@ -334,8 +341,241 @@
                 $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
             });
 
-    });
 
+        //var form = $("#form").dxForm({
+        //    formData: function() {
+
+        //        if (!device) {
+        //            device = {
+        //                deviceId: "",
+        //                address: "",
+        //                phone: "",
+        //                timeZone: "",
+        //                currency: ""
+        //            }
+        //        }
+
+        //        return device;
+        //    },
+        //    readOnly: false,
+        //    showColonAfterLabel: true,
+        //    labelLocation: "top",
+        //    minColWidth: 300,
+        //    colCount: 2
+        //}).dxForm("instance");
+    });
+    var timeZones = [
+        {
+            value: "+2",
+            name: "UTC+02:00 Калининград"
+        },
+        {
+            value: "+3",
+            name: "UTC+03:00 Москва"
+        },
+        {
+            value: "+4",
+            name: "UTC+04:00 Самара"
+        },
+        {
+            value: "+5",
+            name: "UTC+05:00 Екатеринбург"
+        },
+        {
+            value: "+6",
+            name: "UTC+06:00 Омск"
+        },
+        {
+            value: "+7",
+            name: "UTC+07:00 Красноярск"
+        },
+        {
+            value: "+8",
+            name: "UTC+08:00 Иркутск"
+        },
+        {
+            value: "+9",
+            name: "UTC+09:00 Якутск"
+        },
+        {
+            value: "+10",
+            name: "UTC+10:00 Владивосток"
+        },
+        {
+            value: "+11",
+            name: "UTC+11:00 Магадан"
+        },
+        {
+            value: "+12",
+            name: "UTC+12:00 Камчатский край"
+        }
+    ];
+    var currencies = [
+        {
+            value: "RUR",
+            name: "Российский рубль"
+        },
+        {
+            value: "KZT",
+            name: "Казахстанский тенге"
+        },
+        {
+            value: "AZN",
+            name: "Азербайджанский манат"
+        },
+        {
+            value: "UZS",
+            name: "Узбекский сум"
+        },
+        {
+            value: "BYR",
+            name: "Белорусский рубль"
+        }
+    ];
+
+    function addDevice(dev, user) {
+
+        if (!dev) {
+            //todo get owner
+            var onerId = null;
+            dev = {
+                deviceId: "",
+                address: "",
+                phone: "",
+                timeZone: "+2",
+                currency: "RUR",
+                ownerId: onerId
+            }
+        }
+
+        var form = $("#deviceForm").dxForm({
+            formData: dev,
+            readOnly: false,
+            showColonAfterLabel: true,
+            labelLocation: "top",
+            items: [
+                {
+                    dataField: "deviceId",
+                    //editorType: "dxNumberBox",
+                    label: {
+                        text: "ID автомата",
+                        visible: true
+                    },
+                    editorOptions: {
+                        placeholder: "Введите ID автомата (15 цифр)",
+                        mask: "X00000000000000",
+                        maskChar: " ",
+                        maskRules: {
+                            "X": /[1-9]/
+                        },
+                        maskInvalidMessage: "ID автомата должен иметь правильный формат",
+                        useMaskedValue: true
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите ID автомата (15 цифр)"
+                        },
+                        //{
+                        //    type: "stringLength",
+                        //    min: 15,
+                        //    message: "ID автомата должен быть не менее 15 цифр"
+                        //},
+                        //{
+                        //    type: "stringLength",
+                        //    max: 17,
+                        //    message: "ID автомата не должен быть длиннее 17 цифр"
+                        //},
+                        {
+                            type: "async",
+                            message: "ID автомата уже зарегистрирован.",
+                            validationCallback: function (params) {
+                                return checkImei(params.value);
+                            }
+                        }
+                    ]
+                },
+                {
+                    dataField: "address",
+                    label: {
+                        text: "Адрес",
+                        visible: true
+                    },
+                    editorOptions: {
+                        placeholder: "Адрес автомата"
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Нужно ввести адрес"
+                        }
+                    ]
+                },
+                {
+                    dataField: "phone",
+                    editorType: "dxNumberBox",
+                    label: {
+                        text: "Телефон",
+                        visible: true
+                    },
+                    editorOptions: {
+                        placeholder: "Введите номер телефона",
+                        value: null
+                    }
+                },
+                {
+                    dataField: "timeZone",
+                    editorType: "dxSelectBox",
+                    label: {
+                        text: "Часовой пояс",
+                        visible: true
+                    },
+                    editorOptions: {
+                        dataSource: timeZones,
+                        valueExpr: "value",
+                        displayExpr: "name"
+                    }
+                },
+                {
+                    dataField: "currency",
+                    editorType: "dxSelectBox",
+                    label: {
+                        text: "Валюта",
+                        visible: true
+                    },
+                    editorOptions: {
+                        dataSource: currencies,
+                        valueExpr: "value",
+                        displayExpr: "name"
+                    }
+                }
+            ]
+            //minColWidth: 300,
+            //colCount: 2
+        }).dxForm("instance");
+    }
+
+    var checkImei = function(value) {
+        const get = $.get("/api/validation/imei/" + value);
+        return get.promise();
+    }
+
+    function postDevice(e) {
+        var valid = $('#deviceForm').dxForm('instance').validate();
+        if (valid.isValid === false) return;
+
+        //setAuth(true);
+
+        var data = $('#deviceForm').dxForm('instance').option('formData');
+
+        var request = $.postJSON('/api/device', data, $('#popupContainer').modal('hide'));
+
+        request.fail(function(data) {
+            e.preventDefault(); //
+            //DevExpress.ui.dialog.alert(data.responseText, "Ошибка");
+        });
+        
+    }
     //function GetDataSourceStr() {
     //    var urlStr = "/api/devices";
     //    return urlStr;
