@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.IO;
+using System.Net;
+using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
@@ -54,55 +56,65 @@ namespace ThirdVendingWebApi
     {
       try
       {
-        var optionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpoint()
-          .WithDefaultEndpointPort(1883)
-          .WithConnectionValidator(c =>
-          {
-            c.ReasonCode = MqttConnectReasonCode.Success;
-            Console.WriteLine(1883);
-            LogMessage(c, false);
-          })
-          .WithSubscriptionInterceptor(c =>
-          {
-            c.AcceptSubscription = true;
-            LogMessage(c, true);
-          })
-          .WithApplicationMessageInterceptor(c =>
-          {
-            c.AcceptPublish = true;
-            LogMessage(c);
-          })
-          .WithDisconnectedInterceptor(c =>
-          {
-            if (c == null) return;
+        //var optionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpoint()
+        //  .WithDefaultEndpointPort(1883)
+        //  .WithConnectionValidator(c =>
+        //  {
+        //    c.ReasonCode = MqttConnectReasonCode.Success;
+        //    Console.WriteLine(1883);
+        //    LogMessage(c, false);
+        //  })
+        //  .WithSubscriptionInterceptor(c =>
+        //  {
+        //    c.AcceptSubscription = true;
+        //    LogMessage(c, true);
+        //  })
+        //  .WithApplicationMessageInterceptor(c =>
+        //  {
+        //    c.AcceptPublish = true;
+        //    LogMessage(c);
+        //  })
+        //  .WithDisconnectedInterceptor(c =>
+        //  {
+        //    if (c == null) return;
 
-            Console.WriteLine("Disconnect: ClientId = {0}, DisconnectType = {1}}", c.ClientId, c.DisconnectType);
-          })
-          .WithClientMessageQueueInterceptor(c =>
-          {
-            if (c == null) return;
+        //    Console.WriteLine("Disconnect: ClientId = {0}, DisconnectType = {1}}", c.ClientId, c.DisconnectType);
+        //  })
+        //  .WithClientMessageQueueInterceptor(c =>
+        //  {
+        //    if (c == null) return;
 
-            c.AcceptEnqueue = true;
-            Console.WriteLine("Queue: ReceiverClientId = {0}, SenderClientId = {1}, Topic = {2}, Payload = {3}", c.ReceiverClientId, c.SenderClientId, c.ApplicationMessage.Topic,
-                              c.ApplicationMessage.Payload);
-          });
+        //    c.AcceptEnqueue = true;
+        //    Console.WriteLine("Queue: ReceiverClientId = {0}, SenderClientId = {1}, Topic = {2}, Payload = {3}", c.ReceiverClientId, c.SenderClientId, c.ApplicationMessage.Topic,
+        //                      c.ApplicationMessage.Payload);
+        //  });
 
-        var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        //var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var currentPath = "/etc/letsencrypt/live/monitoring3voda.ru/";
         var certificate = new X509Certificate2(Path.Combine(currentPath ?? string.Empty, "certificate.pfx"), "qwerty", X509KeyStorageFlags.Exportable);
 
-        var optionsBuilder8 = new MqttServerOptionsBuilder().WithDefaultEndpoint()
+        var certifOption = new MqttServerOptions();
+        certifOption.
+        certifOption.TlsEndpointOptions.Certificate = certificate.Export(X509ContentType.Pfx);
+        certifOption.TlsEndpointOptions.IsEnabled = true;
+
+
+        var optionsBuilder8 = new MqttServerOptionsBuilder()
           .WithConnectionBacklog(2000)
-          .WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
+          ////.WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
           .WithEncryptedEndpoint()
+          //.WithMultiThreadedApplicationMessageInterceptor()
           .WithEncryptedEndpointPort(8883)
           .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
-          .WithEncryptionSslProtocol(SslProtocols.Tls12)
-
+          .WithClientCertificate(ValidationCallback)
+          //.WithEncryptionSslProtocol(SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13)
+          .WithEncryptionSslProtocol(SslProtocols.None)
+          //.WithEncryptionSslProtocol(SslProtocols.Ssl3)
           //.WithDefaultEndpointPort(8883)
           .WithConnectionValidator(c =>
           {
             c.ReasonCode = MqttConnectReasonCode.Success;
-            Console.WriteLine(8883);
+            //Console.WriteLine(8883);
             LogMessage(c, false);
           })
           .WithSubscriptionInterceptor(c =>
@@ -126,17 +138,40 @@ namespace ThirdVendingWebApi
             if (c == null) return;
 
             c.AcceptEnqueue = true;
+            var payload = c.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(c.ApplicationMessage?.Payload);
             Console.WriteLine("Queue: ReceiverClientId = {0}, SenderClientId = {1}, Topic = {2}, Payload = {3}", c.ReceiverClientId, c.SenderClientId, c.ApplicationMessage.Topic,
-                              c.ApplicationMessage.Payload);
+                              payload);
           });
 
-        var mqttServer = new MqttFactory().CreateMqttServer();
-        await mqttServer.StartAsync(optionsBuilder.Build());
+        optionsBuilder8.
+        //var mqttServer = new MqttFactory().CreateMqttServer();
+        //await mqttServer.StartAsync(optionsBuilder.Build());
 
         var mqttServer8 = new MqttFactory().CreateMqttServer();
         await mqttServer8.StartAsync(optionsBuilder8.Build());
       }
       catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    private static bool ValidationCallback(Object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
+    {
+      //switch (sslpolicyerrors)
+      //{
+      //  case 
+      //}
+
+      if (certificate != null)
+      {
+        Console.WriteLine("certificate Issuer = {0}", certificate.Issuer);
+      }
+
+      if (chain != null)
+      {
+        Console.WriteLine("chain ChainPolicy = {0}", chain.ChainPolicy);
+      }
+
+      Console.WriteLine(sslpolicyerrors);
+      return true;
     }
 
     /// <summary>
@@ -184,7 +219,7 @@ namespace ThirdVendingWebApi
       foreach (var pr in context.GetType().GetProperties()) { str.AppendLine($"{pr.Name} = {pr.GetValue(context, null)}"); }
 
       Console.WriteLine(str.ToString());
-
+      
       if (showPassword)
       {
         Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, Password = {3}, CleanSession = {4}", context.ClientId, context.Endpoint,

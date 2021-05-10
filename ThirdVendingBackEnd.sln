@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeviceDbModel", "DeviceDbMo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonVending", "CommonVending\CommonVending.csproj", "{1B42E03D-FE39-4B9D-99EB-892815F3D395}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MqttTest", "MqttTest\MqttTest.csproj", "{6EC099B0-A192-438B-B32B-BF5015E7FA59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttTest", "MqttTest\MqttTest.csproj", "{6EC099B0-A192-438B-B32B-BF5015E7FA59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
