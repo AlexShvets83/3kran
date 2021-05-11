@@ -84,7 +84,7 @@
             <param name = "user"></param>
             <returns></returns>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPassword">
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPassword(System.String)">
             <summary>
             </summary>
             <returns></returns>

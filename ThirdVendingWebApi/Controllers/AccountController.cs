@@ -301,21 +301,29 @@ namespace ThirdVendingWebApi.Controllers
     /// <returns></returns>
     [HttpPost("reset-password/init")]
     [AllowAnonymous]
-    public async Task<IActionResult> ResetPassword()
+    public async Task<IActionResult> ResetPassword([FromBody] string email)
     {
       try
       {
-        string email;
-        using (var bodyStream = new StreamReader(Request.Body)) { email = await bodyStream.ReadToEndAsync(); }
+        //string email;
+        //using (var bodyStream = new StreamReader(Request.Body)) { email = await bodyStream.ReadToEndAsync(); }
 
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
-          var resp = new {type = "https://www.jhipster.tech/problem/email-not-found", title = "Email address not registered", status = 400};
-          return BadRequest(resp);
+          //var resp = new {type = "https://www.jhipster.tech/problem/email-not-found", title = "Email address not registered", status = 400};
+          return BadRequest();
         }
 
-        var code = Crypto.Encrypt(user.Id);
+        var model = new ChangePasswordInitModel
+        {
+          Id = user.Id,
+          Email = user.Email,
+          ExpiryDateTime = DateTime.Now.AddDays(1)
+        };
+        var strModel = JsonConvert.SerializeObject(model);
+        //var code = Crypto.Encrypt(user.Id);
+        var code = Crypto.Encrypt(strModel);
         var ecode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
         var host = HttpContext.Request.Host;
         var sch = HttpContext.Request.Scheme;
@@ -332,7 +340,8 @@ namespace ThirdVendingWebApi.Controllers
         message.AppendLine($"<div>Уважаемый {user.FirstName} {user.Patronymic}!</div><br />");
         message.AppendLine("<div>Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.</div><br />");
         message.AppendLine("<div>Чтобы сбросить пароль нажмите на");
-        var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
+        //var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
+        var callbackUrl = $"{sch}://{host}/Account/ResetPsw?key={ecode}";
         await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.</div>");
         return Ok();
       }
@@ -349,9 +358,13 @@ namespace ThirdVendingWebApi.Controllers
     public async Task<IActionResult> ResetPasswordFinish([FromBody] ChangePasswordModel model)
     {
       var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Key));
-      var id = Crypto.Decrypt(code);
-      var user = await _userManager.FindByIdAsync(id);
-      if (user == null) { return BadRequest(); }
+      var strPswModel = Crypto.Decrypt(code);
+
+      var pswModel = JsonConvert.DeserializeObject<ChangePasswordInitModel>(strPswModel);
+      if (pswModel.ExpiryDateTime < DateTime.Now) return BadRequest("Время жизни ссылки истекло!"); 
+
+      var user = await _userManager.FindByIdAsync(pswModel.Id);
+      if ((user == null) && (user.NormalizedEmail != pswModel.Email.ToUpper())) { return BadRequest("Пользователь не найден!"); }
 
       var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
       var passwordHasher = HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;

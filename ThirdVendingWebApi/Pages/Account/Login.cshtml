@@ -5,7 +5,7 @@
 <div class="row welcome" id="logForm">
     <!-- Контент -->
     <section class="col-12">
-        <h4 class="text-center">Добро пожаловать в систему мониторинга<br />«Третий кран»</h4>
+        <h4 class="text-center">Добро пожаловать в систему мониторинга<br/>«Третий кран»</h4>
         <p class="text-center">Для начала работы нужно войти в систему</p>
 
         <div class="welcome-form" id="loginForm">
@@ -22,7 +22,8 @@
 
             <div class="form-inline">
                 <button onclick="login_post()" class="btn btn-primary mb-2 mt-2 mr-4"><i class="fa fa-sign-in pr-2"></i>&nbsp;Войти</button>
-                <a onclick="openPopup()" href="#" title="Вы забыли пароль?">
+                <a onclick="openPopup()" href="#" data-toggle="modal"
+                   data-target="#passPopup" title="Вы забыли пароль?">
                     Вы забыли пароль?
                 </a>
             </div>
@@ -41,10 +42,43 @@
                 </a>. Будьте в курсе событий!
             </p>
         </div>
-        <br />
+        <br/>
     </section>
 </div>
-<div id="passPopup"></div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="passPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordRecovery"><i class="fa fa-key text-warning" aria-hidden="true"></i>&nbsp;Сброс пароля</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div>
+                    <label for="recEmail">
+                        <b>Email</b>
+                    </label>
+                    <div id="recEmail" name="recEmail"></div>
+                </div>
+                <small class="form-text text-muted">Введите email, указанный при регистрации.</small>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" class="btn btn-primary fa fa-arrow-circle-right" onclick="init_reset()" disabled id="send"> Выслать новый</button>
+            </div>
+            <div class="text-muted mx-4 mb-4 small">
+                <i class="fa fa-info-circle text-warning"></i>&nbsp;В личном кабинете вы можете в любое время заменить полученный пароль на свой.
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function register() {
         window.location.replace("/Account/Register");
@@ -58,13 +92,13 @@
     //        document.getEle mentById("navbarDropdown").innerHTML = "visible";
     //        window.location.replace("/Account/Settings");
     //    });
-        //request.then();
-        //request.done(function(data) {
-        //    sessionStorage.setItem(accountKey, JSON.stringify(data));
-        //                document.getElementsByTagName("navbarDropdown")[0].style.visibility = "visible";
-        //                document.getElementsByTagName("navbarDropdown")[0].text = "visible";
-        //    window.location.replace("/Account/Settings");
-        //});
+    //request.then();
+    //request.done(function(data) {
+    //    sessionStorage.setItem(accountKey, JSON.stringify(data));
+    //                document.getElementsByTagName("navbarDropdown")[0].style.visibility = "visible";
+    //                document.getElementsByTagName("navbarDropdown")[0].text = "visible";
+    //    window.location.replace("/Account/Settings");
+    //});
     //}
     //$(function() {
     //    var request = $.getJSON('/api/account', null);
@@ -77,12 +111,12 @@
     //});
 
     $(document).ready(
-        function () {
+        function() {
             check_capslock_form($('#logForm')); //applies the capslock check to all input tags
         }
     );
 
-    document.onkeydown = function (e) { //check if capslock key was pressed in the whole window
+    document.onkeydown = function(e) { //check if capslock key was pressed in the whole window
         e = e || event;
         if (e.keyCode === 20) {
             window.capsLockEnabled = !window.capsLockEnabled;
@@ -95,15 +129,16 @@
         var s = String.fromCharCode(e.keyCode);
         if (s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey) {
             $('#capsLock').show();
-        }
-        else {
+        } else {
             $('#capsLock').hide();
         }
     }
 
     function check_capslock_form(where) {
-        if (!where) { where = $(document); }
-        where.find('input,select,div').each(function () {
+        if (!where) {
+            where = $(document);
+        }
+        where.find('input,select,div').each(function() {
             if (this.type !== "hidden") {
                 $(this).keypress(check_capslock);
             }
@@ -139,8 +174,52 @@
 
     function openPopup() {
 
-        
+
     }
+
+    function init_reset(e) {
+        var valid = $("#recEmail").dxValidator("instance").validate().isValid;
+        if (valid === false) return;
+
+        var email = $('#recEmail').dxTextBox('instance').option('value');
+
+        var request = $.postJSON('/api/account/reset-password/init', email, $('#passPopup').modal('hide'));
+
+        request.fail(function (data) {
+            e.preventDefault(); //
+            //DevExpress.ui.dialog.alert(data.responseText, "Ошибка");
+        });
+
+    }
+
+    $("#recEmail").dxTextBox({
+        placeholder: "yourname@site.ru",
+        mode: "email",
+        hint: "Введите email, указанный при регистрации."
+    }).dxValidator({
+        onValidated: function (params) {
+            document.getElementById("send").disabled = !params.isValid;
+        },
+        validationRules: [
+            {
+                type: "required",
+                message: "Введите email."
+            },
+            {
+                type: "email",
+                message: "Неверный email."
+            },
+            //{
+            //    type: "async",
+            //    //message: "Email уже зарегистрирован.",
+            //    validationCallback: function(params) {
+
+            //        //return checkEmail(params.value);
+            //    }
+            //}
+        ]
+    });
+
     $(function() {
         $("#formWidget").dxForm({
             formData: {

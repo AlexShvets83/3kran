@@ -1,0 +1,271 @@
+﻿@page
+@model ThirdVendingWebApi.Pages.Account.ResetPswModel
+@{
+}
+<style>
+    .password-reset-form {
+        padding-top: 20px;
+        background-color: rgba(255, 255, 255, 0.6);
+        /*background: #fff;*/
+        min-height: calc(100vh - 219px);
+        padding: 15px;
+        margin: 0 auto; /* Центровка блока */
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+</style>
+<div class="row" id="formWidget">
+    <section class="col-12 col-sm-6 col-lg-4 order-lg-1 left"></section>
+        <section class="col-12 col-sm-6 col-lg-4 order-lg-2 center">
+        <h4><i class="fa fa-key text-warning" aria-hidden="true"></i>&nbsp;&nbsp;Сброс пароля</h4>
+        <hr>
+        <div class="password-reset-form">
+
+            <div class="alert alert-danger" id="errorKey" style="display: none">
+                <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
+                <strong>Не задан ключ для сброса пароля.</strong>
+            </div>
+            
+            <div class="alert alert-danger" id="errors" style="display: none">
+                <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
+                <strong>Errors</strong>
+            </div>
+
+            <div class="alert alert-warning" style="display: none">
+                <p>Задайте новый пароль</p>
+            </div>
+
+            <div class="alert alert-danger" style="display: none">
+                <p>
+                    <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
+                    Не удалось изменить пароль. Помните, что ссылка для сброса пароля действует 24 часа.
+                </p>
+            </div>
+
+            <p class="alert alert-success" id="statusOk" style="display: none">
+                <span>
+                    <i class="fa fa-check" aria-hidden="true"></i>&nbsp;&nbsp;<strong>Пароль успешно изменен.</strong>
+                    Пожалуйста
+                </span>
+                <a class="alert-link" onclick="login()">войдите в систему</a>.
+            </p>
+
+            <div class="alert alert-danger" style="display: none">
+                <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;Пароль и подтверждение не совпадают!
+            </div>
+
+            <div class="alert alert-warning" id="capsLock" style="display: none" role="alert">
+                <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;«CapsLock» включен.
+            </div>
+
+            <div id="mainForm">
+
+                @*<form *ngIf="!success" name="form" role="form" (ngSubmit)="finishReset()" #passwordForm="ngForm">
+                    <div class="form-group">
+                        <label for="password"><b>Новый пароль</b></label>
+                        <input type="password" class="form-control" id="password" name="password" #passwordInput="ngModel"
+                               placeholder="Задайте новый пароль"
+                               [(ngModel)]="resetAccount.password" minlength=4 maxlength=50 required>
+                        <div *ngIf="passwordInput.dirty && passwordInput.invalid">
+                            <small class="form-text text-danger"
+                                   *ngIf="passwordInput.errors.required">
+                                Нужно задать пароль.
+                            </small>
+                            <small class="form-text text-danger"
+                                   *ngIf="passwordInput.errors.minlength">
+                                Пароль должен быть не менее четырех символов.
+                            </small>
+                            <small class="form-text text-danger"
+                                   *ngIf="passwordInput.errors.maxlength">
+                                Пароль не может быть больше 50 символов.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-control-label" for="confirmPassword"><b>Подтверждение пароля</b></label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" #confirmPasswordInput="ngModel"
+                               placeholder="Повторите пароль"
+                               [(ngModel)]="confirmPassword" minlength=4 maxlength=50 required>
+                        <div *ngIf="confirmPasswordInput.dirty && confirmPasswordInput.invalid">
+                            <small class="form-text text-danger"
+                                   *ngIf="confirmPasswordInput.errors.required">
+                                Нужно подтвердить пароль.
+                            </small>
+                            <small class="form-text text-danger"
+                                   *ngIf="confirmPasswordInput.errors.minlength">
+                                Пароль должен быть не менее четырех символов.
+                            </small>
+                            <small class="form-text text-danger"
+                                   *ngIf="confirmPasswordInput.errors.maxlength">
+                                Пароль не может быть больше 50 символов.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div align="right" class="pb-3">
+                        <span data-toggle="tooltip" data-placement="top" title="Сохранить новый пароль">
+                            <button type="submit" [disabled]="passwordForm.form.invalid" title="Сохранить новый пароль" class="btn btn-primary">
+                                <i class="fa fa-save" aria-hidden="true"></i>&nbsp;&nbsp;Сохранить
+                            </button>
+                        </span>
+                    </div>
+                </form>*@
+
+                <div class="form-group">
+                    <label for="password"><b>Новый пароль</b></label>
+                    <div id="password" name="password"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword"><b>Подтверждение пароля</b></label>
+                    <div id="confirmPassword" name="confirmPassword"></div>
+                </div>
+                <div align="right" class="pb-3">
+                    <span data-toggle="tooltip" data-placement="top" title="Сохранить новый пароль">
+                        <button id="sendPsw" type="submit" onclick="form_post()" disabled title="Сохранить новый пароль" class="btn btn-primary">
+                            <i class="fa fa-save" aria-hidden="true"></i>&nbsp;&nbsp;Сохранить
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="col-12 col-sm-6 col-lg-4 order-lg-3 right"></section>
+</div>
+
+<script>
+    var userKey = GetURLParameter('key');
+    $(function() {
+        $("#password").dxTextBox({
+            name: "password",
+            mode: "password",
+            placeholder: "Введите пароль"
+        }).dxValidator({
+            validationRules: [
+                {
+                    type: "required",
+                    message: "Введите пароль."
+                },
+                {
+                    type: "stringLength",
+                    min: 4,
+                    message: "Пароль должен быть не менее 4 символов."
+                },
+                {
+                    type: "stringLength",
+                    max: 50,
+                    message: "Пароль не должен быть длиннее 50 символов."
+                }
+            ]
+        });
+
+        $("#confirmPassword").dxTextBox({
+            mode: "password",
+            placeholder: "Пароль ещё раз"
+        }).dxValidator({
+            onValidated: function(params) {
+                const valid = $("#password").dxValidator("instance").validate().isValid;
+                document.getElementById("sendPsw").disabled = !(params.isValid & valid);
+            },
+            validationRules: [
+                {
+                    type: "compare",
+                    message: "'Пароль' и 'Подтверждение пароля' не совпадают.",
+                    comparisonTarget: function() {
+                        const password = $("#password").dxTextBox("instance");
+                        if (password) {
+                            return password.option("value");
+                        }
+                    }
+                    //message: "'Пароль' и 'Подтверждение пароля' не совпадают."
+                },
+                {
+                    type: "required",
+                    message: "Введите подтверждение пароля."
+                }
+            ]
+        });
+
+        const isKey = userKey ? true : false;
+
+        if (!isKey) {
+            document.getElementById("errorKey").style.display = "block";
+            document.getElementById("mainForm").style.display = "none";
+        }
+        check_capslock_form($('#formWidget'));
+    });
+
+    //$(document).ready(
+    //    function () {
+    //        //var isKey = key ? true : false;
+
+    //        //if (!isKey) {
+    //        //    document.getElementById("errorKey").style.display = "block";
+    //        //    document.getElementById("mainForm").style.display = "none";
+    //        //}
+
+    //        check_capslock_form($('#formWidget')); //applies the capslock check to all input tags
+    //    }
+    //);
+
+    document.onkeydown = function(e) {
+        e = e || event;
+        if (e.keyCode === 20) {
+            window.capsLockEnabled = !window.capsLockEnabled;
+            $('#capsLock').toggle();
+        }
+    };
+
+    function check_capslock(e) { //check what key was pressed in the form
+        const s = String.fromCharCode(e.keyCode);
+        if (s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey) {
+            $('#capsLock').show();
+        } else {
+            $('#capsLock').hide();
+        }
+    }
+
+    function check_capslock_form(where) {
+        if (!where) {
+            where = $(document);
+        }
+        where.find('input,select,div').each(function() {
+            if (this.type !== "hidden") {
+                $(this).keypress(check_capslock);
+            }
+        });
+    }
+
+    function form_post() {
+        document.getElementById("errors").style.display = "none";
+        const valid = $("#password").dxValidator("instance").validate().isValid & $("#confirmPassword").dxValidator("instance").validate().isValid;
+
+        if (!valid) return;
+
+        const formData =
+        {
+            key: userKey,
+            newPassword: $("#password").dxTextBox("instance").option('value')
+        };
+
+        const request = $.postJSON('/api/account/reset-password/finish', formData, null);
+
+        request.then(function() {
+            document.getElementById("statusOk").style.display = "block";
+            document.getElementById("mainForm").style.display = "none";
+            },
+            function(data) {
+                if (data.readyState === 4 && data.status === 200) {
+                    document.getElementById("statusOk").style.display = "block";
+                    document.getElementById("mainForm").style.display = "none";
+                } else {
+                    document.getElementById("errors").innerHTML = data.responseText;
+                    document.getElementById("errors").style.display = "block";
+                }
+            });
+    }
+
+    function login() {
+        window.location.replace("/Account/Login");
+    }
+</script>

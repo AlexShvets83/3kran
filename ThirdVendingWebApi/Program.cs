@@ -90,13 +90,34 @@ namespace ThirdVendingWebApi
         //  });
 
         //var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        var currentPath = "/etc/letsencrypt/live/monitoring3voda.ru/";
-        var certificate = new X509Certificate2(Path.Combine(currentPath ?? string.Empty, "certificate.pfx"), "qwerty", X509KeyStorageFlags.Exportable);
 
-        var certifOption = new MqttServerOptions();
-        certifOption.
-        certifOption.TlsEndpointOptions.Certificate = certificate.Export(X509ContentType.Pfx);
-        certifOption.TlsEndpointOptions.IsEnabled = true;
+        //chain   -- errror
+        //cert
+        //fullchain
+        var pathCert = "/etc/letsencrypt/live/monitoring3voda.ru/fullchain.pem";
+        var pathKey = "/etc/letsencrypt/live/monitoring3voda.ru/privkey.pem";
+
+#if DEBUG
+        pathCert = "d:\\!Projects\\!3Cran\\SSL\\monitoring3voda.ru\\cert.pem";
+        pathKey = "d:\\!Projects\\!3Cran\\SSL\\monitoring3voda.ru\\privkey.pem";
+#endif
+        var fc = await File.ReadAllTextAsync(pathCert);
+        var fk = await File.ReadAllTextAsync(pathKey);
+
+
+        var certificate = X509Certificate2.CreateFromPem(fc, fk);
+
+        //var fc = await File.ReadAllTextAsync("/etc/letsencrypt/live/monitoring3voda.ru/mqtt.csr");
+        //var fk = await File.ReadAllTextAsync("/etc/letsencrypt/live/monitoring3voda.ru/mqtt.key");
+        //var certificate = X509Certificate2.CreateFromPem(fc, fk);
+
+        //var currentPath = "/etc/letsencrypt/live/monitoring3voda.ru/";
+        //var certificate = new X509Certificate2(Path.Combine(currentPath ?? string.Empty, "certificate.pfx"), "qwerty", X509KeyStorageFlags.Exportable);
+
+        //var certifOption = new MqttServerOptions();
+        //certifOption.
+        //certifOption.TlsEndpointOptions.Certificate = certificate.Export(X509ContentType.Pfx);
+        //certifOption.TlsEndpointOptions.IsEnabled = true;
 
 
         var optionsBuilder8 = new MqttServerOptionsBuilder()
@@ -105,6 +126,7 @@ namespace ThirdVendingWebApi
           .WithEncryptedEndpoint()
           //.WithMultiThreadedApplicationMessageInterceptor()
           .WithEncryptedEndpointPort(8883)
+          //.WithEncryptionCertificate(certificate.Export(X509ContentType.Cert))
           .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
           .WithClientCertificate(ValidationCallback)
           //.WithEncryptionSslProtocol(SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13)
@@ -143,7 +165,7 @@ namespace ThirdVendingWebApi
                               payload);
           });
 
-        optionsBuilder8.
+        //optionsBuilder8.
         //var mqttServer = new MqttFactory().CreateMqttServer();
         //await mqttServer.StartAsync(optionsBuilder.Build());
 
@@ -153,13 +175,8 @@ namespace ThirdVendingWebApi
       catch (Exception ex) { Console.WriteLine(ex); }
     }
 
-    private static bool ValidationCallback(Object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
+    private static bool ValidationCallback(object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
     {
-      //switch (sslpolicyerrors)
-      //{
-      //  case 
-      //}
-
       if (certificate != null)
       {
         Console.WriteLine("certificate Issuer = {0}", certificate.Issuer);
