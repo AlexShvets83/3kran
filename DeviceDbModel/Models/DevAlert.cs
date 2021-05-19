@@ -4,7 +4,7 @@ namespace DeviceDbModel.Models
 {
   public class DevAlert
   {
-    public ulong Id { get; set; }
+    public long Id { get; set; }
 
     public string DeviceId { get; set; }
 

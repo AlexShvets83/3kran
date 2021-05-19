@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommonVending.DbProvider;
+﻿using CommonVending.DbProvider;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace ThirdVendingWebApi.Controllers
 {
@@ -34,7 +30,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
          */
     [HttpGet("/send")]
     [AllowAnonymous]
-    public async Task<IActionResult> Send(long i, int tm, int ts, int te)
+    public async Task<IActionResult> Send(long i, float tm, float ts, int te)
     {
       var imei = i.ToString();
       if (string.IsNullOrEmpty(imei) || (imei.Length < 15) || (imei.Length > 17)) BadRequest("Неверный формат imei!");
@@ -70,15 +66,25 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       // errors connect
       if (lastState != null)
       {
-        if (lastState.MessageDate.AddMinutes(10) < date)
+        if (lastState.MessageDate.AddMinutes(10) < msgDate)
         {
           if ((lastAlert == null) || (lastAlert.CodeType != -1))
           {
             //error connect
+            // при появлении связи, просрочки во времени и последнеи аварии не "Пропала связь с автоматом" генерим аварию
+            // со временем послед. + 10мин
             var alert = new DevAlert
             {
-              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = -1,
+              DeviceId = device.Id, ReceivedDate = date, MessageDate = lastState.MessageDate.AddMinutes(10), CodeType = -1,
               Message = "Пропала связь с автоматом"
+            };
+            DeviceDbProvider.InsertDeviceAlert(alert);
+            
+            // и сразу генерим событие "Связь восстановилась"
+            alert = new DevAlert
+            {
+              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 1,
+              Message = "Связь восстановилась"
             };
             DeviceDbProvider.InsertDeviceAlert(alert);
           }
@@ -135,8 +141,8 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
         //sale
         if ((lastState == null) || (tm > lastState.TotalMoney))
         {
-          var quantity = ts - lastState.TotalSold;
-          var amount = tm - lastState.TotalMoney;
+          var quantity = ts - lastState?.TotalSold ?? ts;
+          var amount = tm - lastState?.TotalMoney ?? tm;
           var sale = new DevSale
           {
             DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, PaymentType = 0,

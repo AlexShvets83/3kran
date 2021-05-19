@@ -18,7 +18,7 @@
     <section class="col-12 col-lg-4 order-lg-1 left">
         <div id="gridContainer"></div>
         @*<div> <br /></div>*@
-        <br/>
+        <br />
         <!-- Кнопка вызова окна добавления автомата -->
         <div align="right">
             <span data-toggle="tooltip" data-placement="left" title="Добавить (зарегистрировать) автомат">
@@ -28,6 +28,269 @@
                     <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
                 </button>
             </span>
+        </div>
+    </section>
+
+
+
+
+
+
+    <!-- Правая колонка -->
+    <section class="col-12 col-lg-8 order-lg-2 right">
+        <!-- Вложенная сетка 1 -->
+        <div class="row">
+            <!-- Шапка автомата -->
+            <div class="col-sm-3">
+                <div class="dashboard_header-device_id badge-info lead rounded text-center">
+                    ID: {{selected.deviceId}}
+                </div>
+            </div>
+            <div class="col-sm-5 dashboard_header-device_address">{{selected.address}}</div>
+            <div class="col-sm-4 d-flex btn-group text-white"
+                 [ngSwitch]="getSingleAlert(selected)">
+                <span *ngSwitchCase="alertTypes.NO_LINK" class="btn btn-danger flex-grow-1 disabled dashboard_header-device_status">
+                    <i class="fa fa-exclamation-triangle"></i>&nbsp;Нет связи
+                </span>
+                <span *ngSwitchCase="alertTypes.TANK_EMPTY" class="btn btn-danger flex-grow-1 disabled dashboard_header-device_status">
+                    <i class="fa fa-exclamation-triangle"></i>&nbsp;Бак пуст
+                </span>
+                <span *ngSwitchCase="alertTypes.NO_SALES" class="btn btn-warning flex-grow-1 disabled dashboard_header-device_status">
+                    <i class="fa fa-exclamation-triangle"></i>&nbsp;Нет продаж<br>
+                    <small *ngIf="selected.lastCleanerStatus">
+                        {{cleanerStateToString(selected.lastCleanerStatus.status)}}
+                    </small>
+                </span>
+                <span *ngSwitchDefault class="btn btn-success flex-grow-1 disabled dashboard_header-device_status">
+                    <i class="fa fa-check"></i>&nbsp;В работе<br>
+                    <small *ngIf="selected.lastCleanerStatus">
+                        {{cleanerStateToString(selected.lastCleanerStatus.status)}}
+                    </small>
+                </span>
+                <!-- Кнопка вызова окна редактирования данных автомата -->
+                <div class="btn-group dashboard_header-device_edit d-flex flex-grow-0" ngbDropdown placement="bottom-right">
+                    <button type="button" class="btn btn-primary btn-sm" id="editDropdown" ngbDropdownToggle>
+                        <span data-toggle="tooltip" data-placement="left" title="" data-original-title="Изменить профиль, техн. настройки и видимость этого автомата">
+                            <i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Редактировать
+                        </span>
+                    </button>
+                    <div ngbDropdownMenu aria-labelledby="editDropdown">
+                        <a class="dropdown-item" data-toggle="modal" [routerLink]="['/', { outlets: { popup: 'device/'+selected.id+'/edit'}}]">
+                            <i class="fa fa-list-ul"></i>&nbsp;&nbsp;Профиль
+                        </a>
+                        <a class="dropdown-item" data-toggle="modal" [routerLink]="['/', { outlets: { popup: 'settings/'+selected.id}}]">
+                            <i class="fa fa-wrench"></i>&nbsp;&nbsp;Техн. настройки
+                        </a>
+                        <!--<a class="dropdown-item" href="#">-->
+                        <!--<i class="fa fa-eye" ></i>&nbsp;&nbsp;Видимость</a>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <!-- График динамики продаж (начало) -->
+        <h4 class="mt-2"><i class="fa fa-bar-chart-o text-warning"></i>&nbsp;&nbsp;Динамика продаж</h4>
+        <div class="row">
+            <div class="col-12 col-md-9 col-xl-8 mt-2">
+                <canvas baseChart height="100%"
+                        [datasets]="chartData"
+                        [labels]="chartLabels"
+                        [options]="chartOptions"
+                        [colors]="chartColors"
+                        [legend]="chartLegend"
+                        [chartType]="chartType">
+                </canvas>
+            </div>
+            <div class="col-12 col-md-3 col-xl-4 mt-2">
+                <div class="col dashboard_graph-legend">
+                    <div class="dashboard_graph-legend_item">
+                        <span class="dashboard_graph-legend_money"><i class="fa fa-square"></i></span>
+                        <span>Выручка:</span>
+                        <span class="lead text-white bg-success rounded pb-1 pl-3 pr-3" *ngIf="selected.lastStatus">
+                            <b>{{selected.lastStatus.totalMoney}} <span [innerHTML]="getCurrencySign(selected)"></span></b>
+                        </span>
+                    </div>
+                    <div class="dashboard_graph-legend_item">
+                        <span class="dashboard_graph-legend_sold"><i class="fa fa-square"></i></span>
+                        <span>Продано:</span>
+                        <span *ngIf="selected.lastStatus">{{selected.lastStatus.totalSold}} л</span>
+                    </div>
+                </div>
+                <!-- Кнопки по периодам -->
+                <div class="col dashboard_graph-term_selector btn-group btn-group-toggle" ngbRadioGroup name="term" [(ngModel)]="term" (change)="selectTerm(term)">
+                    <label ngbButtonLabel class="btn-outline-secondary dashboard_graph-term_button">
+                        <input ngbButton type="radio" [value]="DAYS"><i class="fa fa-calendar-check-o"></i>&nbsp;День
+                    </label>
+                    <label ngbButtonLabel class="btn-outline-secondary dashboard_graph-term_button">
+                        <input ngbButton type="radio" [value]="MONTHS"><i class="fa fa-moon-o"></i>&nbsp;Месяц
+                    </label>
+                    <label ngbButtonLabel class="btn-outline-secondary dashboard_graph-term_button">
+                        <input ngbButton type="radio" [value]="YEARS"><i class="fa fa-calendar"></i>&nbsp;Год
+                    </label>
+                </div>
+                <div class="p-3">
+                    <info-badge *ngIf="selected.lastCleanerStatus"
+                                [info]="makeDeviceInfo('tds', selected.lastCleanerStatus.tds, 0)">
+                    </info-badge>
+                    <info-badge *ngIf="selected.lastStatus && selected.lastStatus.temperature && selected.lastStatus.temperature != 999.0"
+                                [info]="makeDeviceInfo('temperature', selected.lastStatus.temperature, 1)">
+                    </info-badge>
+                    <info-badge *ngFor="let info of selected.info" [info]="info"></info-badge>
+                </div>
+                <!-- Деньги/литры -->
+            </div>
+        </div>
+        <!-- График динамики продаж (конец) -->
+        <!-- Вложенная сетка 2 -->
+        <!-- Клонка для списка продаж -->
+        <div class="row small">
+            <div class="col-12 col-sm-6 col-xl-4 mt-2">
+                <div class="dashboard-short_list_header"><i class="fa fa-shopping-cart text-warning"></i>&nbsp;&nbsp;Продажи</div>
+
+                <div class="dashboard-short_list_body">
+                    <!-- Список последних продаж -->
+                    <!-- Информер по типу операции -->
+                    <div class="form-check form-check-inline">
+                        <label class="form-check-label" for="saleCash">
+                            <i class="fa fa-money text-success" id="saleCash"></i>&nbsp;Наличн.
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label" for="saleCashless">
+                            <i class="fa fa-credit-card text-warning text-center" id="saleCashless"></i>&nbsp;Картой
+                        </label>
+                    </div>
+                    <div class="form-check-inline">
+                        <label class="form-check-label" for="saleDepo">
+                            <i class="fa fa-cloud-upload text-danger text-center" id="saleDepo"></i>&nbsp;Пополн.
+                        </label>
+                    </div>
+                    <hr>
+                    <div class="dashboard-sales_wrapper">
+                        <table class="w-100">
+                            <tr *ngFor="let saleInfo of sales" class="dashboard-sales_list_item">
+                                @*<td [ngSwitch]="saleInfo.paymentType">
+                                    <ng-template #saleTooltip>
+                                        <span *ngIf="saleInfo.bills && saleInfo.bills.length>0">
+                                            &nbsp;&nbsp;<span class="dashboard-sales_tooltip" *ngFor="let bill of saleInfo.bills">
+                                                <span class="bill" *ngFor="let piece of expandCoins(bill)">{{piece}}</span>&nbsp;&nbsp;
+                                            </span>
+                                        </span>
+                                        <span *ngIf="saleInfo.coins && saleInfo.coins.length>0">
+                                            &nbsp;<span class="dashboard-sales_tooltip" *ngFor="let coin of saleInfo.coins">
+                                                <span class="coin" *ngFor="let piece of expandCoins(coin)">{{piece}}</span>&nbsp;
+                                            </span>
+                                        </span>
+                                        <span *ngIf="!((saleInfo.bills && saleInfo.bills.length>0) || (saleInfo.coins && saleInfo.coins.length>0))">
+                                            Нет информации о монетах
+                                        </span>
+                                    </ng-template>
+                                    <span *ngSwitchCase="paymentType.CASH">
+                                        <i class="fa fa-money text-success" [ngbTooltip]="saleTooltip" placement="right"></i>
+                                        &nbsp;{{formatTimestamp(saleInfo.timestamp)}}&nbsp;&ndash;&nbsp;{{saleInfo.quantity}}л./{{saleInfo.amount}}<span [innerHTML]="getCurrencySign(selected)"></span>
+                                    </span>
+                                    <span *ngSwitchCase="paymentType.CASHLESS">
+                                        <i class="fa fa-credit-card text-warning"></i>
+                                        &nbsp;{{formatTimestamp(saleInfo.timestamp)}}&nbsp;&ndash;&nbsp;{{saleInfo.quantity}}л./{{saleInfo.amount}}<span [innerHTML]="getCurrencySign(selected)"></span>
+                                    </span>
+                                    <span *ngSwitchCase="paymentType.DEPO">
+                                        <i class="fa fa-cloud-upload text-danger" [ngbTooltip]="saleTooltip" placement="right"></i>
+                                        &nbsp;{{formatTimestamp(saleInfo.timestamp)}}&nbsp;&ndash;&nbsp;{{saleInfo.amount}}<span [innerHTML]="getCurrencySign(selected)"></span>
+                                    </span>
+                                </td>*@
+                            </tr>
+                        </table>
+                    </div>
+                    <span placement="top" ngbTooltip="Показать весь список продаж">
+                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button"
+                                [routerLink]="['/', { outlets: { popup: 'sales-list/'+selected.deviceId+'/'+selected.timeZone}}]">
+                            <i class="fa fa-arrows-v"></i>&nbsp;Показать все
+                        </button>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Колонка для списка инкассаций -->
+            <div class="col-12 col-sm-6 col-xl-4 mt-2">
+                <div class="dashboard-short_list_header">
+                    <i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;Инкассации
+                </div>
+                <div class="dashboard-short_list_body">
+                    <!-- Список последних инкассаций -->
+                    <!-- Информер -->
+                    <div class="text-center">
+                        <i class="fa fa-money text-success"></i>&nbsp;Купюрами&nbsp;/&nbsp;<i class="fa fa-database text-warning"></i>&nbsp;Монетами
+                    </div>
+                    <hr>
+                    <div class="dashboard-sales_wrapper">
+                        <table class="">
+                            <tr *ngFor="let encashItem of encash" class="dashboard-sales_list_item">
+                                @*<ng-template #encashTooltip>
+                                    <div *ngIf="encashItem.coins && encashItem.coins.length>0">
+                                        <div class="dashboard-sales_tooltip" *ngFor="let coin of encashItem.coins">
+                                            &nbsp;<div class="coin">{{coin.value}}</div>&nbsp;&ndash;&nbsp;{{coin.amount}}шт.
+                                        </div>
+                                    </div>
+                                    <div *ngIf="encashItem.bills && encashItem.bills.length>0">
+                                        <div class="dashboard-sales_tooltip" *ngFor="let bill of encashItem.bills">
+                                            &nbsp;&nbsp;<div class="bill">{{bill.value}}</div>&nbsp;&ndash;&nbsp;{{bill.amount}}шт.
+                                        </div>
+                                    </div>
+                                    <span *ngIf="!((encashItem.coins && encashItem.coins.length>0) || (encashItem.bills && encashItem.bills.length>0))">
+                                        Нет информации о монетах
+                                    </span>
+                                </ng-template>*@
+                                @*<td>
+                                    <i class="fa fa-truck text-warning" [ngbTooltip]="encashTooltip" placement="right">&nbsp;</i>
+                                    {{formatTimestamp(encashItem.timestamp)}}&nbsp;&ndash;&nbsp;
+                                    <span *ngIf="encashItem.amountBill || encashItem.amountCoin">
+                                    {{encashItem.amountBill}}<span [innerHTML]="getCurrencySign(selected)"></span>/{{encashItem.amountCoin}}<span [innerHTML]="getCurrencySign(selected)"></span></span>
+                                    <span *ngIf="!encashItem.amountBill && !encashItem.amountCoin">{{encashItem.amount}}<span [innerHTML]="getCurrencySign(selected)"></span></span>
+                                    <span>{{encashItem.amount}}<span [innerHTML]="getCurrencySign(selected)"></span></span>
+                                </td>*@
+                            </tr>
+                        </table>
+                    </div>
+                    <!--&lt;!&ndash; Кнопка вызова модального окна с полным списком инкассаций &ndash;&gt;-->
+                    <span placement="top" ngbTooltip="Показать весь список инкассаций">
+                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button"
+                                [routerLink]="['/', { outlets: { popup: 'encash-list/'+selected.deviceId+'/'+selected.timeZone}}]">
+                            <i class="fa fa-arrows-v"></i>&nbsp;Показать все
+                        </button>
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Колонка для списка аварий -->
+            <div class="col-12  col-sm-6 col-xl-4 mt-2">
+                <div class="dashboard-short_list_header"><i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии</div>
+                <div class="dashboard-short_list_body">
+                    <!-- Список последних аварий -->
+                    <!-- Информер -->
+                    <div class="text-center">
+                        <i class="fa fa-exclamation-triangle text-danger" aria-hidden="true"></i>&nbsp;Критично!&nbsp;&nbsp;&nbsp;<i class="fa fa-exclamation-triangle text-warning" aria-hidden="true"></i>&nbsp;Внимание!
+                    </div>
+                    <hr>
+                    <div class="dashboard-sales_wrapper">
+                        <table class="">
+                            <tr *ngFor="let alert of alerts" class="dashboard-sales_list_item">
+                                <td *ngIf="alert.active==true && ['NO_LINK', 'NO_SALES', 'TANK_EMPTY'].indexOf(alert.type) > -1">
+                                    @*<span *ngIf="alert.type=='NO_LINK'"><i class="fa fa-exclamation-triangle text-danger">&nbsp;</i>{{formatTimestamp(alert.timestamp)}}&nbsp;&ndash;&nbsp;Нет связи</span>
+                                    <span *ngIf="alert.type=='NO_SALES'"><i class="fa fa-exclamation-triangle text-warning">&nbsp;</i>{{formatTimestamp(alert.timestamp)}}&nbsp;&ndash;&nbsp;Нет продаж</span>
+                                    <span *ngIf="alert.type=='TANK_EMPTY'"><i class="fa fa-exclamation-triangle text-danger">&nbsp;</i>{{formatTimestamp(alert.timestamp)}}&nbsp;&ndash;&nbsp;Бак пуст</span>*@
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <span placement="top" ngbTooltip="Показать весь список аварий">
+                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button"
+                                [routerLink]="['/', { outlets: { popup: 'alerts-list/'+selected.deviceId+'/'+selected.timeZone}}]">
+                            <i class="fa fa-arrows-v"></i>&nbsp;Показать все
+                        </button>
+                    </span>
+                </div>
+            </div>
         </div>
     </section>
 </div>

@@ -5,7 +5,7 @@ namespace DeviceDbModel.Models
   public class DevStatus
   {
     //timestamp":1536657811,"totalSold":19.540,"totalMoney":1306.790,"status":0
-    public ulong Id { get; set; }
+    public long Id { get; set; }
 
     public string DeviceId { get; set; }
 
