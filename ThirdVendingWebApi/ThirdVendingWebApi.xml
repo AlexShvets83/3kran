@@ -92,6 +92,27 @@
         <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPasswordFinish(ThirdVendingWebApi.Models.ChangePasswordModel)">
             api/account/reset-password/finish
         </member>
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Put(System.Int32,System.String)">
+            <summary>
+            Обновление изменение профиля пользователя
+            </summary>
+            <param name="id"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Delete(System.Int32)">
+            <summary>
+            Удалить автомат
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.GetCountries">
+            <summary>
+            Получить список стран
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:ThirdVendingWebApi.Controllers.DevicesController">
             <summary>
             
@@ -108,6 +129,13 @@
             <summary>
             
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Delete(System.String)">
+            <summary>
+            Удалить автомат
+            </summary>
+            <param name="id"></param>
             <returns></returns>
         </member>
         <member name="T:ThirdVendingWebApi.Controllers.ManagementController">

@@ -7,11 +7,11 @@
     #gridContainer .dx-toolbar .dx-texteditor { width: 100% !important; }
 
     #gridContainer .dx-toolbar .dx-toolbar-after {
-        padding-left: 0px;
+        padding-left: 0;
         width: 100% !important;
     }
 
-    #gridContainer .dx-datagrid-search-panel { margin-left: 0px; }
+    #gridContainer .dx-datagrid-search-panel { margin-left: 0; }
 </style>
 
 <div class="row dashboard">
@@ -42,11 +42,15 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-danger" id="errors" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <strong>Errors</strong>
+                </div>
                 <div id="deviceForm"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
-                <button type="button" class="btn btn-primary fa fa-plus-square" onclick="postDevice()"> Добавить</button>
+                <button type="button" id="btnAddDevice" class="btn btn-primary fa fa-plus-square" onclick="postDevice(event)"> Добавить</button>
             </div>
         </div>
     </div>
@@ -55,18 +59,84 @@
 
 <script>
     var user;
-    //sessionStorage.removeItem(accountKey);
-    //const request = $.getJSON('/api/account', null);
-    //request.done(function(data) {
-    //    const strData = JSON.stringify(data);
-    //    sessionStorage.setItem(accountKey, strData);
-    //});
-
-    //const accStr = sessionStorage.getItem(accountKey);
-    //var user = JSON.parse(accStr);
-    //if (!user) window.location.replace("/");
-    
     var device;
+    var timeZones = [
+        {
+            value: "+2",
+            name: "UTC+02:00 Калининград"
+        },
+        {
+            value: "+3",
+            name: "UTC+03:00 Москва"
+        },
+        {
+            value: "+4",
+            name: "UTC+04:00 Самара"
+        },
+        {
+            value: "+5",
+            name: "UTC+05:00 Екатеринбург"
+        },
+        {
+            value: "+6",
+            name: "UTC+06:00 Омск"
+        },
+        {
+            value: "+7",
+            name: "UTC+07:00 Красноярск"
+        },
+        {
+            value: "+8",
+            name: "UTC+08:00 Иркутск"
+        },
+        {
+            value: "+9",
+            name: "UTC+09:00 Якутск"
+        },
+        {
+            value: "+10",
+            name: "UTC+10:00 Владивосток"
+        },
+        {
+            value: "+11",
+            name: "UTC+11:00 Магадан"
+        },
+        {
+            value: "+12",
+            name: "UTC+12:00 Камчатский край"
+        }
+    ];
+    var currencies = [
+        {
+            value: "RUR",
+            name: "Российский рубль"
+        },
+        {
+            value: "KZT",
+            name: "Казахстанский тенге"
+        },
+        {
+            value: "AZN",
+            name: "Азербайджанский манат"
+        },
+        {
+            value: "UZS",
+            name: "Узбекский сум"
+        },
+        {
+            value: "BYR",
+            name: "Белорусский рубль"
+        }
+    ];
+
+    
+    function updateDevicesList() {
+        $.getJSON("/api/devices", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+            .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+                $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
+            });
+    }
+
     $(function() {
 
         $("#gridContainer").dxDataGrid({
@@ -143,9 +213,9 @@
                 //selectBoxDataType.option("dataSource", list);
             },
             onCellPrepared: function(options) {
-                var fieldData = options.value,
-                    fieldHtml = "";
-                var column = options.column;
+                const fieldData = options.value;
+                var fieldHtml = "";
+                const column = options.column;
                 if (options.rowType === "data" && column.dataField === "alerts") {
                     fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
                     options.cellElement.html(fieldHtml);
@@ -183,7 +253,7 @@
                 //},
                 {
                     //width: '170px',
-                    dataField: "deviceId",
+                    dataField: "imei",
                     allowSorting: false,
                     caption: "IMEI",
                     headerCellTemplate: function(header, info) {
@@ -263,12 +333,12 @@
                             //    return !e.row.isEditing && !isChief(e.row.data.Position);
                             //},
                             onClick: function(e) {
-                                var row = e.row.data;
-                                var id = row.id;
+                                const row = e.row.data;
+                                const id = row.id;
                                 if (!id) return;
 
                                 DevExpress.ui.dialog.custom({
-                                    title: `Удаление автомата ${row.deviceId}`,
+                                    title: `Удаление автомата ${row.imei}`,
                                     message: 'Вы уверены, что хотите удалить этот автомат из списка?',
                                     buttons: [
                                         {
@@ -295,7 +365,16 @@
                                     ]
                                 }).show().done(function(dialogResult) {
                                     //todo delete device
-                                    if (dialogResult) return;
+                                    if (dialogResult) {
+                                        $.deleteObj(`/api/device/${id}`).then(function() {
+                                            updateDevicesList();
+                                            },
+                                            function(res) {
+                                                updateDevicesList();
+                                            });
+                                        //updateDevicesList();
+                                        return;
+                                    }
                                 });
 
                                 //var result = DevExpress.ui.dialog.confirm('Удаление автомата', 'Вы уверены, что хотите удалить этот автомат из списка?');
@@ -338,11 +417,14 @@
                 //}
             ]
         });
+        updateDevicesList();
+        //function name(parameters) {
 
-        $.get("/api/devices") // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
-            .then(function(data) { // добавляем обработчик при удачном выполнении запроса
-                $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
-            });
+        //}
+        //$.getJSON("/api/devices", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+        //    .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+        //        $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
+        //    });
 
 
         //var form = $("#form").dxForm({
@@ -350,7 +432,7 @@
 
         //        if (!device) {
         //            device = {
-        //                deviceId: "",
+        //                imei: "",
         //                address: "",
         //                phone: "",
         //                timeZone: "",
@@ -367,82 +449,15 @@
         //    colCount: 2
         //}).dxForm("instance");
     });
-    var timeZones = [
-        {
-            value: "+2",
-            name: "UTC+02:00 Калининград"
-        },
-        {
-            value: "+3",
-            name: "UTC+03:00 Москва"
-        },
-        {
-            value: "+4",
-            name: "UTC+04:00 Самара"
-        },
-        {
-            value: "+5",
-            name: "UTC+05:00 Екатеринбург"
-        },
-        {
-            value: "+6",
-            name: "UTC+06:00 Омск"
-        },
-        {
-            value: "+7",
-            name: "UTC+07:00 Красноярск"
-        },
-        {
-            value: "+8",
-            name: "UTC+08:00 Иркутск"
-        },
-        {
-            value: "+9",
-            name: "UTC+09:00 Якутск"
-        },
-        {
-            value: "+10",
-            name: "UTC+10:00 Владивосток"
-        },
-        {
-            value: "+11",
-            name: "UTC+11:00 Магадан"
-        },
-        {
-            value: "+12",
-            name: "UTC+12:00 Камчатский край"
-        }
-    ];
-    var currencies = [
-        {
-            value: "RUR",
-            name: "Российский рубль"
-        },
-        {
-            value: "KZT",
-            name: "Казахстанский тенге"
-        },
-        {
-            value: "AZN",
-            name: "Азербайджанский манат"
-        },
-        {
-            value: "UZS",
-            name: "Узбекский сум"
-        },
-        {
-            value: "BYR",
-            name: "Белорусский рубль"
-        }
-    ];
+   
 
     function addDevice(dev, user) {
 
         if (!dev) {
             //todo get owner
-            var onerId = null;
+            const onerId = null;
             dev = {
-                deviceId: "",
+                imei: "",
                 address: "",
                 phone: "",
                 timeZone: "+2",
@@ -451,44 +466,81 @@
             }
         }
 
-        var form = $("#deviceForm").dxForm({
+        const form = $("#deviceForm").dxForm({
             formData: dev,
             readOnly: false,
             showColonAfterLabel: true,
             labelLocation: "top",
             items: [
+                //{
+                //    dataField: "imei",
+                //    //editorType: "dxNumberBox",
+                //    label: {
+                //        text: "ID автомата",
+                //        visible: true
+                //    },
+                //    editorOptions: {
+                //        placeholder: "Введите ID автомата (15 цифр)",
+                //        mask: "X00000000000000",
+                //        maskChar: " ",
+                //        maskRules: {
+                //            "X": /[1-9]/
+                //        },
+                //        maskInvalidMessage: "ID автомата должен иметь правильный формат",
+                //        useMaskedValue: true
+                //    },
+                //    validationRules: [
+                //        {
+                //            type: "required",
+                //            message: "Введите ID автомата (15 цифр)"
+                //        },
+                //        //{
+                //        //    type: "stringLength",
+                //        //    min: 15,
+                //        //    message: "ID автомата должен быть не менее 15 цифр"
+                //        //},
+                //        //{
+                //        //    type: "stringLength",
+                //        //    max: 17,
+                //        //    message: "ID автомата не должен быть длиннее 17 цифр"
+                //        //},
+                //        {
+                //            type: "async",
+                //            message: "ID автомата уже зарегистрирован.",
+                //            validationCallback: function (params) {
+                //                return checkImei(params.value);
+                //            }
+                //        }
+                //    ]
+                //},
                 {
-                    dataField: "deviceId",
-                    //editorType: "dxNumberBox",
+                    dataField: "imei",
+                    editorType: "dxNumberBox",
                     label: {
                         text: "ID автомата",
                         visible: true
                     },
                     editorOptions: {
                         placeholder: "Введите ID автомата (15 цифр)",
-                        mask: "X00000000000000",
-                        maskChar: " ",
-                        maskRules: {
-                            "X": /[1-9]/
-                        },
-                        maskInvalidMessage: "ID автомата должен иметь правильный формат",
-                        useMaskedValue: true
+                        mode: "number",
+                        value: null
+ 
                     },
                     validationRules: [
                         {
                             type: "required",
                             message: "Введите ID автомата (15 цифр)"
                         },
-                        //{
-                        //    type: "stringLength",
-                        //    min: 15,
-                        //    message: "ID автомата должен быть не менее 15 цифр"
-                        //},
-                        //{
-                        //    type: "stringLength",
-                        //    max: 17,
-                        //    message: "ID автомата не должен быть длиннее 17 цифр"
-                        //},
+                        {
+                            type: "stringLength",
+                            min: 15,
+                            message: "ID автомата должен быть не менее 15 цифр"
+                        },
+                        {
+                            type: "stringLength",
+                            max: 17,
+                            message: "ID автомата не должен быть длиннее 17 цифр"
+                        },
                         {
                             type: "async",
                             message: "ID автомата уже зарегистрирован.",
@@ -559,24 +611,45 @@
     }
 
     var checkImei = function(value) {
-        const get = $.get("/api/validation/imei/" + value);
+        //return $.getJSON(`/api/validation/imei/${value}`, null).promise;
+        const get = $.get(`/api/validation/imei/${value}`);
         return get.promise();
     }
 
+    // onclick="postDevice()"
+    //$("btnAddDevice").click(function (event) { postDevice(event);});
+
     function postDevice(e) {
-        var valid = $('#deviceForm').dxForm('instance').validate();
+        document.getElementById("errors").style.display = "none";
+        const valid = $('#deviceForm').dxForm('instance').validate();
         if (valid.isValid === false) return;
 
-        //setAuth(true);
+        const data = $('#deviceForm').dxForm('instance').option('formData');
 
-        var data = $('#deviceForm').dxForm('instance').option('formData');
+        data.imei = `${data.imei}`;
+        data.phone = `${data.phone}`;
 
-        var request = $.postJSON('/api/device', data, $('#popupContainer').modal('hide'));
+        const request = $.postJSON('/api/device', data, null);
+        request.then(function() {
+            $('#popupContainer').modal('hide');
+            updateDevicesList();
+            },
+            function(res) {
+                if (res.readyState === 4 && res.status === 200) {
+                    $('#popupContainer').modal('hide');
+                    updateDevicesList();
+                } else {
+                    const message = res.responseText ? res.responseText : `Error${res.status}`;
+                    document.getElementById("errors").innerHTML = message;
+                    document.getElementById("errors").style.display = "block";
+                }
+            });
 
-        request.fail(function(data) {
-            e.preventDefault(); //
-            //DevExpress.ui.dialog.alert(data.responseText, "Ошибка");
-        });
+ //request.fail(function(data) {
+        //    e.preventDefault();
+        //    document.getElementById("errors").innerHTML = data.responseText;
+        //    document.getElementById("errors").style.display = "block";
+        //});
         
     }
     //function GetDataSourceStr() {

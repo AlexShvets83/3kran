@@ -18,7 +18,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Москва",
           Currency = "RUB",
-          DeviceId = "1234567890123456",
+          Imei = "1234567890123456",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -28,7 +28,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Питер",
           Currency = "RUB",
-          DeviceId = "984412565144539",
+          Imei = "984412565144539",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -38,7 +38,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Питер",
           Currency = "RUB",
-          DeviceId = "997324988453220",
+          Imei = "997324988453220",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -48,7 +48,7 @@ namespace ThirdVendingWebApi
         Id = Guid.NewGuid().ToString(),
         Address = "Питер",
         Currency = "RUB",
-        DeviceId = "504216888443440",
+        Imei = "504216888443440",
         Phone = "123456789",
         TimeZone = 2,
         //OwnerId = ""
@@ -58,7 +58,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Питер",
           Currency = "RUB",
-          DeviceId = "339357915628677",
+          Imei = "339357915628677",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -68,7 +68,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Москва",
           Currency = "RUB",
-          DeviceId = "984778473534049",
+          Imei = "984778473534049",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -78,7 +78,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Москва",
           Currency = "RUB",
-          DeviceId = "107726859245617",
+          Imei = "107726859245617",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -88,7 +88,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Москва",
           Currency = "RUB",
-          DeviceId = "497004910809617",
+          Imei = "497004910809617",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -98,7 +98,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Москва",
           Currency = "RUB",
-          DeviceId = "100506464134555",
+          Imei = "100506464134555",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -108,7 +108,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Москва",
           Currency = "RUB",
-          DeviceId = "536139870000378",
+          Imei = "536139870000378",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -118,7 +118,7 @@ namespace ThirdVendingWebApi
           Id = Guid.NewGuid().ToString(),
           Address = "Москва",
           Currency = "RUB",
-          DeviceId = "535737247591036",
+          Imei = "535737247591036",
           Phone = "123456789",
           TimeZone = 2,
           //OwnerId = ""
@@ -137,7 +137,7 @@ namespace ThirdVendingWebApi
       //  Id = Guid.NewGuid().ToString(),
       //  Address = "Москва",
       //  Currency = "RUB",
-      //  DeviceId = "1234567890123456",
+      //  Imei = "1234567890123456",
       //  Phone = "123456789",
       //  TimeZone = 2,
       //  //OwnerId = ""
@@ -150,7 +150,7 @@ namespace ThirdVendingWebApi
       //  Id = Guid.NewGuid().ToString(),
       //  Address = "Питер",
       //  Currency = "RUB",
-      //  DeviceId = "984412565144539",
+      //  Imei = "984412565144539",
       //  Phone = "123456789",
       //  TimeZone = 2,
       //  //OwnerId = ""

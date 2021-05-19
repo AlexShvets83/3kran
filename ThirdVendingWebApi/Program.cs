@@ -122,22 +122,44 @@ namespace ThirdVendingWebApi
 
         var optionsBuilder8 = new MqttServerOptionsBuilder()
           .WithConnectionBacklog(2000)
+          .WithClientId("monitoring3voda.ru")
           ////.WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
           .WithEncryptedEndpoint()
+          //.WithDefaultCommunicationTimeout(TimeSpan.FromMinutes(180))
           //.WithMultiThreadedApplicationMessageInterceptor()
           .WithEncryptedEndpointPort(8883)
-          //.WithEncryptionCertificate(certificate.Export(X509ContentType.Cert))
           .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
           .WithClientCertificate(ValidationCallback)
-          //.WithEncryptionSslProtocol(SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13)
+          //.WithRemoteCertificateValidationCallback(ValidationCallback)
+          //.WithPersistentSessions()
           .WithEncryptionSslProtocol(SslProtocols.None)
-          //.WithEncryptionSslProtocol(SslProtocols.Ssl3)
           //.WithDefaultEndpointPort(8883)
           .WithConnectionValidator(c =>
           {
+            if (c.Username != "3voda")
+            {
+              c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+              return;
+            }
+
+            if (c.Password != "Leimnoj8Knod")
+            {
+              c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+              return;
+            }
+
             c.ReasonCode = MqttConnectReasonCode.Success;
-            //Console.WriteLine(8883);
             LogMessage(c, false);
+
+            //if (c != null)
+            //{
+            //  c.ReasonCode = MqttConnectReasonCode.Success;
+            //  LogMessage(c, false);
+            //}
+            //else
+            //{
+            //  Console.WriteLine("Connect: asdaasadadpirmonbondsfbponbonterongwoerngoerngoergnoengroanopfnaiwnefifbsaidhboiubf");
+            //}
           })
           .WithSubscriptionInterceptor(c =>
           {
@@ -151,18 +173,23 @@ namespace ThirdVendingWebApi
           })
           .WithDisconnectedInterceptor(c =>
           {
-            if (c == null) return;
+            if (c == null) Console.WriteLine("Disconnect: asdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
 
             Console.WriteLine("Disconnect: ClientId = {0}, DisconnectType = {1}}", c.ClientId, c.DisconnectType);
           })
           .WithClientMessageQueueInterceptor(c =>
           {
-            if (c == null) return;
+            if (c == null) Console.WriteLine("Queue: asdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");;
 
             c.AcceptEnqueue = true;
             var payload = c.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(c.ApplicationMessage?.Payload);
             Console.WriteLine("Queue: ReceiverClientId = {0}, SenderClientId = {1}, Topic = {2}, Payload = {3}", c.ReceiverClientId, c.SenderClientId, c.ApplicationMessage.Topic,
                               payload);
+          })
+          .WithMultiThreadedApplicationMessageInterceptor(c =>
+          {
+            c.AcceptPublish = true;
+            LogMessage(c);
           });
 
         //optionsBuilder8.
@@ -174,6 +201,8 @@ namespace ThirdVendingWebApi
       }
       catch (Exception ex) { Console.WriteLine(ex); }
     }
+
+    //private static Boolean Value(Object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors) { return TODO_IMPLEMENT_ME; }
 
     private static bool ValidationCallback(object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
     {
@@ -187,7 +216,6 @@ namespace ThirdVendingWebApi
         Console.WriteLine("chain ChainPolicy = {0}", chain.ChainPolicy);
       }
 
-      Console.WriteLine(sslpolicyerrors);
       return true;
     }
 
@@ -199,7 +227,8 @@ namespace ThirdVendingWebApi
     private static void LogMessage(MqttSubscriptionInterceptorContext context, bool successful)
     {
       if (context == null) { return; }
-
+      
+      //context.SessionItems.Add();
       var message = successful
                       ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
                       : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";
@@ -231,22 +260,24 @@ namespace ThirdVendingWebApi
     private static void LogMessage(MqttConnectionValidatorContext context, bool showPassword)
     {
       if (context == null) { return; }
-
-      var str = new StringBuilder();
-      foreach (var pr in context.GetType().GetProperties()) { str.AppendLine($"{pr.Name} = {pr.GetValue(context, null)}"); }
-
-      Console.WriteLine(str.ToString());
       
-      if (showPassword)
-      {
-        Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, Password = {3}, CleanSession = {4}", context.ClientId, context.Endpoint,
-                          context.Username, context.Password, context.CleanSession);
-      }
-      else
-      {
-        Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", context.ClientId, context.Endpoint, context.Username,
-                          context.CleanSession);
-      }
+      Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", context.ClientId, context.Endpoint, context.Username,
+                        context.CleanSession);
+
+      //var str = new StringBuilder();
+      //foreach (var pr in context.GetType().GetProperties()) { str.AppendLine($"{pr.Name} = {pr.GetValue(context, null)}"); }
+
+      //Console.WriteLine(str.ToString());
+      //if (showPassword)
+      //{
+      //  Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, Password = {3}, CleanSession = {4}", context.ClientId, context.Endpoint,
+      //                    context.Username, context.Password, context.CleanSession);
+      //}
+      //else
+      //{
+      //  Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", context.ClientId, context.Endpoint, context.Username,
+      //                    context.CleanSession);
+      //}
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)

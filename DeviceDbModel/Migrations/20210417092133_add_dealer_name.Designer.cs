@@ -261,7 +261,7 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("text")
                         .HasColumnName("currency");
 
-                    b.Property<string>("DeviceId")
+                    b.Property<string>("Imei")
                         .HasColumnType("text")
                         .HasColumnName("device_id");
 
@@ -283,7 +283,7 @@ namespace DeviceDbModel.Migrations
                     b.HasIndex("Address")
                         .HasDatabaseName("ix_devices_address");
 
-                    b.HasIndex("DeviceId")
+                    b.HasIndex("Imei")
                         .IsUnique()
                         .HasDatabaseName("ix_devices_device_id");
 
@@ -334,7 +334,7 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("commerce_visible");
 
-                    b.Property<string>("DeviceId")
+                    b.Property<string>("Imei")
                         .HasColumnType("text")
                         .HasColumnName("device_id");
 
@@ -349,7 +349,7 @@ namespace DeviceDbModel.Migrations
                     b.HasKey("Id")
                         .HasName("pk_user_device_permissions");
 
-                    b.HasIndex("DeviceId")
+                    b.HasIndex("Imei")
                         .HasDatabaseName("ix_user_device_permissions_device_id");
 
                     b.HasIndex("UserId")
@@ -695,7 +695,7 @@ namespace DeviceDbModel.Migrations
                 {
                     b.HasOne("DeviceDbModel.Models.Device", "Device")
                         .WithMany("UserDevicePermissions")
-                        .HasForeignKey("DeviceId")
+                        .HasForeignKey("Imei")
                         .HasConstraintName("fk_user_device_permissions_devices_device_id")
                         .OnDelete(DeleteBehavior.Cascade);
 

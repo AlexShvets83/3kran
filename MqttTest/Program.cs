@@ -15,6 +15,35 @@ namespace MqttTest
   {
     static async Task Main(string[] args)
     {
+      var date = DateTime.Now;
+      var dateUTC = DateTime.UtcNow;
+      var td = date.ToUniversalTime();
+      var data = date.ToFileTime();
+      var data1 = date.ToFileTimeUtc();
+      var data2 = date.ToOADate();
+      var data3 = date.ToBinary();
+
+      DateTime timeUtc = DateTime.UtcNow;
+      try
+      {
+        var zones = TimeZoneInfo.GetSystemTimeZones();
+        TimeZoneInfo cstZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+        DateTime cstTime = TimeZoneInfo.ConvertTimeFromUtc(timeUtc, cstZone);
+        Console.WriteLine("The date and time are {0} {1}.",
+                          cstTime,
+                          cstZone.IsDaylightSavingTime(cstTime) ?
+                            cstZone.DaylightName : cstZone.StandardName);
+      }
+      catch (TimeZoneNotFoundException)
+      {
+        Console.WriteLine("The registry does not define the Central Standard Time zone.");
+      }
+      catch (InvalidTimeZoneException)
+      {
+        Console.WriteLine("Registry data on the Central Standard Time zone has been corrupted.");
+      }
+
+
       Console.WriteLine("Hello World!");
 
       var message = new MqttApplicationMessageBuilder()

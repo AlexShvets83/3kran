@@ -38,6 +38,16 @@ namespace DeviceDbModel
 
     public DbSet<InviteRegistration> InviteRegistrations { get; set; }
 
+    //public DbSet<DevStatus> DeviceStatus { get; set; }
+
+    public DbSet<DevStatus> DeviceLastStatus { get; set; }
+
+    public DbSet<DevSale> DeviceSales { get; set; }
+
+    public DbSet<DevEncash> DeviceEncashes { get; set; }
+
+    public DbSet<DevAlert> DeviceAlerts { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,7 +56,7 @@ namespace DeviceDbModel
 
       modelBuilder.Entity<Device>(entity =>
       {
-        entity.HasIndex(e => e.DeviceId).IsUnique();
+        entity.HasIndex(e => e.Imei).IsUnique();
         entity.HasIndex(e => e.Address);
         entity.HasOne(d => d.User).WithMany(p => p.Devices).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Restrict);
       });
@@ -76,6 +86,37 @@ namespace DeviceDbModel
         entity.HasData(DatabaseDictionaries.CountriesDic);
       });
       
+      modelBuilder.Entity<DevStatus>(entity =>
+      {
+        entity.HasIndex(e => e.DeviceId);
+        entity.HasIndex(e => e.ReceivedDate);
+        entity.HasIndex(e => e.MessageDate);
+        entity.HasOne(d => d.Device).WithMany(p => p.DevStatuses).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+
+      modelBuilder.Entity<DevSale>(entity =>
+      {
+        entity.HasIndex(e => e.DeviceId);
+        entity.HasIndex(e => e.ReceivedDate);
+        entity.HasIndex(e => e.MessageDate);
+        entity.HasOne(d => d.Device).WithMany(p => p.DevSales).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+
+      modelBuilder.Entity<DevEncash>(entity =>
+      {
+        entity.HasIndex(e => e.DeviceId);
+        entity.HasIndex(e => e.ReceivedDate);
+        entity.HasIndex(e => e.MessageDate);
+        entity.HasOne(d => d.Device).WithMany(p => p.DevEncashes).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+
+      modelBuilder.Entity<DevAlert>(entity =>
+      {
+        entity.HasIndex(e => e.DeviceId);
+        entity.HasIndex(e => e.ReceivedDate);
+        entity.HasIndex(e => e.MessageDate);
+        entity.HasOne(d => d.Device).WithMany(p => p.DevAlerts).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
       OnModelCreatingPartial(modelBuilder);
     }
 

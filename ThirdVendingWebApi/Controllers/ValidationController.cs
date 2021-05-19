@@ -33,7 +33,7 @@ namespace ThirdVendingWebApi.Controllers
     [HttpGet("/api/validation/imei/{imei}")]
     public IActionResult Imei(string imei)
     {
-      var user = DeviceDbProvider.GetDevice(imei);
+      var user = DeviceDbProvider.GetDeviceByImei(imei);
       if (user == null) return Ok();
 
       return BadRequest();

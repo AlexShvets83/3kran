@@ -3,15 +3,17 @@ using System;
 using DeviceDbModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DeviceDbModel.Migrations
 {
     [DbContext(typeof(DeviceDBContext))]
-    partial class DeviceDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210519121532_add_main_data_table")]
+    partial class add_main_data_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,13 +262,13 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("text")
                         .HasColumnName("device_id");
 
+                    b.Property<DateTime>("MessageDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("mesage_date");
+
                     b.Property<string>("Message")
                         .HasColumnType("text")
                         .HasColumnName("message");
-
-                    b.Property<DateTime>("MessageDate")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("message_date");
 
                     b.Property<DateTime>("ReceivedDate")
                         .HasColumnType("timestamp without time zone")
@@ -283,7 +285,7 @@ namespace DeviceDbModel.Migrations
                         .HasDatabaseName("ix_device_alerts_device_id");
 
                     b.HasIndex("MessageDate")
-                        .HasDatabaseName("ix_device_alerts_message_date");
+                        .HasDatabaseName("ix_device_alerts_mesage_date");
 
                     b.HasIndex("ReceivedDate")
                         .HasDatabaseName("ix_device_alerts_received_date");
@@ -324,7 +326,7 @@ namespace DeviceDbModel.Migrations
 
                     b.Property<DateTime>("MessageDate")
                         .HasColumnType("timestamp without time zone")
-                        .HasColumnName("message_date");
+                        .HasColumnName("mesage_date");
 
                     b.Property<DateTime>("ReceivedDate")
                         .HasColumnType("timestamp without time zone")
@@ -341,7 +343,7 @@ namespace DeviceDbModel.Migrations
                         .HasDatabaseName("ix_device_encashes_device_id");
 
                     b.HasIndex("MessageDate")
-                        .HasDatabaseName("ix_device_encashes_message_date");
+                        .HasDatabaseName("ix_device_encashes_mesage_date");
 
                     b.HasIndex("ReceivedDate")
                         .HasDatabaseName("ix_device_encashes_received_date");
@@ -374,7 +376,7 @@ namespace DeviceDbModel.Migrations
 
                     b.Property<DateTime>("MessageDate")
                         .HasColumnType("timestamp without time zone")
-                        .HasColumnName("message_date");
+                        .HasColumnName("mesage_date");
 
                     b.Property<int>("PaymentType")
                         .HasColumnType("integer")
@@ -403,7 +405,7 @@ namespace DeviceDbModel.Migrations
                         .HasDatabaseName("ix_device_sales_device_id");
 
                     b.HasIndex("MessageDate")
-                        .HasDatabaseName("ix_device_sales_message_date");
+                        .HasDatabaseName("ix_device_sales_mesage_date");
 
                     b.HasIndex("ReceivedDate")
                         .HasDatabaseName("ix_device_sales_received_date");
@@ -424,7 +426,7 @@ namespace DeviceDbModel.Migrations
 
                     b.Property<DateTime>("MessageDate")
                         .HasColumnType("timestamp without time zone")
-                        .HasColumnName("message_date");
+                        .HasColumnName("mesage_date");
 
                     b.Property<DateTime>("ReceivedDate")
                         .HasColumnType("timestamp without time zone")
@@ -442,12 +444,12 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("timestamp");
 
-                    b.Property<float>("TotalMoney")
-                        .HasColumnType("real")
+                    b.Property<double>("TotalMoney")
+                        .HasColumnType("double precision")
                         .HasColumnName("total_money");
 
-                    b.Property<float>("TotalSold")
-                        .HasColumnType("real")
+                    b.Property<double>("TotalSold")
+                        .HasColumnType("double precision")
                         .HasColumnName("total_sold");
 
                     b.HasKey("Id")
@@ -457,7 +459,7 @@ namespace DeviceDbModel.Migrations
                         .HasDatabaseName("ix_device_last_status_device_id");
 
                     b.HasIndex("MessageDate")
-                        .HasDatabaseName("ix_device_last_status_message_date");
+                        .HasDatabaseName("ix_device_last_status_mesage_date");
 
                     b.HasIndex("ReceivedDate")
                         .HasDatabaseName("ix_device_last_status_received_date");

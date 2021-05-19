@@ -99,13 +99,30 @@ namespace CommonVending.DbProvider
       }
     }
 
-    public static Device GetDevice(string emei)
+    public static Device GetDeviceByImei(string emei)
     {
       try
       {
         using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
         {
-          var list = context.Devices.Where(w => w.DeviceId == emei).ToList();
+          var list = context.Devices.Where(w => w.Imei == emei).ToList();
+          return list.Count == 1 ? list[0] : null;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+    
+    public static Device GetDeviceById(string id)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var list = context.Devices.Where(w => w.Id == id).ToList();
           return list.Count == 1 ? list[0] : null;
         }
       }
@@ -122,8 +139,8 @@ namespace CommonVending.DbProvider
       {
         using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
         {
-          var result = await context.Devices.AddAsync(dev);
-          var asd = await context.SaveChangesAsync();
+          await context.Devices.AddAsync(dev);
+          await context.SaveChangesAsync();
 
           return true;
         }
@@ -133,6 +150,165 @@ namespace CommonVending.DbProvider
         Console.WriteLine(ex);
         return false;
       }
+    }
+
+    public static void RemoveDevice(Device device)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          if (device != null)
+          {
+            context.Entry(device).State = EntityState.Deleted;
+            context.SaveChanges();
+          }
+        }
+      }
+      catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static void RemoveDeviceById(string id)
+    {
+      var device = GetDeviceById(id);
+      RemoveDevice(device);
+
+      //try
+      //{
+      //  var device = GetDeviceById(id);
+      //  using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+      //  {
+      //    if (device != null)
+      //    {
+      //      context.Entry(device).State = EntityState.Deleted;
+      //      context.SaveChanges();
+      //    }
+      //  }
+      //}
+      //catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static DevStatus GetDeviceLastStatus(string devId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          //var record = context.DeviceLastStatus.Where(w => (w.DeviceId == devId) && (w.MessageDate == context.DeviceLastStatus.Where(m => m.DeviceId == devId).Max(m => m.MessageDate))).ToList();
+          var record = context.DeviceLastStatus.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+    
+    public static DevSale GetDeviceLastSale(string devId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceSales.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
+    public static DevEncash GetDeviceLastEncash(string devId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceEncashes.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
+    public static DevAlert GetDeviceLastAlert(string devId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceAlerts.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
+    public static void WriteDeviceLastStatus(DevStatus record)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          if (record.Id != 0) { context.DeviceLastStatus.Update(record); }
+          else { context.DeviceLastStatus.Add(record); }
+
+          context.SaveChanges();
+        }
+      }
+      catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static void InsertDeviceSale(DevSale record)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          context.DeviceSales.Add(record);
+          context.SaveChanges();
+        }
+      }
+      catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static void InsertDeviceEncash(DevEncash record)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          context.DeviceEncashes.Add(record);
+          context.SaveChanges();
+        }
+      }
+      catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static void InsertDeviceAlert(DevAlert record)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          context.DeviceAlerts.Add(record);
+          context.SaveChanges();
+        }
+      }
+      catch (Exception ex) { Console.WriteLine(ex); }
     }
   }
 }

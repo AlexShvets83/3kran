@@ -387,6 +387,12 @@ namespace ThirdVendingWebApi.Controllers
       return BadRequest(errors);
     }
 
+    /// <summary>
+    /// Обновление изменение профиля пользователя
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     [HttpPut("{id}")]
     [Authorize]
     public async Task<IActionResult> Put(int id, [FromBody] string value)
@@ -405,7 +411,11 @@ namespace ThirdVendingWebApi.Controllers
       return Ok();
     }
 
-    // DELETE api/<ValuesController>/5
+    /// <summary>
+    /// Удалить автомат
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     [Authorize(Roles = Roles.SuperAdmin)]
     public async Task<IActionResult> Delete(int id)
@@ -413,15 +423,19 @@ namespace ThirdVendingWebApi.Controllers
       //check admin
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Invalid ADMIN account!");
-      if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      if (!admin.Activated) return Forbid("Invalid ADMIN activation!");
 
       //check admin role
       var adminRoles = await _userManager.GetRolesAsync(admin);
-      if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+      if (!adminRoles.Contains(Roles.SuperAdmin)) return Forbid();
 
       return Ok();
     }
 
+    /// <summary>
+    /// Получить список стран
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("/api/countries")]
     public IActionResult GetCountries()
     {

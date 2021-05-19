@@ -6,10 +6,10 @@ var accountKey = "userAccount";
 function GetURLParameter(sParam)
 {
     var sPageURL = window.location.search.substring(1);
-    var sURLVariables = sPageURL.split('&');
+    var sURLVariables = sPageURL.split("&");
     for (var i = 0; i < sURLVariables.length; i++) 
     {
-        var sParameterName = sURLVariables[i].split('=');
+        var sParameterName = sURLVariables[i].split("=");
         if (sParameterName[0] == sParam) 
         {
             return sParameterName[1];
@@ -46,7 +46,7 @@ function redirectHandler(condition, url){
     case 1: window.location = url;
         break;
 
-    case 'value2':  // if (x === 'value2')
+    case "value2":  // if (x === 'value2')
         break;
 
     default:
@@ -123,7 +123,7 @@ function post(path, params, method) {
 }
 
 function getAccount() {
-    var request = $.getJSON('/api/account', null);
+    var request = $.getJSON("/api/account", null);
     request.done(function(data) {
         sessionStorage.setItem(accountKey, JSON.stringify(data));
     });
@@ -134,50 +134,68 @@ $.getJSON = function(url, callback) {
 
     return jQuery.ajax({
         headers: { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            'Accept': "application/json",
+            'Content-Type': "application/json",
             "Authorization": "Bearer " + token
         },
-        'type': 'GET',
+        'type': "GET",
         'url': url,
         //'data': JSON.stringify(data),
-        'dataType': 'json',
+        'dataType': "json",
         'success': callback
     });
 };
 
 $.postJSON = function(url, data, callback) {
+    var token = sessionStorage.getItem(tokenKey);
     return jQuery.ajax({
         headers: { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json' 
+            'Accept': "application/json",
+            'Content-Type': "application/json",
+            "Authorization": `Bearer ${token}`
         },
         //accepts: {
         //    json: 'application/json'
         //},
         //contentType: 'application/json',
-        type: 'POST',
+        type: "POST",
         url: url,
         data: JSON.stringify(data),
-        dataType: 'json',
+        dataType: "json",
         success: callback
+    });
+};
+
+$.deleteObj = function(url) {
+    var token = sessionStorage.getItem(tokenKey);
+    return jQuery.ajax({
+        headers: { 
+            //'Accept': "application/json",
+            //'Content-Type': "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        type: "DELETE",
+        url: url,
+        //data: JSON.stringify(data),
+        //dataType: "json",
+        //success: callback
     });
 };
 
 function postAjax(url, data, callback) {
     return jQuery.ajax({
         headers: { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json' 
+            'Accept': "application/json",
+            'Content-Type': "application/json" 
         },
         accepts: {
-            json: 'application/json'
+            json: "application/json"
         },
-        contentType: 'application/json' ,
-        'type': 'POST',
+        contentType: "application/json" ,
+        'type': "POST",
         'url': url,
         'data': JSON.stringify(data),
-        'dataType': 'json',
+        'dataType': "json",
         'success': callback
     });
 };
@@ -208,10 +226,10 @@ function setCookie(cname, cvalue, exdays) {
 
 function getCookie(cname) {
     var name = cname + "=";
-    var ca = document.cookie.split(';');
+    var ca = document.cookie.split(";");
     for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
-        while (c.charAt(0) == ' ') {
+        while (c.charAt(0) == " ") {
             c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {

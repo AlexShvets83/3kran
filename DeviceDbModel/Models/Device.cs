@@ -4,11 +4,18 @@ namespace DeviceDbModel.Models
 {
   public class Device
   {
-    public Device() { UserDevicePermissions = new HashSet<UserDevicePermission>(); }
+    public Device()
+    {
+      UserDevicePermissions = new HashSet<UserDevicePermission>();
+      DevStatuses = new HashSet<DevStatus>();
+      DevSales = new HashSet<DevSale>();
+      DevEncashes = new HashSet<DevEncash>();
+      DevAlerts = new HashSet<DevAlert>();
+    }
 
     public string Id { get; set; }
 
-    public string DeviceId { get; set; }
+    public string Imei { get; set; }
 
     public string OwnerId { get; set; }
 
@@ -23,5 +30,13 @@ namespace DeviceDbModel.Models
     public virtual ApplicationUser User { get; set; }
 
     public ICollection<UserDevicePermission> UserDevicePermissions { get; set; }
+
+    public ICollection<DevStatus> DevStatuses { get; set; }
+
+    public ICollection<DevSale> DevSales { get; set; }
+
+    public ICollection<DevEncash> DevEncashes { get; set; }
+
+    public ICollection<DevAlert> DevAlerts { get; set; }
   }
 }

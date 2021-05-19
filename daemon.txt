@@ -2,7 +2,7 @@ sudo nano /etc/systemd/system/3kran-web.service
 
 
 [Unit]
-Description=Sempal Cloud Device Manager
+Description=Monitoring 3kran system
 DefaultDependencies=no
 Wants=postgresql.service
 After=postgresql.service

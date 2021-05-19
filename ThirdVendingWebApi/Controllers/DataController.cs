@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CommonVending.DbProvider;
 using DeviceDbModel.Models;
@@ -14,6 +15,8 @@ namespace ThirdVendingWebApi.Controllers
   [ApiController]
   public class DataController : ControllerBase
   {
+    //public static StringBuilder Log { get; } = new StringBuilder();
+
     /*
      Протокол HTTP для старых автоматов
 Сервис мониторинга получает от плат, работающих по стандарту HTTP, GET запрос в следующем виде:
@@ -34,29 +37,149 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
     public async Task<IActionResult> Send(long i, int tm, int ts, int te)
     {
       var imei = i.ToString();
-      var device = DeviceDbProvider.GetDevice(imei);
+      if (string.IsNullOrEmpty(imei) || (imei.Length < 15) || (imei.Length > 17)) BadRequest("Неверный формат imei!");
+
+      var device = DeviceDbProvider.GetDeviceByImei(imei);
       var result = true;
       if (device == null)
       {
         device = new Device
         {
-          Id = Guid.NewGuid().ToString(), Address = "", Currency = "RUB", DeviceId = imei,
-          Phone = "123456789", TimeZone = 2,
+          Id = Guid.NewGuid().ToString(), Address = "", Currency = "RUB", Imei = imei,
+          Phone = "", TimeZone = 2,
 
           //OwnerId = ""
         };
         result = await DeviceDbProvider.AddDevice(device);
       }
 
+      device = DeviceDbProvider.GetDeviceByImei(imei);
+      var lastState = DeviceDbProvider.GetDeviceLastStatus(device.Id);
+      var lastAlert = DeviceDbProvider.GetDeviceLastAlert(device.Id);
+
+      var date = DateTime.Now;
+      var msgDate = date.ToUniversalTime().AddHours(device.TimeZone);
+      var newState = new DevStatus
+      {
+        Id = lastState?.Id ?? 0, DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate,
+        TotalMoney = tm, TotalSold = ts, Status = te
+      };
+
+      DeviceDbProvider.WriteDeviceLastStatus(newState);
+
+      // errors connect
+      if (lastState != null)
+      {
+        if (lastState.MessageDate.AddMinutes(10) < date)
+        {
+          if ((lastAlert == null) || (lastAlert.CodeType != -1))
+          {
+            //error connect
+            var alert = new DevAlert
+            {
+              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = -1,
+              Message = "Пропала связь с автоматом"
+            };
+            DeviceDbProvider.InsertDeviceAlert(alert);
+          }
+
+          if ((lastAlert != null) && (lastAlert.CodeType == -1))
+          {
+            var alert = new DevAlert
+            {
+              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 1,
+              Message = "Связь восстановилась"
+            };
+            DeviceDbProvider.InsertDeviceAlert(alert);
+          }
+        }
+      }
+      
+      //tank
+      if (te == 1)
+      {
+        if ((lastState == null) || (lastState.Status != te))
+        {
+          var alert = new DevAlert
+          {
+            DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = -2,
+            Message = "Бак пуст"
+          };
+          DeviceDbProvider.InsertDeviceAlert(alert);
+        }
+      }
+      else
+      {
+        if ((lastState != null) && (lastState.Status != te))
+        {
+          var alert = new DevAlert
+          {
+            DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 2,
+            Message = "Бак заполняется"
+          };
+          DeviceDbProvider.InsertDeviceAlert(alert);
+        }
+      }
+
+      //encash
+      if ((tm == 0) && (ts == 0))
+      {
+        if ((lastState != null) && (lastState.TotalMoney > 0))
+        {
+          var encash = new DevEncash {DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, Amount = lastState.TotalMoney};
+          DeviceDbProvider.InsertDeviceEncash(encash);
+        }
+      }
+      else
+      {
+        //sale
+        if ((lastState == null) || (tm > lastState.TotalMoney))
+        {
+          var quantity = ts - lastState.TotalSold;
+          var amount = tm - lastState.TotalMoney;
+          var sale = new DevSale
+          {
+            DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, PaymentType = 0,
+            Amount = amount, Quantity = quantity
+          };
+
+          DeviceDbProvider.InsertDeviceSale(sale);
+          
+          if ((lastAlert != null) && (lastAlert.CodeType == 0))
+          {
+            var alert = new DevAlert
+            {
+              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 3,
+              Message = "Продажи восстановились"
+            };
+            DeviceDbProvider.InsertDeviceAlert(alert);
+          }
+        }
+        else
+        {
+          //not sales 2h
+          if (lastState.MessageDate.AddHours(2) < msgDate)
+          {
+            //eror sales
+            var alert = new DevAlert
+            {
+              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 0,
+              Message = "Нет продаж"
+            };
+            DeviceDbProvider.InsertDeviceAlert(alert);
+          }
+        }
+      }
+      
+      var ip = Request.HttpContext.Connection.RemoteIpAddress;
+
       //todo get last status сравнить данные и принять решение была ли продажа
       // можно сделать все на основании данных из status
       //todo get last alert сравнить данные и принять решение о записи ошибки
       //todo if tm=ts=0 get last encash сравнить данные и принять решение об инкассации
-      Console.WriteLine($"imei={i} tm={tm} ts={ts} te={te}");
-      if (result)
-      {
-        return Ok("OK");
-      }
+      //Log.AppendLine($"{DateTime.Now} imei={i} tm={tm} ts={ts} te={te}");
+      Console.WriteLine($"ip={ip} imei={i} tm={tm} ts={ts} te={te}");
+      if (result) { return Ok("OK"); }
 
       return BadRequest();
     }
