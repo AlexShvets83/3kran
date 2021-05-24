@@ -203,6 +203,26 @@
             Новый пароль
             </summary>
         </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceStatus.TotalSold">
+            <summary>
+            Объем проданной воды
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceStatus.TotalMoney">
+            <summary>
+            Сумма принятых наличных
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceStatus.Temperature">
+            <summary>
+            Текущая температура
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceStatus.Status">
+            <summary>
+            0 - ок, 1 - бак пуст
+            </summary>
+        </member>
         <member name="T:ThirdVendingWebApi.Models.Person">
             <summary>
               Credentials 
@@ -220,112 +240,115 @@
         </member>
         <member name="T:ThirdVendingWebApi.Models.UserAccount">
             <summary>
-            Учетная запись пользователя
+              Учетная запись пользователя
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Id">
             <summary>
-            Ид пользователя из базы данных
+              Ид пользователя из базы данных
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.UserName">
             <summary>
-            Логин или имя пользователя
+              Логин или имя пользователя
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.FirstName">
             <summary>
-            Имя
+              Имя
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.LastName">
             <summary>
-            Фамилия
+              Фамилия
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Email">
             <summary>
-            Email, электронная почта
+              Email, электронная почта
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.ImageUrl">
             <summary>
-            Ссылка на изображение
+              Ссылка на изображение
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Activated">
             <summary>
-            Активирован ли пользователь
+              Активирован ли пользователь
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.LangKey">
             <summary>
-            Язык
+              Язык
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.CreatedBy">
             <summary>
-            Кем создан
+              Кем создан
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.CreatedDate">
             <summary>
-            Когда создан
+              Когда создан
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.LastModifiedBy">
             <summary>
-            Кем последний раз изменен
+              Кем последний раз изменен
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.LastModifiedDate">
             <summary>
-            Когда последний раз изменен
+              Когда последний раз изменен
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Authorities">
             <summary>
-            
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Organization">
             <summary>
-            Организация
+              Организация
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.PhoneNumber">
             <summary>
-            
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.City">
             <summary>
-            Город
+              Город
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.InfoEmails">
             <summary>
-            From DB
+              From DB
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.InfoEmailsArray">
             <summary>
-            Массив имейлов для рассылки писем с авариями и событиями
+              Массив имейлов для рассылки писем с авариями и событиями
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.UserAlerts">
             <summary>
-            From DB
+              From DB
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Alerts">
             <summary>
-            Массив аварий и событий
+              Массив аварий и событий
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.UserAccount.Patronymic">
             <summary>
-            Отчество
+              Отчество
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.UserAccount.Role">
+            <summary>
+              Роль
             </summary>
         </member>
         <member name="T:ThirdVendingWebApi.Models.UserAccountAdminEdit">
@@ -564,29 +587,6 @@
             <summary>
             
             </summary>
-        </member>
-        <member name="M:ThirdVendingWebApi.Program.LogMessage(MQTTnet.Server.MqttSubscriptionInterceptorContext,System.Boolean)">
-            <summary>
-              Logs the message from the MQTT subscription interceptor context.
-            </summary>
-            <param name = "context">The MQTT subscription interceptor context.</param>
-            <param name = "successful">A <see cref = "T:System.Boolean" /> value indicating whether the subscription was successful or not.</param>
-        </member>
-        <member name="M:ThirdVendingWebApi.Program.LogMessage(MQTTnet.Server.MqttApplicationMessageInterceptorContext)">
-            <summary>
-              Logs the message from the MQTT message interceptor context.
-            </summary>
-            <param name = "context">The MQTT message interceptor context.</param>
-        </member>
-        <member name="M:ThirdVendingWebApi.Program.LogMessage(MQTTnet.Server.MqttConnectionValidatorContext,System.Boolean)">
-            <summary>
-              Logs the message from the MQTT connection validation context.
-            </summary>
-            <param name = "context">The MQTT connection validation context.</param>
-            <param name = "showPassword">
-              A <see cref = "T:System.Boolean" /> value indicating whether the password is written to the log or
-              not.
-            </param>
         </member>
     </members>
 </doc>

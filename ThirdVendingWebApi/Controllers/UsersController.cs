@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading.Tasks;
 using ThirdVendingWebApi.Models;
 
@@ -35,7 +36,7 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet]
-    [Authorize]
+    //[Authorize]
     public async Task<IActionResult> Get()
     {
       try
@@ -47,9 +48,16 @@ namespace ThirdVendingWebApi.Controllers
           var retUser = user.GetNewObj<UserAccount>();
           var roles = await _userManager.GetRolesAsync(user);
           retUser.Authorities = roles.ToArray();
+          if (roles.Count > 0) retUser.Role = roles[0];
           retUsers.Add(retUser);
-        } 
-      
+        }
+
+        //var superadmin = retUsers.FindAll(f => f.Role == Roles.SuperAdmin);
+        //foreach (var sa in superadmin)
+        //{
+        //  retUsers.Remove(sa);
+        //}
+
         //   </api/devices?page=0&size=1000>; rel="last",</api/devices?page=0&size=1000>; rel="first"
         //var headerStr = $@"</api/users?page=1&size={size}>; rel=""next"",</api/users?page=5&size={size}>; rel=""last"",</api/users?page=0&size={size}>; rel=""first""";
         //Response.Headers.Add("Link", headerStr);
@@ -109,14 +117,14 @@ namespace ThirdVendingWebApi.Controllers
     {
       try
       {
-        //check admin
+        //check superadmin
         var admin = await _userManager.GetUserAsync(HttpContext.User);
         if (admin == null) return NotFound("Invalid ADMIN account!");
         if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
       
-        //check admin role
+        //check superadmin role
         var adminRoles = await _userManager.GetRolesAsync(admin);
-        if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+        if (!adminRoles.Contains(Roles.SuperAdmin)) return Forbid();
         
         var userApp = await _userManager.FindByIdAsync(user.Id);
         if (userApp == null) return BadRequest("Invalid user account!");
@@ -184,7 +192,7 @@ namespace ThirdVendingWebApi.Controllers
     /// Get allowed roles
     /// </summary>
     /// <returns></returns>
-    [HttpGet("GetRoles")]
+    [HttpGet("getRoles")]
     [Authorize]
     public async Task<IActionResult> GetRoles()
     {
@@ -236,6 +244,65 @@ namespace ThirdVendingWebApi.Controllers
         }
 
         return new ObjectResult(retDl);
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpPut("setActive/{id}")]
+    public async Task<IActionResult> SetActive(string id, [FromBody] bool activated)
+    {
+      try
+      {
+        ////check owner or admin
+        //var admin = await _userManager.GetUserAsync(HttpContext.User);
+        //if (admin == null) return NotFound("Invalid ADMIN account!");
+        //if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      
+        var userApp = await _userManager.FindByIdAsync(id);
+        if (userApp == null) return BadRequest("Invalid user account!");
+
+        var userRoles = await _userManager.GetRolesAsync(userApp);
+        if (userRoles.Contains(Roles.SuperAdmin)) return StatusCode(403, "Запрещено менять активность у супер-админа!"); //return Forbid("Запрещено менять активность у супер-админа!");
+
+        userApp.Activated = activated;
+
+        ////todo if super admin change password
+        //if (!string.IsNullOrEmpty(user.Password) && (user.Password.Length > 3) && (user.UserName != "admin@mail.com"))
+        //{
+        //  var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
+        //  var passwordHasher = HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;
+
+        //  var result = await passwordValidator.ValidateAsync(_userManager, userApp, user.Password);
+        //  if (result.Succeeded)
+        //  {
+        //    userApp.PasswordHash = passwordHasher.HashPassword(userApp, user.Password);
+        //  }
+        //}
+
+        var result = await _userManager.UpdateAsync(userApp);
+        if (result.Succeeded) return Ok();
+
+        var errors = new StringBuilder();
+        foreach (var error in result.Errors)
+        {
+          errors.AppendLine($"Code - {error.Code} Description - {error.Description}");
+        }
+
+        return BadRequest(errors);
+
+        //var usr = await _userManager.FindByIdAsync(user.Id);
+        //if (usr == null) return NotFound();
+        
+        //var retUser = usr.GetNewObj<UserAccount>();
+
+        //var retUserRoles = await _userManager.GetRolesAsync(usr);
+
+        //retUser.Authorities = retUserRoles.ToArray();
+        
+        //return new ObjectResult(retUser);
       }
       catch (Exception ex)
       {

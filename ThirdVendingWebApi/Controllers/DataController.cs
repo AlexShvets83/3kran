@@ -51,7 +51,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
 
       device = DeviceDbProvider.GetDeviceByImei(imei);
       var lastState = DeviceDbProvider.GetDeviceLastStatus(device.Id);
-      var lastAlert = DeviceDbProvider.GetDeviceLastAlert(device.Id);
+      //var lastAlert = DeviceDbProvider.GetDeviceLastAlert(device.Id);
 
       var date = DateTime.Now;
       var msgDate = date.ToUniversalTime().AddHours(device.TimeZone);
@@ -66,20 +66,21 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       // errors connect
       if (lastState != null)
       {
-        if (lastState.MessageDate.AddMinutes(10) < msgDate)
+        if (lastState.MessageDate.AddMinutes(12) < msgDate)
         {
-          if ((lastAlert == null) || (lastAlert.CodeType != -1))
+          var lastConnAlert = DeviceDbProvider.GetLastConnAlert(device.Id);
+          if ((lastConnAlert == null) || (lastConnAlert.CodeType == 1))
           {
             //error connect
-            // при появлении связи, просрочки во времени и последнеи аварии не "Пропала связь с автоматом" генерим аварию
+            // при появлении связи, просрочки во времени и последней аварии не "Пропала связь с автоматом" генерим аварию
             // со временем послед. + 10мин
             var alert = new DevAlert
             {
-              DeviceId = device.Id, ReceivedDate = date, MessageDate = lastState.MessageDate.AddMinutes(10), CodeType = -1,
+              DeviceId = device.Id, ReceivedDate = date, MessageDate = lastState.MessageDate.AddMinutes(12), CodeType = -1,
               Message = "Пропала связь с автоматом"
             };
             DeviceDbProvider.InsertDeviceAlert(alert);
-            
+
             // и сразу генерим событие "Связь восстановилась"
             alert = new DevAlert
             {
@@ -88,8 +89,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
             };
             DeviceDbProvider.InsertDeviceAlert(alert);
           }
-
-          if ((lastAlert != null) && (lastAlert.CodeType == -1))
+          else if (lastConnAlert.CodeType == -1) //todo redundant case
           {
             var alert = new DevAlert
             {
@@ -100,7 +100,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
           }
         }
       }
-      
+
       //tank
       if (te == 1)
       {
@@ -138,8 +138,10 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       }
       else
       {
-        //sale
-        if ((lastState == null) || (tm > lastState.TotalMoney))
+        var lastSaleAlert = DeviceDbProvider.GetLastSaleAlert(device.Id);
+        
+        //check sale
+        if ((lastState == null) || (tm > lastState.TotalMoney) || (ts > lastState.TotalSold))
         {
           var quantity = ts - lastState?.TotalSold ?? ts;
           var amount = tm - lastState?.TotalMoney ?? tm;
@@ -150,8 +152,8 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
           };
 
           DeviceDbProvider.InsertDeviceSale(sale);
-          
-          if ((lastAlert != null) && (lastAlert.CodeType == 0))
+
+          if ((lastSaleAlert != null) && (lastSaleAlert.CodeType == 0))
           {
             var alert = new DevAlert
             {
@@ -163,20 +165,24 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
         }
         else
         {
-          //not sales 2h
-          if (lastState.MessageDate.AddHours(2) < msgDate)
+          var lastSale = DeviceDbProvider.GetLastSale(device.Id);
+          if (lastSale != null)
           {
-            //eror sales
-            var alert = new DevAlert
+            //not sales 2h
+            if (lastSale.MessageDate.AddHours(2) < msgDate)
             {
-              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 0,
-              Message = "Нет продаж"
-            };
-            DeviceDbProvider.InsertDeviceAlert(alert);
+              //eror sales
+              var alert = new DevAlert
+              {
+                DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 0,
+                Message = "Нет продаж"
+              };
+              DeviceDbProvider.InsertDeviceAlert(alert);
+            }
           }
         }
       }
-      
+
       var ip = Request.HttpContext.Connection.RemoteIpAddress;
 
       //todo get last status сравнить данные и принять решение была ли продажа

@@ -7,96 +7,94 @@ using System.Xml.Serialization;
 namespace ThirdVendingWebApi.Models
 {
   /// <summary>
-  /// Учетная запись пользователя
+  ///   Учетная запись пользователя
   /// </summary>
   public class UserAccount
   {
     /// <summary>
-    /// Ид пользователя из базы данных
+    ///   Ид пользователя из базы данных
     /// </summary>
     public string Id { get; set; }
 
     /// <summary>
-    /// Логин или имя пользователя
+    ///   Логин или имя пользователя
     /// </summary>
     [JsonProperty("login")]
     [JsonPropertyName("login")]
     public string UserName { get; set; }
 
     /// <summary>
-    /// Имя
+    ///   Имя
     /// </summary>
     public string FirstName { get; set; }
 
     /// <summary>
-    /// Фамилия
+    ///   Фамилия
     /// </summary>
     public string LastName { get; set; }
-    
+
     /// <summary>
-    /// Email, электронная почта
+    ///   Email, электронная почта
     /// </summary>
     public string Email { get; set; }
 
     /// <summary>
-    /// Ссылка на изображение
+    ///   Ссылка на изображение
     /// </summary>
     public string ImageUrl { get; set; }
-    
+
     /// <summary>
-    /// Активирован ли пользователь
+    ///   Активирован ли пользователь
     /// </summary>
     public bool Activated { get; set; }
-    
+
     /// <summary>
-    /// Язык
+    ///   Язык
     /// </summary>
     public string LangKey { get; set; }
 
     /// <summary>
-    /// Кем создан
+    ///   Кем создан
     /// </summary>
     public string CreatedBy { get; set; }
 
     /// <summary>
-    /// Когда создан
+    ///   Когда создан
     /// </summary>
     public DateTime CreatedDate { get; set; }
 
     /// <summary>
-    /// Кем последний раз изменен
+    ///   Кем последний раз изменен
     /// </summary>
     public string LastModifiedBy { get; set; }
 
     /// <summary>
-    /// Когда последний раз изменен
+    ///   Когда последний раз изменен
     /// </summary>
     public DateTime LastModifiedDate { get; set; }
 
     /// <summary>
-    /// 
     /// </summary>
     public string[] Authorities { get; set; }
-    
+
     /// <summary>
-    /// Организация
+    ///   Организация
     /// </summary>
     public string Organization { get; set; }
 
     /// <summary>
-    /// 
     /// </summary>
     [JsonProperty("phone")]
     [JsonPropertyName("phone")]
     public string PhoneNumber { get; set; }
 
     /// <summary>
-    /// Город
+    ///   Город
     /// </summary>
     public string City { get; set; }
 
     /// <summary>
-    /// From DB
+    ///   From DB
     /// </summary>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -104,7 +102,7 @@ namespace ThirdVendingWebApi.Models
     public string InfoEmails { get; set; }
 
     /// <summary>
-    /// Массив имейлов для рассылки писем с авариями и событиями
+    ///   Массив имейлов для рассылки писем с авариями и событиями
     /// </summary>
     [JsonProperty("infoEmails")]
     [JsonPropertyName("infoEmails")]
@@ -118,16 +116,16 @@ namespace ThirdVendingWebApi.Models
         return arr.Length > 0 ? arr : new[] {InfoEmails};
       }
     }
-    
+
     /// <summary>
-    /// From DB
+    ///   From DB
     /// </summary>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     public int UserAlerts { get; set; }
 
     /// <summary>
-    /// Массив аварий и событий
+    ///   Массив аварий и событий
     /// </summary>
     public List<AlertTypes> Alerts => new()
     {
@@ -136,10 +134,15 @@ namespace ThirdVendingWebApi.Models
       new AlertTypes {Type = "NO_SALES", Active = ((UserAlerts >> 2) & 1) == 1, Description = "Нет продаж более трех часов"},
       new AlertTypes {Type = "REPORT", Active = ((UserAlerts >> 3) & 1) == 1, Description = "Ежедневный отчет"}
     };
-    
+
     /// <summary>
-    /// Отчество
+    ///   Отчество
     /// </summary>
     public string Patronymic { get; set; }
+
+    /// <summary>
+    ///   Роль
+    /// </summary>
+    public string Role { get; set; }
   }
 }

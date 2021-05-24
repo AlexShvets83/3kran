@@ -48,6 +48,10 @@ namespace DeviceDbModel
 
     public DbSet<DevAlert> DeviceAlerts { get; set; }
 
+    public DbSet<DevInfo> DeviceInfos { get; set; }
+
+    public DbSet<DevSetting> DeviceSettings { get; set; }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -117,6 +121,27 @@ namespace DeviceDbModel
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevAlerts).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
+
+      modelBuilder.Entity<DevInfo>(entity =>
+      {
+        entity.HasIndex(e => new {e.DeviceId, e.Name}).IsUnique();
+        entity.HasIndex(e => e.DeviceId);
+
+        //entity.HasIndex(e => e.ReceivedDate);
+        entity.HasIndex(e => e.MessageDate);
+        entity.HasOne(d => d.Device).WithMany(p => p.DevInfos).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+
+      modelBuilder.Entity<DevSetting>(entity =>
+      {
+        entity.HasIndex(e => new {e.DeviceId, e.MessageDate, e.Md5}).IsUnique();
+        entity.HasIndex(e => e.DeviceId);
+
+        //entity.HasIndex(e => e.ReceivedDate);
+        entity.HasIndex(e => e.MessageDate);
+        entity.HasOne(d => d.Device).WithMany(p => p.DevSettings).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+
       OnModelCreatingPartial(modelBuilder);
     }
 

@@ -1,0 +1,558 @@
+﻿@page
+@model ThirdVendingWebApi.Pages.Admin.IndexModel
+@{
+}
+
+<style>
+    #tbUsers .dx-toolbar .dx-texteditor {
+        width: 100% !important;
+    }
+
+    #tbUsers .dx-toolbar .dx-toolbar-after {
+        padding-left: 0;
+        width: 100% !important;
+    }
+
+    #tbUsers .dx-datagrid-search-panel {
+        margin-left: 0;
+    }
+
+    #tbDevices .dx-toolbar .dx-texteditor {
+        width: 100% !important;
+    }
+
+    #tbDevices .dx-toolbar .dx-toolbar-after {
+        padding-left: 0;
+        width: 100% !important;
+    }
+
+    #tbDevices .dx-datagrid-search-panel {
+        margin-left: 0;
+    }
+
+    .vert-align {
+        vertical-align: middle !important;
+    }
+
+    .vert-btn-align {
+        vertical-align: middle !important;
+        padding: 0 !important;
+    }
+
+    .btn-font {
+        /*vertical-align: middle !important;
+        padding: 0 !important;
+        font-size: 14px !important;*/
+  /*      padding: 0 !important;*/
+        padding-left: 0;
+        padding-right: 0;
+        /*vertical-align: bottom !important;*/
+        vertical-align: middle !important;
+        color: white !important;
+        width: 24px !important;
+        height: 24px !important;
+    }
+</style>
+
+<div class="row admin-dashboard">
+    <!-- Левая колонка -------------------------------------------------------------->
+    <section class="col-12 col-lg-6 col-xl-6 col-md-auto left">
+        <h4 class="mb-3"><i class="fa fa-users mr-2 text-warning"></i>&nbsp;&nbsp;Пользователи</h4>
+
+        <!-- Форма поиска пользователя -->
+        @*<form>
+            <div class="input-group">
+                <input name="userQuery" type="text" class="form-control" placeholder="Поиск пользователя" [(ngModel)]="userQuery" (change)="loadAllUsers()">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" (click)="loadAllUsers()">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <small class="form-text text-muted mb-2">
+                Ведите Email, фамилию, организацию или населённый пункт.
+            </small>
+        </form>*@
+        <div id="tbUsers"></div>
+    </section>
+
+    <!-- Средняя колонка -------------------------------------------------------------------------->
+    <section class="col-12 col-lg-6 col-xl-6 col-md-auto center">
+        <h4 class="mb-3"><i class="fa fa-map-marker mr-2 text-warning" aria-hidden="true"></i>Автоматы</h4>
+        <!--Форма поиска автомата-->
+        @*<form>
+            <div class="input-group">
+                <input name="deviceQuery" type="text" class="form-control" placeholder="Поиск автомата" [(ngModel)]="deviceQuery" (change)="loadAllDevices()">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" (click)="loadAllDevices()">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <small class="form-text text-muted mb-2">
+                Введите ID или адрес автомата.
+            </small>
+        </form>*@
+        <div id="tbDevices"></div>
+    </section>
+
+</div>
+
+<script>
+
+    function updateDevicesList() {
+        $.getJSON("/api/devices", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+            .then(function (data) { // добавляем обработчик при удачном выполнении запроса
+                $("#tbDevices").dxDataGrid('instance').option('dataSource', data);
+            });
+    }
+
+    function updateUsersList() {
+        $.getJSON("/api/users/", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+            .then(function (data) { // добавляем обработчик при удачном выполнении запроса
+                $("#tbUsers").dxDataGrid('instance').option('dataSource', data);
+            });
+    }
+
+    function setActive(value) {
+        var dataGrid = $("#tbUsers").dxDataGrid("instance");
+        var rowKey = dataGrid.option("focusedRowKey");
+        var data = { activated: value };
+        $.putJSON("/api/users/setActive/" + rowKey, value, null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+            .then(function () { // добавляем обработчик при удачном выполнении запроса
+                    //$('#popupContainer').modal('hide');
+                updateUsersList();
+                //$("#tbUsers").dxDataGrid('instance').option('dataSource', data);
+            },
+                function(res) {
+                    if (res.readyState === 4 && res.status === 200) {
+                        //$('#popupContainer').modal('hide');
+                        updateUsersList();
+                    } else {
+                        const message = res.responseText ? res.responseText : `Error${res.status}`;
+                        DevExpress.ui.notify(message,);
+                        //DevExpress.ui.notify({ message: message, width: 300, shading: true }, "error", 2000);
+                        DevExpress.ui.notify({ message: message}, "error", 5000);
+                        //document.getElementById("errors").style.display = "block";
+                    }
+                });
+    }
+    $(function() {
+        $("#tbUsers").dxDataGrid({
+            focusedRowEnabled: true,
+            showColumnLines: true,
+            showRowLines: true,
+            keyExpr: "id",
+            columnAutoWidth: true,
+            columnFixing: { enabled: true },
+            cellHintEnabled: true,
+            paging: { pageSize: 10 },
+            pager: {
+                //showPageSizeSelector: true,
+                //allowedPageSizes: [10, 20, 30, 50, 100],
+                showInfo: true
+            },
+            headerFilter: { visible: true },
+            //filterRow: {
+            //    visible: true,
+            //    applyFilter: "auto"
+            //},
+            //headerFilter: { visible: true },
+            showBorders: true,
+            wordWrapEnabled: true,
+            selection: { mode: 'single' },
+            //scrolling: {mode: "virtual"},
+            //height: 800,
+            hoverStateEnabled: true,
+            loadPanel: { enabled: true },
+
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+                searchVisibleColumnsOnly: true,
+                placeholder: "Ведите Email, фамилию, организацию или населенный пункт",
+                width: '100%'
+            },
+            editing: { allowUpdating: true },
+            onSelectionChanged: function (e) {
+                var device = e.selectedRowsData[0];
+            },
+            onContentReady: function (e) {
+                e.component.columnOption("command:edit", "visibleIndex", -1); // if you want fixedPosition: left, uncomment this code
+            },
+            onCellPrepared: function(options) {
+                var fieldData = options.value,
+                    fieldHtml = "";
+                //if(fieldData && fieldData.value) {
+                //    if(fieldData.diff) {
+                //        options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
+                //        fieldHtml += "<div class='current-value'>" +
+                //            DevExpress.localization.formatNumber(fieldData.value, {type: "currency", currency: "USD", precision: 2 }) +
+                //            "</div> <div class='diff'>" +
+                //            Math.abs(fieldData.diff).toFixed(2) +
+                //            "  </div>";
+                //    } else {
+                //        fieldHtml = fieldData.value;
+                //    }
+                //    options.cellElement.html(fieldHtml);
+                //}
+            },
+            //onCellPrepared: function(options) {
+            //    const fieldData = options.value;
+            //    var fieldHtml = "";
+            //    const column = options.column;
+            //    if (options.rowType === "data" && column.dataField === "alerts") {
+            //        fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
+            //        options.cellElement.html(fieldHtml);
+            //    }
+            //    if (fieldData && fieldData.value) {
+            //        if (fieldData.diff) {
+            //            options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
+            //            fieldHtml += "<div class='current-value'>" +
+            //                DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
+            //                "</div> <div class='diff'>" +
+            //                Math.abs(fieldData.diff).toFixed(2) +
+            //                "  </div>";
+            //        } else {
+            //            fieldHtml = fieldData.value;
+            //        }
+            //        options.cellElement.html(fieldHtml);
+            //    }
+            //},
+            columns: [
+                {
+                    width: 56,
+                    fixed: false,
+                    //visibleIndex: -1,
+                    allowSorting: true,
+                    type: "buttons",
+                    alignment: "center",
+                    cssClass: "vert-btn-align",
+                    buttons: [
+                        {
+                            hint: "Изменить данные пользователя",
+                            cssClass: "btn btn-info btn-sm btn-font fa fa-user",
+                            //icon: "fa fa-user",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        },
+                        {
+                            hint: "Удалить",
+                            //icon: "fa fa-remove",
+                            cssClass: "btn btn-danger btn-sm btn-font fa fa-remove",//fa fa-window-close text-danger",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        },
+                        //{
+                        //    hint: "Удалить",
+                        //    //icon: "fa fa-gear",
+                        //    cssClass: "btn btn-danger btn-sm text-white fa fa-window-close",//fa fa-window-close text-danger",
+                        //    onClick: function (e) {
+                        //        const row = e.row.data;
+                        //    }
+                        //},
+                        //{
+                        //    hint: function (data) {
+                        //        return "Активировать";
+                        //    },
+                        //    //icon: "fa fa-pencil",
+                        //    cssClass: function (data) {
+                        //        return "btn btn-danger btn-sm text-white fa fa-lock";
+                        //    },
+                        //    onClick: function (e) {
+                        //        const row = e.row.data;
+                        //    }
+                        //}
+                    ]
+                },
+            ,
+            {
+                width: 32,
+                dataField: "activated",
+                allowSorting: true,
+                alignment: "center",
+                cssClass: "vert-btn-align",
+                caption: "",
+                cellTemplate: function(element, info) {
+                    var user = info.data;
+                    if (user.activated) {
+                        //var dx = '<a href="#" style="width: 32px" class="dx-link btn btn-success btn-sm text-white fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
+                        var dx = '<a href="#" class="btn btn-success btn-sm btn-font fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
+                        element.append(dx);
+                        //element.append('<button type="button" class="btn btn-success btn-sm" onclick="setActive(false)" title="Деактивировать"><i class="fa fa-unlock"></i></button>');
+                    } else {
+                        //var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
+                        var dx1 = '<a href="#" class="btn btn-danger btn-sm btn-font fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
+                        element.append(dx1);
+                        //element.append('<button type="button" class="btn btn-danger btn-sm" onclick="setActive(true)" title="Активировать"><i class="fa fa-lock"></i></button>');
+                    }
+                }
+            },
+                {
+                    dataField: "lastName",
+                    allowSorting: true,
+                    caption: "Фамилия/email",
+                    headerCellTemplate: function (header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    },
+                    cellTemplate: function(element, info) {
+                        element.append('<div>' + info.value + '</div>');
+                        element.append('<div>' + info.data.email + '</div>'); //.css("class","fa fa-exclamation-triangle text-danger");
+                    }
+                },
+                {
+                    allowSorting: true,
+                    dataField: "organization",
+                    caption: "Организация",
+                    cssClass: "vert-align",
+                    dataType: "string",
+                    headerCellTemplate: function (header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    }
+                },
+                {
+                    allowSorting: true,
+                    dataField: "city",
+                    caption: "Город",
+                    cssClass: "vert-align",
+                    dataType: "string",
+                    headerCellTemplate: function (header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    }
+                },
+                {
+                    allowSorting: true,
+                    dataField: "role",
+                    caption: "Роль/статус",
+                    dataType: "string",
+                    headerCellTemplate: function (header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    },
+                    cellTemplate: function(element, info) {
+                        element.append(`<div>${info.value}</div>`);
+                        element.append(`<div>${info.data.activated}</div>`);
+                    }
+                },
+                //{
+                //    allowSorting: true,
+                //    dataField: "owner",
+                //    caption: "Владелец",
+                //    //width: '110px',
+                //    headerCellTemplate: function (header, info) {
+                //        $('<b style="color: black">')
+                //            .html(info.column.caption)
+                //            .css('font-size', '14px')
+                //            .appendTo(header);
+                //    },
+                //    cellTemplate: function (element, info) {
+                //        if (!info.text)
+                //            element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
+                //        // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                //    }
+                //}
+            ]
+        });
+        updateUsersList();
+
+
+
+        //=========================================================
+        $("#tbDevices").dxDataGrid({
+            showColumnLines: true,
+            showRowLines: true,
+            keyExpr: "id",
+            columnAutoWidth: true,
+            columnFixing: { enabled: true },
+            cellHintEnabled: true,
+            paging: { pageSize: 10 },
+            pager: {
+                //showPageSizeSelector: true,
+                //allowedPageSizes: [10, 20, 30, 50, 100],
+                showInfo: true,
+                infoText: 'Страница {0} из {1} ({2} автоматов)'
+            },
+            //filterRow: {
+            //    visible: true,
+            //    applyFilter: "auto"
+            //},
+            headerFilter: { visible: true },
+            showBorders: true,
+            wordWrapEnabled: true,
+            selection: { mode: 'single' },
+            //scrolling: {mode: "virtual"},
+            //height: 800,
+            hoverStateEnabled: true,
+            loadPanel: { enabled: true },
+
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+                //searchVisibleColumnsOnly: true,
+                placeholder: "Введите ID или адрес автомата.",
+                //width: '100%'
+            },
+            onSelectionChanged: function(e) {
+                var device = e.selectedRowsData[0];
+            },
+            onContentReady: function(e) {
+                e.component.columnOption("command:edit", "visibleIndex", -1); // if you want fixedPosition: left, uncomment this code
+            },
+            //onCellPrepared: function(options) {
+            //    const fieldData = options.value;
+            //    var fieldHtml = "";
+            //    const column = options.column;
+            //    if (options.rowType === "data" && column.dataField === "alerts") {
+            //        fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
+            //        options.cellElement.html(fieldHtml);
+            //    }
+            //    if (fieldData && fieldData.value) {
+            //        if (fieldData.diff) {
+            //            options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
+            //            fieldHtml += "<div class='current-value'>" +
+            //                DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
+            //                "</div> <div class='diff'>" +
+            //                Math.abs(fieldData.diff).toFixed(2) +
+            //                "  </div>";
+            //        } else {
+            //            fieldHtml = fieldData.value;
+            //        }
+            //        options.cellElement.html(fieldHtml);
+            //    }
+            //},
+            columns: [
+                {
+                    dataField: "ownerId",
+                    visible: false
+                },
+                {
+                    //caption: "Удалить",
+                    //width: 30,
+                    //minWidth: 30,
+                    //headerCellTemplate: function (header, info) {
+                    //    $('<b style="color: black">')
+                    //        .html(info.column.caption)
+                    //        .css('font-size', '14px')
+                    //        .appendTo(header);
+                    //},
+                    fixed: false,
+                    //visibleIndex: -1,
+           /*         allowSorting: true,*/
+                    width: 207,
+                    type: "buttons",
+                    cssClass: "vert-btn-align",
+                    buttons: [
+                        {
+                            hint: "Сменить/назначить владельца",
+                            //icon: "fa fa-user",
+                            cssClass: "btn btn-danger btn-sm text-white fa fa-user",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        },
+                        {
+                            hint: "Просмотр и редактирование данных автомата",
+                            //icon: "fa fa-pencil",
+                            cssClass: "btn btn-primary btn-sm text-white fa fa-pencil",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        },
+                        {
+                            hint: "Технические настройки автомата",
+                            //icon: "fa fa-gear",
+                            cssClass: "btn btn-primary btn-sm text-white fa fa-gear",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        },
+                        {
+                            hint: "Список продаж",
+                            //icon: "fa fa-shopping-cart",
+                            cssClass: "btn btn-success btn-sm text-white fa fa-shopping-cart",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        },
+                        {
+                            hint: "Список инкассаций",
+                            //icon: "fa fa-truck",
+                            cssClass: "btn btn-secondary btn-sm text-light fa fa-truck",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        },
+                        {
+                            hint: "Список аварий",
+                            //icon: "fa fa-warning",
+                            cssClass: "btn btn-warning btn-sm text-dark fa fa-warning",
+                            onClick: function (e) {
+                                const row = e.row.data;
+                            }
+                        }
+                    ]
+                },
+                {
+                    dataField: "imei",
+                    allowSorting: true,
+                    caption: "ID автомата",
+                    headerCellTemplate: function(header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    },
+                    //cellTemplate: function(element, info) {
+                    //    //if (!info.text)
+                    //    //    element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
+                    //    // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                    //}
+                },
+                {
+                    allowSorting: true,
+                    dataField: "address",
+                    caption: "Адрес",
+                    dataType: "string",
+                    headerCellTemplate: function(header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    }
+                },
+                {
+                    allowSorting: true,
+                    dataField: "owner",
+                    caption: "Владелец",
+                    //width: '110px',
+                    headerCellTemplate: function(header, info) {
+                        $('<b style="color: black">')
+                            .html(info.column.caption)
+                            .css('font-size', '14px')
+                            .appendTo(header);
+                    },
+                    cellTemplate: function(element, info) {
+                        if (!info.text)
+                            element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
+                               // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                    }
+                }
+            ]
+        });
+        updateDevicesList();
+    });
+
+</script>

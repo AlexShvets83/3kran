@@ -166,6 +166,22 @@ $.postJSON = function(url, data, callback) {
     });
 };
 
+$.putJSON = function(url, data, callback) {
+    var token = sessionStorage.getItem(tokenKey);
+    return jQuery.ajax({
+        headers: { 
+            'Accept': "application/json",
+            'Content-Type': "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        type: "PUT",
+        url: url,
+        data: JSON.stringify(data),
+        dataType: "json",
+        success: callback
+    });
+};
+
 $.deleteObj = function(url) {
     var token = sessionStorage.getItem(tokenKey);
     return jQuery.ajax({

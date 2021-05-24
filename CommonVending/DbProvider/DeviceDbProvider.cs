@@ -257,6 +257,57 @@ namespace CommonVending.DbProvider
       }
     }
 
+    public static DevAlert GetLastConnAlert(string devId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceAlerts.Where(w => (w.DeviceId == devId) && ((w.CodeType == -1) || (w.CodeType == 1))).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
+    public static DevAlert GetLastSaleAlert(string devId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceAlerts.Where(w => (w.DeviceId == devId) && ((w.CodeType == 0) || (w.CodeType == 3))).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
+    public static DevSale GetLastSale(string devId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceSales.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
     public static void WriteDeviceLastStatus(DevStatus record)
     {
       try

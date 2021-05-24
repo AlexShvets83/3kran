@@ -11,6 +11,8 @@ namespace DeviceDbModel.Models
       DevSales = new HashSet<DevSale>();
       DevEncashes = new HashSet<DevEncash>();
       DevAlerts = new HashSet<DevAlert>();
+      DevInfos = new HashSet<DevInfo>();
+      DevSettings = new HashSet<DevSetting>();
     }
 
     public string Id { get; set; }
@@ -38,5 +40,9 @@ namespace DeviceDbModel.Models
     public ICollection<DevEncash> DevEncashes { get; set; }
 
     public ICollection<DevAlert> DevAlerts { get; set; }
+
+    public ICollection<DevInfo> DevInfos { get; set; }
+
+    public ICollection<DevSetting> DevSettings { get; set; }
   }
 }
