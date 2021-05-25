@@ -171,13 +171,16 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
             //not sales 2h
             if (lastSale.MessageDate.AddHours(2) < msgDate)
             {
-              //eror sales
-              var alert = new DevAlert
+              if ((lastSaleAlert != null) && (lastSaleAlert.CodeType != 0))
               {
-                DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 0,
-                Message = "Нет продаж"
-              };
-              DeviceDbProvider.InsertDeviceAlert(alert);
+                //eror sales
+                var alert = new DevAlert
+                {
+                  DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 0,
+                  Message = "Нет продаж"
+                };
+                DeviceDbProvider.InsertDeviceAlert(alert);
+              }
             }
           }
         }

@@ -274,6 +274,23 @@ namespace CommonVending.DbProvider
       }
     }
 
+    public static DevInfo GetDevInfo(string devId, string name)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceInfos.Where(w => (w.DeviceId == devId) && (w.Name == name)).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
     public static DevAlert GetLastSaleAlert(string devId)
     {
       try
@@ -308,6 +325,23 @@ namespace CommonVending.DbProvider
       }
     }
 
+    public static DevSetting GetLastSettings(string devId, string topic)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceSettings.Where(w => (w.DeviceId == devId) && (w.Topic == topic)).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          return record.Count == 0 ? null : record[0];
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
     public static void WriteDeviceLastStatus(DevStatus record)
     {
       try
@@ -316,6 +350,36 @@ namespace CommonVending.DbProvider
         {
           if (record.Id != 0) { context.DeviceLastStatus.Update(record); }
           else { context.DeviceLastStatus.Add(record); }
+
+          context.SaveChanges();
+        }
+      }
+      catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static void WriteDeviceLastInfo(DevInfo record)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          if (record.Id != 0) { context.DeviceInfos.Update(record); }
+          else { context.DeviceInfos.Add(record); }
+
+          context.SaveChanges();
+        }
+      }
+      catch (Exception ex) { Console.WriteLine(ex); }
+    }
+
+    public static void WriteDeviceSettings(DevSetting record)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          if (record.Id != 0) { context.DeviceSettings.Update(record); }
+          else { context.DeviceSettings.Add(record); }
 
           context.SaveChanges();
         }
