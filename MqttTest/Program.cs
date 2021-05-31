@@ -16,13 +16,14 @@ namespace MqttTest
     static async Task Main(string[] args)
     {
       Console.WriteLine("Hello World!");
-
-      var message = new MqttApplicationMessageBuilder()
-        .WithTopic("MyTopic")
-        .WithPayload("Hello World")
-        .WithExactlyOnceQoS()
-        .WithRetainFlag()
-        .Build();
+      var topic = "3voda/device/869244046767509/settings/todevice";
+      var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(@"{""maintain"":1}").WithExactlyOnceQoS().WithRetainFlag().Build();
+      //var message = new MqttApplicationMessageBuilder()
+      //  .WithTopic("MyTopic")
+      //  .WithPayload("Hello World")
+      //  .WithExactlyOnceQoS()
+      //  .WithRetainFlag()
+      //  .Build();
       //// Use WebSocket connection.
       //var options = new MqttClientOptionsBuilder()
       //  .WithWebSocketServer("broker.hivemq.com:8000/mqtt")
@@ -41,7 +42,7 @@ namespace MqttTest
       var options = new MqttClientOptionsBuilder()
         //.WithTcpServer("95.183.10.198", 8883) // Port is optional
         .WithTcpServer("monitoring3voda.ru", 8883)
-        .WithCredentials("bud", "%spencer%")
+        .WithCredentials("3voda", "Leimnoj8Knod")
         //.WithTls(new MqttClientOptionsBuilderTlsParameters
         //{
         //  UseTls = true,
@@ -51,8 +52,8 @@ namespace MqttTest
         .WithTls(new MqttClientOptionsBuilderTlsParameters
         {
           UseTls = true,
-          SslProtocol = System.Security.Authentication.SslProtocols.Tls,
-          Certificates = certs
+          SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+          //Certificates = certs
         })
         .Build();
       try

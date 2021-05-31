@@ -3,15 +3,17 @@ using System;
 using DeviceDbModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DeviceDbModel.Migrations
 {
     [DbContext(typeof(DeviceDBContext))]
-    partial class DeviceDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210530150015_add_topicType")]
+    partial class add_topicType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,6 +271,14 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("message_date");
 
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("received_date");
+
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
+
                     b.HasKey("Id")
                         .HasName("pk_device_alerts");
 
@@ -277,6 +287,9 @@ namespace DeviceDbModel.Migrations
 
                     b.HasIndex("MessageDate")
                         .HasDatabaseName("ix_device_alerts_message_date");
+
+                    b.HasIndex("ReceivedDate")
+                        .HasDatabaseName("ix_device_alerts_received_date");
 
                     b.ToTable("device_alerts");
                 });
@@ -317,6 +330,14 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("message_date");
 
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("received_date");
+
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
+
                     b.HasKey("Id")
                         .HasName("pk_device_encashes");
 
@@ -325,6 +346,9 @@ namespace DeviceDbModel.Migrations
 
                     b.HasIndex("MessageDate")
                         .HasDatabaseName("ix_device_encashes_message_date");
+
+                    b.HasIndex("ReceivedDate")
+                        .HasDatabaseName("ix_device_encashes_received_date");
 
                     b.ToTable("device_encashes");
                 });
@@ -348,6 +372,10 @@ namespace DeviceDbModel.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("received_date");
 
                     b.Property<float>("Value")
                         .HasColumnType("real")
@@ -409,6 +437,14 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("real")
                         .HasColumnName("quantity");
 
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("received_date");
+
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
+
                     b.HasKey("Id")
                         .HasName("pk_device_sales");
 
@@ -417,6 +453,9 @@ namespace DeviceDbModel.Migrations
 
                     b.HasIndex("MessageDate")
                         .HasDatabaseName("ix_device_sales_message_date");
+
+                    b.HasIndex("ReceivedDate")
+                        .HasDatabaseName("ix_device_sales_received_date");
 
                     b.ToTable("device_sales");
                 });
@@ -444,6 +483,10 @@ namespace DeviceDbModel.Migrations
                     b.Property<string>("Payload")
                         .HasColumnType("text")
                         .HasColumnName("payload");
+
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("received_date");
 
                     b.Property<string>("Topic")
                         .HasColumnType("text")
@@ -488,6 +531,10 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("message_date");
 
+                    b.Property<DateTime>("ReceivedDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("received_date");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");
@@ -495,6 +542,10 @@ namespace DeviceDbModel.Migrations
                     b.Property<float>("Temperature")
                         .HasColumnType("real")
                         .HasColumnName("temperature");
+
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
 
                     b.Property<float>("TotalMoney")
                         .HasColumnType("real")
@@ -512,6 +563,9 @@ namespace DeviceDbModel.Migrations
 
                     b.HasIndex("MessageDate")
                         .HasDatabaseName("ix_device_last_status_message_date");
+
+                    b.HasIndex("ReceivedDate")
+                        .HasDatabaseName("ix_device_last_status_received_date");
 
                     b.ToTable("device_last_status");
                 });

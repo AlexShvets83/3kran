@@ -1,0 +1,51 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DeviceDbModel;
+using DeviceDbModel.Models;
+
+namespace CommonVending.DbProvider
+{
+  public class SalesDbProvider
+  {
+    static SalesDbProvider() { DeviceDBContextFactory = new DeviceDBContextFactory(); }
+
+    public static DeviceDBContextFactory DeviceDBContextFactory { get; }
+    
+    public static List<DevSale> GetDeviceSales(string devId, int limit)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceSales.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(limit).ToList();
+          return record;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+
+    public static List<DevSale> GetDeviceSales(string devId, DateTime from, DateTime to)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var record = context.DeviceSales.Where(w => (w.DeviceId == devId) && (w.MessageDate >= from) && (w.MessageDate <= to)).OrderByDescending(o => o.MessageDate).ToList();
+          return record;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return null;
+      }
+    }
+  }
+}

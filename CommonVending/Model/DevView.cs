@@ -7,7 +7,7 @@ using DeviceDbModel.Models;
 
 namespace CommonVending.Model
 {
-  class DevView
+  public class DevView
   {
     /*
      {"id":"605f489e2ab79c00016fe6e9",
@@ -51,11 +51,15 @@ namespace CommonVending.Model
 
     public string OwnerEmail { get; set; }
 
-    public DevStatus LastStatus { get; set; }
+    public DevStatusView LastStatus { get; set; }
 
-    public DevSale LastSale { get; set; }
+    public DevSaleView LastSale { get; set; }
 
-    public DevAlert LastAlert { get; set; }
+    public CleanerStatusView LastCleanerStatus { get; set; }
+
+    public string[] Alerts { get; set; }
+
+    //public DevAlert LastAlert { get; set; }
 
     //"lastCleanerStatus":null,
     //"settings":null,

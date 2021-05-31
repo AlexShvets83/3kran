@@ -47,14 +47,14 @@ namespace CommonVending.MqttModels
     public float PriceCard { get; set; }
 
     /// <summary>
-    /// Цена импульса монетоприемника
+    /// Цена импульса монетоприемника !!!!!!!! был int
     /// </summary>
-    public int PulseValueCoin { get; set; }
+    public float PulseValueCoin { get; set; }
 
     /// <summary>
-    /// Цена импульса купюроприёмника
+    /// Цена импульса купюроприёмника !!!!!!!! был int
     /// </summary>
-    public int PulseValueBill { get; set; }
+    public float PulseValueBill { get; set; }
 
     /// <summary>
     /// Телефон техподдержки

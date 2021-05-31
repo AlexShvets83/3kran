@@ -34,5 +34,11 @@
     "inputFiles": [
       "wwwroot/css/admin.css"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/lib/popperjs/core/dist/cjs/popper.min.js",
+    "inputFiles": [
+      "wwwroot/lib/popperjs/core/dist/cjs/popper.js"
+    ]
   }
 ]

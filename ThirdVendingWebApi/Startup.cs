@@ -64,24 +64,6 @@ namespace ThirdVendingWebApi
 
       services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
 
-      //services.AddIdentityCore<ApplicationUser>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
-      //services.AddDefaultIdentity<ApplicationUser>().AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>(); //.AddDefaultTokenProviders();
-      //services.AddScoped<IUserStore<ApplicationUser>>();
-
-      //services.ConfigureApplicationCookie(options =>
-      //{
-      //  options.
-      //  options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-      //  options.Cookie.Name = "YourAppCookieName";
-      //  options.Cookie.HttpOnly = true;
-      //  options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-      //  options.LoginPath = "/Identity/Account/Login";
-      //  // ReturnUrlParameter requires 
-      //  //using Microsoft.AspNetCore.Authentication.Cookies;
-      //  options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
-      //  options.SlidingExpiration = true;
-      //});
-
       // Add application services.
       services.AddTransient<IEmailSender, AuthMessageSender>();
       services.AddTransient<ISmsSender, AuthMessageSender>();
@@ -105,9 +87,6 @@ namespace ThirdVendingWebApi
           x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
           x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
           x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-          //x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-          //x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
@@ -136,8 +115,6 @@ namespace ThirdVendingWebApi
 
             // валидация ключа безопасности
             ValidateIssuerSigningKey = true, LifetimeValidator = CustomLifetimeValidator
-
-            //ClockSkew =  
           };
         });
 
@@ -172,7 +149,6 @@ namespace ThirdVendingWebApi
       //  options.SlidingExpiration = true;
       //});
 
-      //services.Configure<ForwardedHeadersOptions>(options => { options.KnownProxies.Add(IPAddress.Parse("10.0.0.100")); });
       services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
 
       services.AddResponseCompression(options =>
@@ -224,14 +200,8 @@ namespace ThirdVendingWebApi
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
-
-        //app.UseSwagger();
-        //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ThirdVendingWebApi v1"));
       }
 
-      //app.UseHttpsRedirection();
-      //app.UseRouting();
-      //app.UseAuthorization();
       //app.UseHttpsRedirection();
 
       app.UseRouting();
@@ -248,10 +218,8 @@ namespace ThirdVendingWebApi
       {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "ThirdVendingWebApi v1");
         c.DocExpansion(DocExpansion.List);
-        c.RoutePrefix = "api/doc"; //string.Empty;
+        c.RoutePrefix = "api/doc";
       });
-
-      //app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
       app.UseEndpoints(endpoints =>
       {

@@ -1,18 +1,10 @@
 ﻿using System;
 
-namespace DeviceDbModel.Models
+namespace CommonVending.Model
 {
-  public class DevEncash
+  public class DevEncashView
   {
-    public long Id { get; set; }
-
-    public string DeviceId { get; set; }
-
-    //public DateTime ReceivedDate { get; set; }
-
     public DateTime MessageDate { get; set; }
-
-    //public double Timestamp { get; set; }
 
     public float AmountCoin { get; set; }
 
@@ -29,7 +21,5 @@ namespace DeviceDbModel.Models
     ///   Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
     /// </summary>
     public string Bills { get; set; }
-
-    public Device Device { get; set; }
   }
 }

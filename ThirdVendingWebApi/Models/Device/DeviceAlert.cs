@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace DeviceDbModel.Models
+namespace ThirdVendingWebApi.Models.Device
 {
-  public class DevAlert
+  public class DeviceAlert
   {
-    public long Id { get; set; }
+    //public long Id { get; set; }
 
-    public string DeviceId { get; set; }
+    //public string DeviceId { get; set; }
 
     //public DateTime ReceivedDate { get; set; }
 
@@ -17,7 +17,5 @@ namespace DeviceDbModel.Models
     public int CodeType { get; set; }
 
     public string Message { get; set; }
-
-    public Device Device { get; set; }
   }
 }

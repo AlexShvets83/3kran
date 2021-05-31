@@ -64,15 +64,27 @@
         <div id="gridContainer"></div>
         @*<div> <br /></div>*@
         <br />
-        <!-- Кнопка вызова окна добавления автомата -->
-        <div align="right">
-            <span data-toggle="tooltip" data-placement="left" title="Добавить (зарегистрировать) автомат">
-                <button onclick="addDevice(device, user)"
-                        class="btn btn-primary btn-sm mb-3" data-toggle="modal"
-                        data-target="#popupContainer">
-                    <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
-                </button>
-            </span>
+        <div class="row">
+            <div class="col">
+                <span data-toggle="tooltip" data-placement="left" title="Обновить информацию">
+                    <button onclick="updatePage()"
+                            class="btn btn-info btn-sm mb-3">
+                        <i class="fa fa-refresh"></i>&nbsp;&nbsp;Обновить
+                    </button>
+                </span>
+            </div>
+
+            <!-- Кнопка вызова окна добавления автомата -->
+
+            <div class="col" align="right">
+                <span data-toggle="tooltip" data-placement="left" title="Добавить (зарегистрировать) автомат">
+                    <button onclick="addDevice(null)"
+                            class="btn btn-primary btn-sm mb-3" data-toggle="modal"
+                            data-target="#popupContainer">
+                        <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
+                    </button>
+                </span>
+            </div>
         </div>
     </section>
 
@@ -94,11 +106,11 @@
         <div class="row">
             <!-- Шапка автомата -->
             <div class="col-sm-3">
-                <div class="dashboard_header-device_id badge-info lead rounded text-center">
-                    ID: @*{{selected.deviceId}}*@
+                <div id="strId" class="dashboard_header-device_id badge-info lead rounded text-center">
+                    ID:
                 </div>
             </div>
-            <div class="col-sm-5 dashboard_header-device_address">@*{{selected.address}}*@</div>
+            <div id="strAddress" class="col-sm-5 dashboard_header-device_address"></div>
             <div class="col-sm-4 d-flex btn-group text-white"
                  [ngSwitch]="getSingleAlert(selected)">
                 <span *ngSwitchCase="alertTypes.NO_LINK" class="btn btn-danger flex-grow-1 disabled dashboard_header-device_status">
@@ -127,31 +139,10 @@
                         <i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Редактировать
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="#"><i class="fa fa-list-ul"></i>&nbsp;&nbsp;Профиль</a>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#popupContainer" onclick="addDevice(device)"><i class="fa fa-list-ul"></i>&nbsp;&nbsp;Профиль</a>
                         <a class="dropdown-item" href="#"><i class="fa fa-wrench"></i>&nbsp;&nbsp;Техн. настройки</a>
                     </div>
                 </div>
-
-
-                <!--<div class="btn-group dashboard_header-device_edit d-flex flex-grow-0" ngbDropdown placement="bottom-right">
-                    <button type="button" class="btn btn-primary btn-sm" id="editDropdown" ngbDropdownToggle>
-                        <span data-toggle="tooltip" data-placement="left" title="" data-original-title="Изменить профиль, техн. настройки и видимость этого автомата">
-                            <i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Редактировать
-                        </span>
-                    </button>
-                    <div ngbDropdownMenu aria-labelledby="editDropdown">
-                        <a class="dropdown-item" data-toggle="modal" [routerLink]="['/', { outlets: { popup: 'device/'+selected.id+'/edit'}}]">
-                            <i class="fa fa-list-ul"></i>&nbsp;&nbsp;Профиль
-                        </a>
-                        <a class="dropdown-item" data-toggle="modal" [routerLink]="['/', { outlets: { popup: 'settings/'+selected.id}}]">
-                            <i class="fa fa-wrench"></i>&nbsp;&nbsp;Техн. настройки
-                        </a>-->
-                <!--<a class="dropdown-item" href="#">-->
-                <!--<i class="fa fa-eye" ></i>&nbsp;&nbsp;Видимость</a>-->
-                <!--</div>
-                </div>-->
-
-
             </div>
         </div>
         <hr>
@@ -173,28 +164,28 @@
                     <div class="dashboard_graph-legend_item">
                         <span class="dashboard_graph-legend_money"><i class="fa fa-square"></i></span>
                         <span>Выручка:</span>
-                        <span class="lead text-white bg-success rounded pb-1 pl-3 pr-3" *ngIf="selected.lastStatus">
-                            @*<b>{{selected.lastStatus.totalMoney}} <span [innerHTML]="getCurrencySign(selected)"></span></b>*@
+                        <span class="lead text-white bg-success rounded pb-1 pl-3 pr-3" id="totalMoney">
                         </span>
                     </div>
                     <div class="dashboard_graph-legend_item">
                         <span class="dashboard_graph-legend_sold"><i class="fa fa-square"></i></span>
                         <span>Продано:</span>
-                        @*<span *ngIf="selected.lastStatus">{{selected.lastStatus.totalSold}} л</span>*@
+                        <span id="totalSold"></span>
                     </div>
                 </div>
                 <!-- Кнопки по периодам -->
-                <div class="col dashboard_graph-term_selector btn-group btn-group-toggle" ngbRadioGroup name="term" [(ngModel)]="term" (change)="selectTerm(term)">
-                    <label ngbButtonLabel class="btn-outline-secondary dashboard_graph-term_button">
-                        <input ngbButton type="radio" [value]="DAYS"><i class="fa fa-calendar-check-o"></i>&nbsp;День
+                <div class="col dashboard_graph-term_selector btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-outline-secondary dashboard_graph-term_button">
+                        <input type="radio" onchange="periodChange(this)" value="DAYS"><i class="fa fa-calendar-check-o"></i>&nbsp;День
                     </label>
-                    <label ngbButtonLabel class="btn-outline-secondary dashboard_graph-term_button">
-                        <input ngbButton type="radio" [value]="MONTHS"><i class="fa fa-moon-o"></i>&nbsp;Месяц
+                    <label class="btn btn-outline-secondary dashboard_graph-term_button active">
+                        <input type="radio" onchange="periodChange(this)" value="MONTHS" checked><i class="fa fa-moon-o"></i>&nbsp;Месяц
                     </label>
-                    <label ngbButtonLabel class="btn-outline-secondary dashboard_graph-term_button">
-                        <input ngbButton type="radio" [value]="YEARS"><i class="fa fa-calendar"></i>&nbsp;Год
+                    <label class="btn btn-outline-secondary dashboard_graph-term_button">
+                        <input type="radio" onchange="periodChange(this)" value="YEARS"><i class="fa fa-calendar"></i>&nbsp;Год
                     </label>
                 </div>
+
                 <div class="p-3">
                     <info-badge *ngIf="selected.lastCleanerStatus"
                                 [info]="makeDeviceInfo('tds', selected.lastCleanerStatus.tds, 0)">
@@ -208,6 +199,8 @@
             </div>
         </div>
         <!-- График динамики продаж (конец) -->
+        
+
         <!-- Вложенная сетка 2 -->
         <!-- Клонка для списка продаж -->
         <div class="row small">
@@ -234,43 +227,15 @@
                     </div>
                     <hr>
                     <div class="dashboard-sales_wrapper">
-                        <table class="w-100">
-                            <tr *ngFor="let saleInfo of sales" class="dashboard-sales_list_item">
-                                @*<td [ngSwitch]="saleInfo.paymentType">
-                                        <ng-template #saleTooltip>
-                                            <span *ngIf="saleInfo.bills && saleInfo.bills.length>0">
-                                                &nbsp;&nbsp;<span class="dashboard-sales_tooltip" *ngFor="let bill of saleInfo.bills">
-                                                    <span class="bill" *ngFor="let piece of expandCoins(bill)">{{piece}}</span>&nbsp;&nbsp;
-                                                </span>
-                                            </span>
-                                            <span *ngIf="saleInfo.coins && saleInfo.coins.length>0">
-                                                &nbsp;<span class="dashboard-sales_tooltip" *ngFor="let coin of saleInfo.coins">
-                                                    <span class="coin" *ngFor="let piece of expandCoins(coin)">{{piece}}</span>&nbsp;
-                                                </span>
-                                            </span>
-                                            <span *ngIf="!((saleInfo.bills && saleInfo.bills.length>0) || (saleInfo.coins && saleInfo.coins.length>0))">
-                                                Нет информации о монетах
-                                            </span>
-                                        </ng-template>
-                                        <span *ngSwitchCase="paymentType.CASH">
-                                            <i class="fa fa-money text-success" [ngbTooltip]="saleTooltip" placement="right"></i>
-                                            &nbsp;{{formatTimestamp(saleInfo.timestamp)}}&nbsp;&ndash;&nbsp;{{saleInfo.quantity}}л./{{saleInfo.amount}}<span [innerHTML]="getCurrencySign(selected)"></span>
-                                        </span>
-                                        <span *ngSwitchCase="paymentType.CASHLESS">
-                                            <i class="fa fa-credit-card text-warning"></i>
-                                            &nbsp;{{formatTimestamp(saleInfo.timestamp)}}&nbsp;&ndash;&nbsp;{{saleInfo.quantity}}л./{{saleInfo.amount}}<span [innerHTML]="getCurrencySign(selected)"></span>
-                                        </span>
-                                        <span *ngSwitchCase="paymentType.DEPO">
-                                            <i class="fa fa-cloud-upload text-danger" [ngbTooltip]="saleTooltip" placement="right"></i>
-                                            &nbsp;{{formatTimestamp(saleInfo.timestamp)}}&nbsp;&ndash;&nbsp;{{saleInfo.amount}}<span [innerHTML]="getCurrencySign(selected)"></span>
-                                        </span>
-                                    </td>*@
-                            </tr>
-                        </table>
+                        <div id="tbSales"></div>
+                        <br />
+                        <br />
+                        <br />
+                        <br />
+                        <br />
                     </div>
-                    <span placement="top" ngbTooltip="Показать весь список продаж">
-                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button" onclick="getSales()"
-                                [routerLink]="['/', { outlets: { popup: 'sales-list/'+selected.deviceId+'/'+selected.timeZone}}]">
+                    <span data-toggle="tooltip" data-placement="top" title="Показать весь список продаж"> @*placement="top" ngbTooltip="Показать весь список продаж">*@
+                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button" onclick="popupSales()">
                             <i class="fa fa-arrows-v"></i>&nbsp;Показать все
                         </button>
                     </span>
@@ -290,38 +255,16 @@
                     </div>
                     <hr>
                     <div class="dashboard-sales_wrapper">
-                        <table class="">
-                            <tr *ngFor="let encashItem of encash" class="dashboard-sales_list_item">
-                                @*<ng-template #encashTooltip>
-                                        <div *ngIf="encashItem.coins && encashItem.coins.length>0">
-                                            <div class="dashboard-sales_tooltip" *ngFor="let coin of encashItem.coins">
-                                                &nbsp;<div class="coin">{{coin.value}}</div>&nbsp;&ndash;&nbsp;{{coin.amount}}шт.
-                                            </div>
-                                        </div>
-                                        <div *ngIf="encashItem.bills && encashItem.bills.length>0">
-                                            <div class="dashboard-sales_tooltip" *ngFor="let bill of encashItem.bills">
-                                                &nbsp;&nbsp;<div class="bill">{{bill.value}}</div>&nbsp;&ndash;&nbsp;{{bill.amount}}шт.
-                                            </div>
-                                        </div>
-                                        <span *ngIf="!((encashItem.coins && encashItem.coins.length>0) || (encashItem.bills && encashItem.bills.length>0))">
-                                            Нет информации о монетах
-                                        </span>
-                                    </ng-template>*@
-                                @*<td>
-                                        <i class="fa fa-truck text-warning" [ngbTooltip]="encashTooltip" placement="right">&nbsp;</i>
-                                        {{formatTimestamp(encashItem.timestamp)}}&nbsp;&ndash;&nbsp;
-                                        <span *ngIf="encashItem.amountBill || encashItem.amountCoin">
-                                        {{encashItem.amountBill}}<span [innerHTML]="getCurrencySign(selected)"></span>/{{encashItem.amountCoin}}<span [innerHTML]="getCurrencySign(selected)"></span></span>
-                                        <span *ngIf="!encashItem.amountBill && !encashItem.amountCoin">{{encashItem.amount}}<span [innerHTML]="getCurrencySign(selected)"></span></span>
-                                        <span>{{encashItem.amount}}<span [innerHTML]="getCurrencySign(selected)"></span></span>
-                                    </td>*@
-                            </tr>
-                        </table>
+                        <div id="tbEncash"></div>
+                        <br />
+                        <br />
+                        <br />
+                        <br />
+                        <br />
                     </div>
                     <!--&lt;!&ndash; Кнопка вызова модального окна с полным списком инкассаций &ndash;&gt;-->
                     <span placement="top" ngbTooltip="Показать весь список инкассаций">
-                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button" onclick="getEncash()"
-                                [routerLink]="['/', { outlets: { popup: 'encash-list/'+selected.deviceId+'/'+selected.timeZone}}]">
+                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button" onclick="popupEncash()">
                             <i class="fa fa-arrows-v"></i>&nbsp;Показать все
                         </button>
                     </span>
@@ -340,19 +283,15 @@
                     </div>
                     <hr>
                     <div class="dashboard-sales_wrapper">
-                        <table class="">
-                            <tr *ngFor="let alert of alerts" class="dashboard-sales_list_item">
-                                <td *ngIf="alert.active==true && ['NO_LINK', 'NO_SALES', 'TANK_EMPTY'].indexOf(alert.type) > -1">
-                                    @*<span *ngIf="alert.type=='NO_LINK'"><i class="fa fa-exclamation-triangle text-danger">&nbsp;</i>{{formatTimestamp(alert.timestamp)}}&nbsp;&ndash;&nbsp;Нет связи</span>
-                                        <span *ngIf="alert.type=='NO_SALES'"><i class="fa fa-exclamation-triangle text-warning">&nbsp;</i>{{formatTimestamp(alert.timestamp)}}&nbsp;&ndash;&nbsp;Нет продаж</span>
-                                        <span *ngIf="alert.type=='TANK_EMPTY'"><i class="fa fa-exclamation-triangle text-danger">&nbsp;</i>{{formatTimestamp(alert.timestamp)}}&nbsp;&ndash;&nbsp;Бак пуст</span>*@
-                                </td>
-                            </tr>
-                        </table>
+                        <div id="tbAlerts"></div>
+                        <br />
+                        <br />
+                        <br />
+                        <br />
+                        <br />
                     </div>
                     <span placement="top" ngbTooltip="Показать весь список аварий">
-                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button" onclick="getAlerts()"
-                                [routerLink]="['/', { outlets: { popup: 'alerts-list/'+selected.deviceId+'/'+selected.timeZone}}]">
+                        <button class="btn btn-primary btn-sm mt-3 mb-2" type="button" onclick="popupAlerts()">
                             <i class="fa fa-arrows-v"></i>&nbsp;Показать все
                         </button>
                     </span>
@@ -362,16 +301,25 @@
     </section>
 </div>
 
+
+
+
+
+
+
+
+    
 <div class="modal" tabindex="-1" role="dialog" id="popupContainer">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fa fa-list-ul text-secondary">Добавить (зарегистрировать) автомат</h5>
+                <h4 class="modal-title fa fa-list-ul text-secondary" id="headerAddDevice">&nbsp;&nbsp;Добавить (зарегистрировать) автомат</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
+                <div id="popupDevId" style="display: none" value=""></div>
                 <div class="alert alert-danger" id="errors" style="display: none">
                     <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
                     <strong>Errors</strong>
@@ -388,127 +336,133 @@
 
 
 <script>
-    var user;
-    var device;
-    var timeZones = [
-        {
-            value: "+2",
-            name: "UTC+02:00 Калининград"
-        },
-        {
-            value: "+3",
-            name: "UTC+03:00 Москва"
-        },
-        {
-            value: "+4",
-            name: "UTC+04:00 Самара"
-        },
-        {
-            value: "+5",
-            name: "UTC+05:00 Екатеринбург"
-        },
-        {
-            value: "+6",
-            name: "UTC+06:00 Омск"
-        },
-        {
-            value: "+7",
-            name: "UTC+07:00 Красноярск"
-        },
-        {
-            value: "+8",
-            name: "UTC+08:00 Иркутск"
-        },
-        {
-            value: "+9",
-            name: "UTC+09:00 Якутск"
-        },
-        {
-            value: "+10",
-            name: "UTC+10:00 Владивосток"
-        },
-        {
-            value: "+11",
-            name: "UTC+11:00 Магадан"
-        },
-        {
-            value: "+12",
-            name: "UTC+12:00 Камчатский край"
-        }
-    ];
-    var currencies = [
-        {
-            value: "RUR",
-            name: "Российский рубль"
-        },
-        {
-            value: "KZT",
-            name: "Казахстанский тенге"
-        },
-        {
-            value: "AZN",
-            name: "Азербайджанский манат"
-        },
-        {
-            value: "UZS",
-            name: "Узбекский сум"
-        },
-        {
-            value: "BYR",
-            name: "Белорусский рубль"
-        }
-    ];
-
-
-    function updateDevicesList() {
-        var dataGrid = $("#gridContainer").dxDataGrid('instance');
-        if (!dataGrid) return;
-        var focusedRowKey = dataGrid.option('focusedRowKey');
-
-        $.getJSON("/api/devices", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
-            .then(function(data) { // добавляем обработчик при удачном выполнении запроса
-                $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
-
-                if (focusedRowKey) dataGrid.option("focusedRowKey", focusedRowKey);
-                else {
-                    dataGrid.option("focusedRowKey", data[0].id);
-                }
-            });
-    }
-
-    $(function() {
-
-        var dataGrid = $("#gridContainer").dxDataGrid({
-            //dataSource: dataS,
-            showColumnLines: true,
-            focusedRowEnabled: true,
-            showRowLines: true,
-            keyExpr: "id",
-            //allowColumnResizing: true,
-            //columnResizingMode: 'widget',
-            columnAutoWidth: true,
-            columnFixing: { enabled: true },
-            cellHintEnabled: true,
-            paging: { pageSize: 10 },
-            pager: {
-                //showPageSizeSelector: true,
-                //allowedPageSizes: [10, 20, 30, 50, 100],
-                showInfo: true
+        var period = "MONTHS";
+        var user;
+        var device;
+        var timeZones = [
+            {
+                value: 2,
+                name: "UTC+02:00 Калининград"
             },
-            //filterRow: {
-            //    visible: true,
-            //    applyFilter: "auto"
-            //},
-            //headerFilter: { visible: true },
-            showBorders: true,
-            wordWrapEnabled: true,
-            selection: { mode: 'single' },
-            //scrolling: {mode: "virtual"},
-            //height: 800,
-            hoverStateEnabled: true,
-            //columns: GetColumns(headers),
-            //columnChooser: { enabled: true, mode: 'select', title: 'ColumnChooser' },
-            @* "export": {
+            {
+                value: 3,
+                name: "UTC+03:00 Москва"
+            },
+            {
+                value: 4,
+                name: "UTC+04:00 Самара"
+            },
+            {
+                value: 5,
+                name: "UTC+05:00 Екатеринбург"
+            },
+            {
+                value: 6,
+                name: "UTC+06:00 Омск"
+            },
+            {
+                value: 7,
+                name: "UTC+07:00 Красноярск"
+            },
+            {
+                value: 8,
+                name: "UTC+08:00 Иркутск"
+            },
+            {
+                value: 9,
+                name: "UTC+09:00 Якутск"
+            },
+            {
+                value: 10,
+                name: "UTC+10:00 Владивосток"
+            },
+            {
+                value: 11,
+                name: "UTC+11:00 Магадан"
+            },
+            {
+                value: 12,
+                name: "UTC+12:00 Камчатский край"
+            }
+        ];
+        var currencies = [
+            {
+                value: "RUB",
+                name: "Российский рубль"
+            },
+            {
+                value: "KZT",
+                name: "Казахстанский тенге"
+            },
+            {
+                value: "AZN",
+                name: "Азербайджанский манат"
+            },
+            {
+                value: "UZS",
+                name: "Узбекский сум"
+            },
+            {
+                value: "BYR",
+                name: "Белорусский рубль"
+            }
+        ];
+
+        function updatePage() {
+            updateDevicesList();
+            if (device) updateDevice(device.id);
+        }
+
+        function updateDevicesList() {
+            var dataGrid = $("#gridContainer").dxDataGrid('instance');
+            if (!dataGrid) return;
+            var focusedRowKey = dataGrid.option('focusedRowKey');
+
+            $.getJSON("/api/devices", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
+                .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+                    $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
+
+                    if (focusedRowKey) dataGrid.option("focusedRowKey", focusedRowKey);
+                    else {
+                        dataGrid.option("focusedRowKey", data[0].id);
+                    }
+                });
+        }
+
+        $(function() {
+
+            const dataGrid = $("#gridContainer").dxDataGrid({
+                //dataSource: dataS,
+                showColumnLines: true,
+                focusedRowEnabled: true,
+                showRowLines: true,
+                keyExpr: "id",
+                //allowColumnResizing: true,
+                //columnResizingMode: 'widget',
+                columnAutoWidth: true,
+                columnFixing: { enabled: true },
+                cellHintEnabled: true,
+                paging: { pageSize: 10 },
+                pager: {
+                    //showPageSizeSelector: true,
+                    //allowedPageSizes: [10, 20, 30, 50, 100],
+                    showInfo: true,
+                    infoText: 'Страница {0} из {1} ({2} автоматов)'
+                },
+                //filterRow: {
+                //    visible: true,
+                //    applyFilter: "auto"
+                //},
+                //headerFilter: { visible: true },
+                showBorders: true,
+                wordWrapEnabled: true,
+                selection: { mode: 'single' },
+                //scrolling: {mode: "virtual"},
+                //height: 800,
+                hoverStateEnabled: true,
+                //columns: GetColumns(headers),
+                //columnChooser: { enabled: true, mode: 'select', title: 'ColumnChooser' },
+                @* "export": {
             ignoreExcelErrors: true,
                 enabled: true,
                     fileName: document.title,
@@ -519,276 +473,304 @@
                         exportTo: '@Localizer["Export"]'
             }
         },*@
-            loadPanel: { enabled: true },
+                loadPanel: { enabled: true },
 
 
-            //paging: {
-            //    pageSize: 10
-            //},
-            //pager: {
-            //    showPageSizeSelector: true,
-            //    allowedPageSizes: [10, 25, 50, 100]
-            //},
-            //remoteOperations: false,
-            searchPanel: {
-                visible: true,
-                highlightCaseSensitive: true,
-                placeholder: "Начните вводить адрес автомата или IMEI...",
-                width: '100%'
-            },
-            //groupPanel: { visible: true },
-            //grouping: {
-            //    autoExpandAll: false
-            //},
-            //allowColumnReordering: true,
-            //rowAlternationEnabled: true,
-            //showBorders: true,
-            onSelectionChanged: function(e) {
-                device = e.selectedRowsData[0];
-                //var asd = data;
-                //var dataGrid = $("#devices").dxDataGrid("instance");
-                //var selectedData = dataGrid.getSelectedRowsData();
-                //if (selectedData.length === 0) return;
-                //var list = selectedData[0].DataTypes;
-                //selectBoxDataType.option("dataSource", list);
-            },
-            onFocusedRowChanging: function(e) {
-                var rowsCount = e.component.getVisibleRows().length,
-                    pageCount = e.component.pageCount(),
-                    pageIndex = e.component.pageIndex(),
-                    key = e.event && e.event.key;
-
-                if(key && e.prevRowIndex === e.newRowIndex) {
-                    if(e.newRowIndex === rowsCount - 1 && pageIndex < pageCount - 1) {
-                        e.component.pageIndex(pageIndex + 1).done(function() {
-                            e.component.option("focusedRowIndex", 0);
-                        });
-                    } else if(e.newRowIndex === 0 && pageIndex > 0) {
-                        e.component.pageIndex(pageIndex - 1).done(function() {
-                            e.component.option("focusedRowIndex", rowsCount - 1);
-                        });
-                    }
-                }
-            },
-            onFocusedRowChanged: function(e) {
-                const rowData = e.row && e.row.data;
-                if(rowData) {
-                    //todo get device data and fill page
-                }
-                //const taskItem = getTaskDataItem(e.row);
-                //const focusedRowKey = e.component.option("focusedRowKey");
-                //$("#taskSubject").html(taskItem.subject);
-                //$("#taskDetails").html(taskItem.description);
-                //$("#taskStatus").html(taskItem.status);
-                //$("#taskProgress").text(taskItem.progress);
-                //$("#taskId").dxNumberBox("instance").option("value", focusedRowKey);
-            },
-            onCellPrepared: function(options) {
-                const fieldData = options.value;
-                var fieldHtml = "";
-                const column = options.column;
-                if (options.rowType === "data" && column.dataField === "alerts") {
-                    fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
-                    options.cellElement.html(fieldHtml);
-                }
-                if (fieldData && fieldData.value) {
-                    if (fieldData.diff) {
-                        options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
-                        fieldHtml += "<div class='current-value'>" +
-                            DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
-                            "</div> <div class='diff'>" +
-                            Math.abs(fieldData.diff).toFixed(2) +
-                            "  </div>";
-                    } else {
-                        fieldHtml = fieldData.value;
-                    }
-                    options.cellElement.html(fieldHtml);
-                }
-            },
-            //onCellPrepared: function(cellElement, cellInfo) {
-            //    if (!cellInfo) return;
-            //    if (cellInfo.column.dataField === 'alerts') {
-            //        var arr = cellInfo.data;
-            //        if (!cellInfo.data) { cellElement.addClass('Red'); }
-
-            //        if (jQuery.inArray("NO_LINK", arr)){cellElement.addClass('Red');}
-            //        if (jQuery.inArray("TANK_EMPTY", arr)){cellElement.addClass('Orange');}
-            //        if (jQuery.inArray("NO_SALES", arr)){cellElement.addClass('Yellow');}
-            //        //if(cellInfo.data[0] === 'Green'){cellElement.addClass('Green');}
-            //    }
-            //},
-            columns: [
-                //{
-                //    dataField: "Id",
-                //    groupIndex: 0
+                //paging: {
+                //    pageSize: 10
                 //},
-                {
-                    //width: '170px',
-                    dataField: "imei",
-                    allowSorting: false,
-                    caption: "IMEI",
-                    headerCellTemplate: function(header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
-                    }
-                    //dataType: "number",
-                    //format: "currency",
-                    //alignment: "right"
+                //pager: {
+                //    showPageSizeSelector: true,
+                //    allowedPageSizes: [10, 25, 50, 100]
+                //},
+                //remoteOperations: false,
+                searchPanel: {
+                    visible: true,
+                    highlightCaseSensitive: true,
+                    placeholder: "Начните вводить адрес автомата или IMEI...",
+                    width: '100%'
                 },
-                //{
-                //    dataField: "Discount",
-                //    caption: "Discount %",
-                //    dataType: "number",
-                //    format: "percent",
-                //    alignment: "right",
-                //    allowGrouping: false,
-                //    //cellTemplate: discountCellTemplate,
-                //    cssClass: "bullet"
+                //groupPanel: { visible: true },
+                //grouping: {
+                //    autoExpandAll: false
                 //},
-                //{
-                //    dataField: "SaleDate",
-                //    dataType: "date"
+                //allowColumnReordering: true,
+                //rowAlternationEnabled: true,
+                //showBorders: true,
+                //onSelectionChanged: function(e) {
+                //    device = e.selectedRowsData[0];
+                //    updateDevice(device.id);
                 //},
-                {
-                    allowSorting: false,
-                    dataField: "address",
-                    caption: "Адрес автомата",
-                    dataType: "string",
-                    headerCellTemplate: function(header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                onFocusedRowChanging: function(e) {
+                    var rowsCount = e.component.getVisibleRows().length;
+                    const pageCount = e.component.pageCount();
+                    const pageIndex = e.component.pageIndex();
+                    const key = e.event && e.event.key;
+
+                    if(key && e.prevRowIndex === e.newRowIndex) {
+                        if(e.newRowIndex === rowsCount - 1 && pageIndex < pageCount - 1) {
+                            e.component.pageIndex(pageIndex + 1).done(function() {
+                                e.component.option("focusedRowIndex", 0);
+                            });
+                        } else if(e.newRowIndex === 0 && pageIndex > 0) {
+                            e.component.pageIndex(pageIndex - 1).done(function() {
+                                e.component.option("focusedRowIndex", rowsCount - 1);
+                            });
+                        }
                     }
                 },
-                {
-                    allowSorting: false,
-                    dataField: "alerts",
-                    caption: "Состояние",
-                    //width: '110px',
-                    headerCellTemplate: function(header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
-                    },
-                    //cellTemplate: function(element, info) {
-                    //    if (!info.text)
-                    //        element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
-                    //           // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                onFocusedRowChanged: function(e) {
+                    device = e.row && e.row.data;
+                    if (device) {
+                        document.getElementById("strId").innerText = `ID: ${device.imei}`;
+                        document.getElementById("strAddress").innerText = device.address;
+
+                        updateDevice(device.id);
+                        //todo get device data and fill page
+                    }
+                    //const taskItem = getTaskDataItem(e.row);
+                    //const focusedRowKey = e.component.option("focusedRowKey");
+                    //$("#taskSubject").html(taskItem.subject);
+                    //$("#taskDetails").html(taskItem.description);
+                    //$("#taskStatus").html(taskItem.status);
+                    //$("#taskProgress").text(taskItem.progress);
+                    //$("#taskId").dxNumberBox("instance").option("value", focusedRowKey);
+                },
+                onCellPrepared: function(options) {
+                    const fieldData = options.value;
+                    var fieldHtml = "";
+                    const column = options.column;
+                    if (options.rowType === "data" && column.dataField === "alerts") {
+                        var dev = options.data;
+                        fieldHtml = '<i class="fa fa-check text-success"></i> В работе';
+                        if (dev.alerts && (jQuery.inArray("NO_SALES", dev.alerts) !== -1)) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет продаж';
+
+                        if (!dev.lastStatus || (dev.alerts && (jQuery.inArray("NO_LINK", dev.alerts) !== -1))) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
+
+                        if (dev.alerts && (jQuery.inArray("TANK_EMPTY", dev.alerts) !== -1)) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Бак пуст';
+
+                        //if (dev.lastStatus) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
+                        //if (dev.alerts) {
+                        //    if (jQuery.inArray("NO_SALES", dev.alerts) !== -1) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет продаж';
+                        //    if (jQuery.inArray("NO_LINK", dev.alerts) !== -1) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
+                        //    if (jQuery.inArray("TANK_EMPTY", dev.alerts) !== -1) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Бак пуст';
+                        //}
+
+                        //if (dev.alerts.contain)
+                        //fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
+                        options.cellElement.html(fieldHtml);
+                    }
+
+                    //<span *ngSwitchCase="alertTypes.NO_LINK">
+                    //    <i class="fa fa-exclamation-triangle text-danger"></i>&nbsp;Нет связи
+                    //    </span>
+                    //    <span *ngSwitchCase="alertTypes.TANK_EMPTY">
+                    //    <i class="fa fa-exclamation-triangle text-danger"></i>&nbsp;Бак пуст
+                    //    </span>
+                    //    <span *ngSwitchCase="alertTypes.NO_SALES">
+                    //    <i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;Нет продаж
+                    //    </span>
+                    //    <span *ngSwitchDefault>
+                    //    <i class="fa fa-check text-success"></i>&nbsp;В работе
+                    //    </span>
+                    //if (fieldData && fieldData.value) {
+                    //    if (fieldData.diff) {
+                    //        options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
+                    //        fieldHtml += "<div class='current-value'>" +
+                    //            DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
+                    //            "</div> <div class='diff'>" +
+                    //            Math.abs(fieldData.diff).toFixed(2) +
+                    //            "  </div>";
+                    //    } else {
+                    //        fieldHtml = fieldData.value;
+                    //    }
+                    //    options.cellElement.html(fieldHtml);
                     //}
                 },
-                {
-                    //caption: "Удалить",
-                    width: 30,
-                    minWidth: 30,
-                    headerCellTemplate: function(header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
-                    },
-                    type: "buttons",
-                    buttons: [
-                        //{
-                        //    name: "delete",
-                        //    cssClass: "fa fa-window-close text-danger"
-                        //},
-                        {
-                            hint: "Удалить",
-                            //icon: "fa fa-window-close",
-                            cssClass: "fa fa-window-close text-danger",
-                            //visible: function(e) {
-                            //    return !e.row.isEditing && !isChief(e.row.data.Position);
-                            //},
-                            onClick: function(e) {
-                                const row = e.row.data;
-                                const id = row.id;
-                                if (!id) return;
+                //onCellPrepared: function(cellElement, cellInfo) {
+                //    if (!cellInfo) return;
+                //    if (cellInfo.column.dataField === 'alerts') {
+                //        var arr = cellInfo.data;
+                //        if (!cellInfo.data) { cellElement.addClass('Red'); }
 
-                                DevExpress.ui.dialog.custom({
-                                    title: `Удаление автомата ${row.imei}`,
-                                    messageHtml: 'Вы уверены, что хотите удалить этот автомат из списка?',
-                                    buttons: [
-                                        {
-                                            text: "Отмена",
-                                            icon: 'fa fa-ban',
-                                            onClick: function() {
-                                                return {
-                                                    dialogResult: false
-                                                    //buttonText: e.component.option("text"), /* ... */
-                                                }
-                                            }
-                                        },
-                                        {
-                                            text: "Удалить",
-                                            type: "danger",
-                                            icon: 'fa fa-remove',
-                                            onClick: function() {
-                                                return {
-                                                    dialogResult: true
-                                                    //buttonText: e.component.option("text"), /* ... */
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }).show().done(function(dialogResult) {
-                                    //todo delete device
-                                    if (dialogResult) {
-                                        $.deleteObj(`/api/device/${id}`).then(function() {
-                                            updateDevicesList();
-                                            },
-                                            function(res) {
-                                                updateDevicesList();
-                                            });
-                                        //updateDevicesList();
-                                        return;
-                                    }
-                                });
-
-                                //var result = DevExpress.ui.dialog.confirm('Удаление автомата', 'Вы уверены, что хотите удалить этот автомат из списка?');
-                                //result.done(function (dialogResult) {
-                                //    if (dialogResult) {
-                                //        //$.delete
-                                //        //post(urlStr, { __RequestVerificationToken: token, id: data[0].ID });
-                                //    } else
-                                //        return;
-                                //});
-
-                                //$("#popupContainer").dxPopup({
-                                //    showTitle: true,
-                                //    visible: true
-                                //}).show();
-
-                                //popup.show();
-                                //var clonedItem = $.extend({}, e.row.data, { ID: ++maxID });
-
-                                //employees.splice(e.row.rowIndex, 0, clonedItem);
-
-                                //e.component.refresh(true);
-                                //e.event.preventDefault();
-                            }
+                //        if (jQuery.inArray("NO_LINK", arr)){cellElement.addClass('Red');}
+                //        if (jQuery.inArray("TANK_EMPTY", arr)){cellElement.addClass('Orange');}
+                //        if (jQuery.inArray("NO_SALES", arr)){cellElement.addClass('Yellow');}
+                //        //if(cellInfo.data[0] === 'Green'){cellElement.addClass('Green');}
+                //    }
+                //},
+                columns: [
+                    //{
+                    //    dataField: "Id",
+                    //    groupIndex: 0
+                    //},
+                    {
+                        //width: '170px',
+                        dataField: "imei",
+                        allowSorting: false,
+                        caption: "IMEI",
+                        headerCellTemplate: function(header, info) {
+                            $('<b style="color: black">')
+                                .html(info.column.caption)
+                                .css('font-size', '14px')
+                                .appendTo(header);
                         }
-                    ]
-                }
-                //{
-                //    dataField: "Sector",
-                //    dataType: "string",
-                //},
-                //{
-                //    dataField: "Channel",
-                //    dataType: "string",
-                //},
-                //{
-                //    dataField: "Customer",
-                //    dataType: "string",
-                //    width: 150
-                //}
-            ]
-        });
-        updateDevicesList();
+                        //dataType: "number",
+                        //format: "currency",
+                        //alignment: "right"
+                    },
+                    //{
+                    //    dataField: "Discount",
+                    //    caption: "Discount %",
+                    //    dataType: "number",
+                    //    format: "percent",
+                    //    alignment: "right",
+                    //    allowGrouping: false,
+                    //    //cellTemplate: discountCellTemplate,
+                    //    cssClass: "bullet"
+                    //},
+                    //{
+                    //    dataField: "SaleDate",
+                    //    dataType: "date"
+                    //},
+                    {
+                        allowSorting: false,
+                        dataField: "address",
+                        caption: "Адрес автомата",
+                        dataType: "string",
+                        headerCellTemplate: function(header, info) {
+                            $('<b style="color: black">')
+                                .html(info.column.caption)
+                                .css('font-size', '14px')
+                                .appendTo(header);
+                        }
+                    },
+                    {
+                        allowSorting: false,
+                        dataField: "alerts",
+                        caption: "Состояние",
+                        //width: '110px',
+                        headerCellTemplate: function(header, info) {
+                            $('<b style="color: black">')
+                                .html(info.column.caption)
+                                .css('font-size', '14px')
+                                .appendTo(header);
+                        },
+                        //cellTemplate: function(element, info) {
+                        //    if (!info.text)
+                        //        element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
+                        //           // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                        //}
+                    },
+                    {
+                        //caption: "Удалить",
+                        width: 30,
+                        minWidth: 30,
+                        headerCellTemplate: function(header, info) {
+                            $('<b style="color: black">')
+                                .html(info.column.caption)
+                                .css('font-size', '14px')
+                                .appendTo(header);
+                        },
+                        type: "buttons",
+                        buttons: [
+                            //{
+                            //    name: "delete",
+                            //    cssClass: "fa fa-window-close text-danger"
+                            //},
+                            {
+                                hint: "Удалить",
+                                //icon: "fa fa-window-close",
+                                cssClass: "fa fa-window-close text-danger",
+                                //visible: function(e) {
+                                //    return !e.row.isEditing && !isChief(e.row.data.Position);
+                                //},
+                                onClick: function(e) {
+                                    const row = e.row.data;
+                                    const id = row.id;
+                                    if (!id) return;
+
+                                    DevExpress.ui.dialog.custom({
+                                        title: `Удаление автомата ${row.imei}`,
+                                        messageHtml: 'Вы уверены, что хотите удалить этот автомат из списка?',
+                                        buttons: [
+                                            {
+                                                text: "Отмена",
+                                                icon: 'fa fa-ban',
+                                                onClick: function() {
+                                                    return {
+                                                        dialogResult: false
+                                                        //buttonText: e.component.option("text"), /* ... */
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                text: "Удалить",
+                                                type: "danger",
+                                                icon: 'fa fa-remove',
+                                                onClick: function() {
+                                                    return {
+                                                        dialogResult: true
+                                                        //buttonText: e.component.option("text"), /* ... */
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }).show().done(function(dialogResult) {
+                                        //todo delete device
+                                        if (dialogResult) {
+                                            $.deleteObj(`/api/device/${id}`).then(function() {
+                                                    updateDevicesList();
+                                                },
+                                                function(res) {
+                                                    updateDevicesList();
+                                                });
+                                            //updateDevicesList();
+                                            return;
+                                        }
+                                    });
+
+                                    //var result = DevExpress.ui.dialog.confirm('Удаление автомата', 'Вы уверены, что хотите удалить этот автомат из списка?');
+                                    //result.done(function (dialogResult) {
+                                    //    if (dialogResult) {
+                                    //        //$.delete
+                                    //        //post(urlStr, { __RequestVerificationToken: token, id: data[0].ID });
+                                    //    } else
+                                    //        return;
+                                    //});
+
+                                    //$("#popupContainer").dxPopup({
+                                    //    showTitle: true,
+                                    //    visible: true
+                                    //}).show();
+
+                                    //popup.show();
+                                    //var clonedItem = $.extend({}, e.row.data, { ID: ++maxID });
+
+                                    //employees.splice(e.row.rowIndex, 0, clonedItem);
+
+                                    //e.component.refresh(true);
+                                    //e.event.preventDefault();
+                                }
+                            }
+                        ]
+                    }
+                    //{
+                    //    dataField: "Sector",
+                    //    dataType: "string",
+                    //},
+                    //{
+                    //    dataField: "Channel",
+                    //    dataType: "string",
+                    //},
+                    //{
+                    //    dataField: "Customer",
+                    //    dataType: "string",
+                    //    width: 150
+                    //}
+                ]
+            });
+            updateDevicesList();
 /*
  "locale": {
         "format": "MM/DD/YYYY",
@@ -825,320 +807,462 @@
         "firstDay": 1
     },
  */
-        $('#dateRangePicker').daterangepicker({
-            //singleDatePicker: true,
-            "locale": {
-                "format": "DD.MM.YYYY",
-                "separator": " - ",
-                "applyLabel": "Применить",
-                "cancelLabel": "Отмена",
-                "fromLabel": "От",
-                "toLabel": "До",
-                "customRangeLabel": "Пользовательский",
-                "weekLabel": "Неделя",
-                "daysOfWeek": [
-                    "Пн.",
-                    "Вт.",
-                    "Ср.",
-                    "Чт.",
-                    "Пт.",
-                    "Сб.",
-                    "Вс."
-                ],
-                "monthNames": [
-                    "Январь",
-                    "Февраль",
-                    "Март",
-                    "Апрель",
-                    "Май",
-                    "Июнь",
-                    "Июль",
-                    "Август",
-                    "Сентябрь",
-                    "Октябрь",
-                    "Ноябрь",
-                    "Декабрь"
-                ],
-                "firstDay": 1
-            },
-            
-            endDate: moment().add(1, 'days'),
-            startDate: moment().subtract(7, 'days')
+            $('#dateRangePicker').daterangepicker({
+                //singleDatePicker: true,
+                "locale": {
+                    "format": "DD.MM.YYYY",
+                    "separator": " - ",
+                    "applyLabel": "Применить",
+                    "cancelLabel": "Отмена",
+                    "fromLabel": "От",
+                    "toLabel": "До",
+                    "customRangeLabel": "Пользовательский",
+                    "weekLabel": "Неделя",
+                    "daysOfWeek": [
+                        "Пн.",
+                        "Вт.",
+                        "Ср.",
+                        "Чт.",
+                        "Пт.",
+                        "Сб.",
+                        "Вс."
+                    ],
+                    "monthNames": [
+                        "Январь",
+                        "Февраль",
+                        "Март",
+                        "Апрель",
+                        "Май",
+                        "Июнь",
+                        "Июль",
+                        "Август",
+                        "Сентябрь",
+                        "Октябрь",
+                        "Ноябрь",
+                        "Декабрь"
+                    ],
+                    "firstDay": 1
+                },
+
+                endDate: moment().add(1, 'days'),
+                startDate: moment().subtract(7, 'days')
+            });
+
         });
 
-    });
+        //function closePopup() {
+        //    $('#alertsPopup').modal('hide');
 
-    function closePopup() {
-        $('#alertsPopup').modal('hide');
+        //}
 
-    }
+        function popupSales(id, name) {
+            const header = document.getElementById("popupTitle");
+            //header.innerText = "  Продажи за период";
+            header.innerHTML = '<i class="fa fa-shopping-cart text-warning"></i>&nbsp;&nbsp;Продажи за период';
 
-    function getSales(id, name) {
-        var header = document.getElementById("popupTitle");
-        //header.innerText = "  Продажи за период";
-        header.innerHTML = '<i class="fa fa-shopping-cart text-warning"></i>&nbsp;&nbsp;Продажи за период';
-  
-        $('#alertsPopup').modal('toggle');
+            $('#alertsPopup').modal('toggle');
 
-        //document.getElementById("errors").innerHTML = data.responseText;
+            //document.getElementById("errors").innerHTML = data.responseText;
 
-    }
+        }
 
-    function getEncash(id, name) {
-        var header = document.getElementById("popupTitle");
-        //header.innerText = "  Продажи за период";
-        header.innerHTML = '<i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;Инкассации за период';
-  
-        $('#alertsPopup').modal('toggle');
+        function popupEncash(id, name) {
+            const header = document.getElementById("popupTitle");
+            //header.innerText = "  Продажи за период";
+            header.innerHTML = '<i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;Инкассации за период';
 
-        //document.getElementById("errors").innerHTML = data.responseText;
+            $('#alertsPopup').modal('toggle');
 
-    }
-    
-     function getAlerts(id, name) {
+            //document.getElementById("errors").innerHTML = data.responseText;
 
-         var header = document.getElementById("popupTitle");
-         header.innerHTML = '<i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии за период';
-         //header.innerText = "  Аварии за период";
-         //header.setAttribute("class", "fa fa-exclamation-triangle text-warning");
+        }
 
-         //var dateNow = Date.now();
-         //dateNow.setDate(dateNow.getDate() + 1);
+        function popupAlerts(id, name) {
 
-         //const startDate = dateNow.getDate() - 7;
-         //$('#dateRangePicker').daterangepicker({
-         //    singleDatePicker: true,
-         //    startDate: moment().subtract(6, 'days')
-         //});
+            const header = document.getElementById("popupTitle");
+            header.innerHTML = '<i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии за период';
+            //header.innerText = "  Аварии за период";
+            //header.setAttribute("class", "fa fa-exclamation-triangle text-warning");
 
-         //$('#dateRangePicker').daterangepicker({
-         //    "startDate": "05/18/2021",
-         //    "endDate": "05/24/2021"
-         //}, function(start, end, label) {
-         //    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-         //});
-         
-         $('#alertsPopup').modal('toggle');
-                //var urlStr = "/api/data/GetTaskReport?id=" + id;
-                ////var data = httpGet(urlStr);
-                ////var dataSource = JSON.parse(data);
+            //var dateNow = Date.now();
+            //dateNow.setDate(dateNow.getDate() + 1);
 
-                //httpGetAsync(urlStr, parse);
-                //function parse(data) {
-                //    var dataSource = JSON.parse(data);
+            //const startDate = dateNow.getDate() - 7;
+            //$('#dateRangePicker').daterangepicker({
+            //    singleDatePicker: true,
+            //    startDate: moment().subtract(6, 'days')
+            //});
+
+            //$('#dateRangePicker').daterangepicker({
+            //    "startDate": "05/18/2021",
+            //    "endDate": "05/24/2021"
+            //}, function(start, end, label) {
+            //    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+            //});
+
+            $('#alertsPopup').modal('toggle');
+            //var urlStr = "/api/data/GetTaskReport?id=" + id;
+            ////var data = httpGet(urlStr);
+            ////var dataSource = JSON.parse(data);
+
+            //httpGetAsync(urlStr, parse);
+            //function parse(data) {
+            //    var dataSource = JSON.parse(data);
 
 
-                //var grid = $("<div>");
-                //    var datePicker = $("<div>");
+            //var grid = $("<div>");
+            //    var datePicker = $("<div>");
 
-                
-                //}
 
+            //}
+
+        }
+
+        function addDevice(dev) {
+            var isEdit = false;
+            document.getElementById("errors").style.display = "none";
+            if (dev) {
+                isEdit = true;
+                document.getElementById("headerAddDevice").innerHTML = " Профиль автомата";
+                const btn = document.getElementById("btnAddDevice");
+                btn.className = 'btn btn-primary fa fa-save';
+                btn.innerText = ' Сохранить';
+                document.getElementById("popupDevId").value = dev.id;
+            }
+            else {
+                document.getElementById("popupDevId").value = null;
             }
 
-    function addDevice(dev, user) {
+            const form = $("#deviceForm").dxForm({
+                //formData: dev,
+                readOnly: false,
+                showColonAfterLabel: true,
+                labelLocation: "top",
+                items: [
+                    {
+                        dataField: "imei",
+                        editorType: "dxNumberBox",
+                        label: {
+                            text: "ID автомата",
+                            visible: true
+                        },
+                        editorOptions: {
+                            placeholder: "Введите ID автомата (15 цифр)",
+                            mode: "number",
+                            value: null,
+                            readOnly: isEdit
+                            //disabled: false,
+                            //readonly: function() {
+                            //    return dev.id;
+                            //}
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Введите ID автомата (15 цифр)"
+                            },
+                            {
+                                type: "stringLength",
+                                min: 15,
+                                message: "ID автомата должен быть не менее 15 цифр"
+                            },
+                            {
+                                type: "stringLength",
+                                max: 17,
+                                message: "ID автомата не должен быть длиннее 17 цифр"
+                            },
+                            {
+                                type: "async",
+                                message: "ID автомата уже зарегистрирован.",
+                                validationCallback: function (params) {
+                                    if (isEdit) {
+                                        var d = $.Deferred();
+                                        setTimeout(function() {
+                                            d.resolve(true);
+                                        }, 1);
+                                        return d.promise();
+                                    }
+                                    return checkImei(params.value);
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "address",
+                        label: {
+                            text: "Адрес",
+                            visible: true
+                        },
+                        editorOptions: {
+                            placeholder: "Адрес автомата",
+                            value: null,
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Нужно ввести адрес"
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "phone",
+                        editorType: "dxTextBox",
+                        label: {
+                            text: "Телефон",
+                            visible: true
+                        },
+                        editorOptions: {
+                            placeholder: "Введите номер телефона",
+                            value: null
+                        },
+                        validationRules: [
+                            {
+                                type: 'pattern',
+                                pattern: '^\\d+$'
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "timeZone",
+                        editorType: "dxSelectBox",
+                        label: {
+                            text: "Часовой пояс",
+                            visible: true
+                        },
+                        editorOptions: {
+                            dataSource: timeZones,
+                            valueExpr: "value",
+                            displayExpr: "name",
+                            value: 2
+                        }
+                    },
+                    {
+                        dataField: "currency",
+                        editorType: "dxSelectBox",
+                        label: {
+                            text: "Валюта",
+                            visible: true
+                        },
+                        editorOptions: {
+                            dataSource: currencies,
+                            valueExpr: "value",
+                            displayExpr: "name",
+                            value: "RUB"
+                        }
+                    }
+                ]
+                //minColWidth: 300,
+                //colCount: 2
+            }).dxForm("instance");
 
-        if (!dev) {
-            //todo get owner
-            const onerId = null;
-            dev = {
-                imei: "",
-                address: "",
-                phone: "",
-                timeZone: "+2",
-                currency: "RUR",
-                ownerId: onerId
+            if (isEdit) {
+                //var imei = Number(dev.imei);
+                var editor = form.getEditor("imei");
+                //editor.option("disabled", true);
+                //editor.option("readOnly", true);
+                editor.option("value", Number(dev.imei));
+
+                editor = form.getEditor("address");
+                editor.option("value", dev.address);
+
+                editor = form.getEditor("phone");
+                editor.option("value", dev.phone);
+
+                editor = form.getEditor("timeZone");
+                editor.option("value", dev.timeZone);
+
+                editor = form.getEditor("currency");
+                editor.option("value", dev.currency);
+            } else {
+
             }
         }
 
-        const form = $("#deviceForm").dxForm({
-            formData: dev,
-            readOnly: false,
-            showColonAfterLabel: true,
-            labelLocation: "top",
-            items: [
-                //{
-                //    dataField: "imei",
-                //    //editorType: "dxNumberBox",
-                //    label: {
-                //        text: "ID автомата",
-                //        visible: true
-                //    },
-                //    editorOptions: {
-                //        placeholder: "Введите ID автомата (15 цифр)",
-                //        mask: "X00000000000000",
-                //        maskChar: " ",
-                //        maskRules: {
-                //            "X": /[1-9]/
-                //        },
-                //        maskInvalidMessage: "ID автомата должен иметь правильный формат",
-                //        useMaskedValue: true
-                //    },
-                //    validationRules: [
-                //        {
-                //            type: "required",
-                //            message: "Введите ID автомата (15 цифр)"
-                //        },
-                //        //{
-                //        //    type: "stringLength",
-                //        //    min: 15,
-                //        //    message: "ID автомата должен быть не менее 15 цифр"
-                //        //},
-                //        //{
-                //        //    type: "stringLength",
-                //        //    max: 17,
-                //        //    message: "ID автомата не должен быть длиннее 17 цифр"
-                //        //},
-                //        {
-                //            type: "async",
-                //            message: "ID автомата уже зарегистрирован.",
-                //            validationCallback: function (params) {
-                //                return checkImei(params.value);
-                //            }
-                //        }
-                //    ]
-                //},
-                {
-                    dataField: "imei",
-                    editorType: "dxNumberBox",
-                    label: {
-                        text: "ID автомата",
-                        visible: true
-                    },
-                    editorOptions: {
-                        placeholder: "Введите ID автомата (15 цифр)",
-                        mode: "number",
-                        value: null
+        var checkImei = function(value) {
+            //return $.getJSON(`/api/validation/imei/${value}`, null).promise;
+            const get = $.get(`/api/validation/imei/${value}`);
+            return get.promise();
+        }
 
-                    },
-                    validationRules: [
-                        {
-                            type: "required",
-                            message: "Введите ID автомата (15 цифр)"
-                        },
-                        {
-                            type: "stringLength",
-                            min: 15,
-                            message: "ID автомата должен быть не менее 15 цифр"
-                        },
-                        {
-                            type: "stringLength",
-                            max: 17,
-                            message: "ID автомата не должен быть длиннее 17 цифр"
-                        },
-                        {
-                            type: "async",
-                            message: "ID автомата уже зарегистрирован.",
-                            validationCallback: function (params) {
-                                return checkImei(params.value);
-                            }
-                        }
-                    ]
-                },
-                {
-                    dataField: "address",
-                    label: {
-                        text: "Адрес",
-                        visible: true
-                    },
-                    editorOptions: {
-                        placeholder: "Адрес автомата"
-                    },
-                    validationRules: [
-                        {
-                            type: "required",
-                            message: "Нужно ввести адрес"
-                        }
-                    ]
-                },
-                {
-                    dataField: "phone",
-                    editorType: "dxNumberBox",
-                    label: {
-                        text: "Телефон",
-                        visible: true
-                    },
-                    editorOptions: {
-                        placeholder: "Введите номер телефона",
-                        value: null
-                    }
-                },
-                {
-                    dataField: "timeZone",
-                    editorType: "dxSelectBox",
-                    label: {
-                        text: "Часовой пояс",
-                        visible: true
-                    },
-                    editorOptions: {
-                        dataSource: timeZones,
-                        valueExpr: "value",
-                        displayExpr: "name"
-                    }
-                },
-                {
-                    dataField: "currency",
-                    editorType: "dxSelectBox",
-                    label: {
-                        text: "Валюта",
-                        visible: true
-                    },
-                    editorOptions: {
-                        dataSource: currencies,
-                        valueExpr: "value",
-                        displayExpr: "name"
-                    }
-                }
-            ]
-            //minColWidth: 300,
-            //colCount: 2
-        }).dxForm("instance");
-    }
+        // onclick="postDevice()"
+        //$("btnAddDevice").click(function (event) { postDevice(event);});
 
-    var checkImei = function(value) {
-        //return $.getJSON(`/api/validation/imei/${value}`, null).promise;
-        const get = $.get(`/api/validation/imei/${value}`);
-        return get.promise();
-    }
+        function postDevice(e) {
+            document.getElementById("errors").style.display = "none";
+            const valid = $('#deviceForm').dxForm('instance').validate();
+            if (valid.isValid === false) return;
 
-    // onclick="postDevice()"
-    //$("btnAddDevice").click(function (event) { postDevice(event);});
+            const data = $('#deviceForm').dxForm('instance').option('formData');
+            data.imei = `${data.imei}`;
+            data.phone = `${data.phone}`;
 
-    function postDevice(e) {
-        document.getElementById("errors").style.display = "none";
-        const valid = $('#deviceForm').dxForm('instance').validate();
-        if (valid.isValid === false) return;
+            const dev = {
+                imei: `${data.imei}`,
+                address: data.address,
+                phone: data.phone,
+                timeZone: data.timeZone,
+                currency: data.currency,
+                ownerId: null
+            }
+            const id = document.getElementById("popupDevId").value;
+            var request;
+            if (id) {
+                request = $.putJSON('/api/device/' + id, dev, null);
 
-        const data = $('#deviceForm').dxForm('instance').option('formData');
+            } else {
+                request = $.postJSON('/api/device', dev, null);
+            }
 
-        data.imei = `${data.imei}`;
-        data.phone = `${data.phone}`;
-
-        const request = $.postJSON('/api/device', data, null);
-        request.then(function() {
-            $('#popupContainer').modal('hide');
-            updateDevicesList();
-            },
-            function(res) {
-                if (res.readyState === 4 && res.status === 200) {
+            request.then(function() {
                     $('#popupContainer').modal('hide');
                     updateDevicesList();
-                } else {
-                    const message = res.responseText ? res.responseText : `Error${res.status}`;
-                    document.getElementById("errors").innerHTML = message;
-                    document.getElementById("errors").style.display = "block";
-                }
-            });
+                },
+                function(res) {
+                    if (res.readyState === 4 && res.status === 200) {
+                        $('#popupContainer').modal('hide');
+                        updateDevicesList();
+                    } else {
+                        const message = res.responseText ? res.responseText : `Error${res.status}`;
+                        document.getElementById("errors").innerHTML = message;
+                        document.getElementById("errors").style.display = "block";
+                    }
+                });
+        }
 
- //request.fail(function(data) {
-        //    e.preventDefault();
-        //    document.getElementById("errors").innerHTML = data.responseText;
-        //    document.getElementById("errors").style.display = "block";
-        //});
+        function updateDevice(id) {
+            getSales(id);
+            getEncashes(id);
+            getAlerts(id);
+            updateInfo();
+        }
 
-    }
-    //function GetDataSourceStr() {
-    //    var urlStr = "/api/devices";
-    //    return urlStr;
-    //}
+        function updateInfo() {
+            const tm = document.getElementById("totalMoney");
+            const ts = document.getElementById("totalSold");
+
+            if (!device || !device.lastStatus) {
+                tm.innerHTML = '';
+                ts.innerHTML = '';
+                return;
+            }
+
+            tm.innerHTML = `${device.lastStatus.totalMoney} ${getCurrencySign(device)}`;
+            ts.innerHTML = `${device.lastStatus.totalSold} л.`;
+        }
+        function getAlerts(id) {
+            $.getJSON(`/api/alerts?deviceId=${id}`, null)
+                .then(function(data) {
+                    if (data == null || data.count === 0) return;
+
+                    var alertList = [];
+                    data.forEach(function(h) {
+                        var i = '';
+                        const dd = $.format.date(h["messageDate"], "dd.MM HH:mm");
+                        switch (h["codeType"]) {
+                        case 0:
+                            i = `<div><i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;Нет продаж</div>`;
+                            break;
+                        case -1:
+                            i = `<div><i class="fa fa-exclamation-triangle text-danger"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;Нет связи</div>`;
+                            break;
+                        case -2:
+                            i = `<div><i class="fa fa-exclamation-triangle text-danger"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;Бак пуст</div>`;
+                            break;
+                        }
+                        alertList.push(i);
+                    });
+                    alertList.push('<br/>');
+                    alertList.push('<br/>');
+                    alertList.push('<br/>');
+                    alertList.push('<br/>');
+                    alertList.push('<br/>');
+                    const header = document.getElementById("tbAlerts");
+                    header.innerHTML = alertList.join("");
+                });
+        }
+
+        function getSales(id) {
+            $.getJSON(`/api/sales/info?deviceId=${id}`, null)
+                .then(function(data) {
+                    if (data == null || data.count === 0) return;
+
+                    var salesList = [];
+                    data.forEach(function(h) {
+                        //todo add toltip
+                        var i = '';
+                        const dd = $.format.date(h["messageDate"], "dd.MM HH:mm");
+                        const msg = h["quantity"] + "л./" + h["amount"] + getCurrencySign(device);
+
+                        switch (h["paymentType"]) {
+                        case 0:
+                                i = `<div><i class="fa fa-money text-success"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${msg}</div>`;
+                            break;
+                        case 1:
+                                i = `<div><i class="fa fa-credit-card text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${msg}</div>`;
+                            break;
+                        case -1:
+                                i = `<div><i class="fa fa-cloud-upload text-danger"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${data.amount}</div>`;
+                            break;
+                        }
+                        salesList.push(i);
+                    });
+                    salesList.push('<br/>');
+                    salesList.push('<br/>');
+                    salesList.push('<br/>');
+                    salesList.push('<br/>');
+                    salesList.push('<br/>');
+                    const header = document.getElementById("tbSales");
+                    header.innerHTML = salesList.join("");
+                });
+        }
+
+        function getEncashes(id) {
+            $.getJSON(`/api/encash?deviceId=${id}`, null)
+                .then(function (data) {
+                    if (data == null || data.count === 0) return;
+
+                    var encashList = [];
+                    data.forEach(function (h) {
+                        //todo add toltip
+                        const dd = $.format.date(h["messageDate"], "dd.MM HH:mm");
+                        var i = `<div><i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${h["amount"]}${getCurrencySign(device)}</div>`;
+
+
+                        encashList.push(i);
+                    });
+
+                    encashList.push('<br/>');
+                    encashList.push('<br/>');
+                    encashList.push('<br/>');
+                    encashList.push('<br/>');
+                    encashList.push('<br/>');
+                    const header = document.getElementById("tbEncash");
+                    header.innerHTML = encashList.join("");
+                });
+        }
+
+        function getCurrencySign(device) {
+            switch (device.currency) {
+                case 'RUB':
+                    return `&#x20BD;`;
+                    return '₽';
+                case 'KZT':
+                    return '&#x20B8;';
+                    return '₸';
+                case 'AZN':
+                    return '&#x20BC;';
+                    return '₼';
+                case 'UZS':
+                    return 'сўм';
+                case 'BYR':
+                    return 'Br';
+                    default :
+                        return '';
+            }
+        }
+
+        function periodChange(selectObject) {
+            period = selectObject.value;
+            //alert(period);
+        }
 </script>

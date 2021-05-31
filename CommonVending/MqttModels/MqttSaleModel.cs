@@ -44,6 +44,7 @@
 value – float
 amount – int
      */
+
     public float Value { get; set; }
 
     public int Amount { get; set; }

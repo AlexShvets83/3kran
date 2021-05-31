@@ -57,7 +57,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       var msgDate = date.ToUniversalTime().AddHours(device.TimeZone);
       var newState = new DevStatus
       {
-        Id = lastState?.Id ?? 0, DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate,
+        Id = lastState?.Id ?? 0, DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate,
         TotalMoney = tm, TotalSold = ts, Status = te
       };
 
@@ -68,7 +68,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       {
         if (lastState.MessageDate.AddMinutes(12) < msgDate)
         {
-          var lastConnAlert = DeviceDbProvider.GetLastConnAlert(device.Id);
+          var lastConnAlert = AlertsDbProvider.GetLastConnAlert(device.Id);
           if ((lastConnAlert == null) || (lastConnAlert.CodeType == 1))
           {
             //error connect
@@ -76,27 +76,27 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
             // со временем послед. + 10мин
             var alert = new DevAlert
             {
-              DeviceId = device.Id, ReceivedDate = date, MessageDate = lastState.MessageDate.AddMinutes(12), CodeType = -1,
+              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = lastState.MessageDate.AddMinutes(12), CodeType = -1,
               Message = "Пропала связь с автоматом"
             };
-            DeviceDbProvider.InsertDeviceAlert(alert);
+            AlertsDbProvider.InsertDeviceAlert(alert);
 
             // и сразу генерим событие "Связь восстановилась"
             alert = new DevAlert
             {
-              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 1,
+              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, CodeType = 1,
               Message = "Связь восстановилась"
             };
-            DeviceDbProvider.InsertDeviceAlert(alert);
+            AlertsDbProvider.InsertDeviceAlert(alert);
           }
           else if (lastConnAlert.CodeType == -1) //todo redundant case
           {
             var alert = new DevAlert
             {
-              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 1,
+              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, CodeType = 1,
               Message = "Связь восстановилась"
             };
-            DeviceDbProvider.InsertDeviceAlert(alert);
+            AlertsDbProvider.InsertDeviceAlert(alert);
           }
         }
       }
@@ -108,10 +108,10 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
         {
           var alert = new DevAlert
           {
-            DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = -2,
+            DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, CodeType = -2,
             Message = "Бак пуст"
           };
-          DeviceDbProvider.InsertDeviceAlert(alert);
+          AlertsDbProvider.InsertDeviceAlert(alert);
         }
       }
       else
@@ -120,10 +120,10 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
         {
           var alert = new DevAlert
           {
-            DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 2,
+            DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, CodeType = 2,
             Message = "Бак заполняется"
           };
-          DeviceDbProvider.InsertDeviceAlert(alert);
+          AlertsDbProvider.InsertDeviceAlert(alert);
         }
       }
 
@@ -132,13 +132,13 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       {
         if ((lastState != null) && (lastState.TotalMoney > 0))
         {
-          var encash = new DevEncash {DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, Amount = lastState.TotalMoney};
+          var encash = new DevEncash {DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, Amount = lastState.TotalMoney};
           DeviceDbProvider.InsertDeviceEncash(encash);
         }
       }
       else
       {
-        var lastSaleAlert = DeviceDbProvider.GetLastSaleAlert(device.Id);
+        var lastSaleAlert = AlertsDbProvider.GetLastSaleAlert(device.Id);
         
         //check sale
         if ((lastState == null) || (tm > lastState.TotalMoney) || (ts > lastState.TotalSold))
@@ -147,7 +147,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
           var amount = tm - lastState?.TotalMoney ?? tm;
           var sale = new DevSale
           {
-            DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, PaymentType = 0,
+            DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, PaymentType = 0,
             Amount = amount, Quantity = quantity
           };
 
@@ -157,10 +157,10 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
           {
             var alert = new DevAlert
             {
-              DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 3,
+              DeviceId = device.Id, /*ReceivedDate = date, */MessageDate = msgDate, CodeType = 3,
               Message = "Продажи восстановились"
             };
-            DeviceDbProvider.InsertDeviceAlert(alert);
+            AlertsDbProvider.InsertDeviceAlert(alert);
           }
         }
         else
@@ -176,10 +176,10 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
                 //eror sales
                 var alert = new DevAlert
                 {
-                  DeviceId = device.Id, ReceivedDate = date, MessageDate = msgDate, CodeType = 0,
+                  DeviceId = device.Id,/* ReceivedDate = date,*/ MessageDate = msgDate, CodeType = 0,
                   Message = "Нет продаж"
                 };
-                DeviceDbProvider.InsertDeviceAlert(alert);
+                AlertsDbProvider.InsertDeviceAlert(alert);
               }
             }
           }

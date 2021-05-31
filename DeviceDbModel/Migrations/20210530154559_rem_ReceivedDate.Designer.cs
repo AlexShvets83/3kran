@@ -3,15 +3,17 @@ using System;
 using DeviceDbModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DeviceDbModel.Migrations
 {
     [DbContext(typeof(DeviceDBContext))]
-    partial class DeviceDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210530154559_rem_ReceivedDate")]
+    partial class rem_ReceivedDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,6 +271,10 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("message_date");
 
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
+
                     b.HasKey("Id")
                         .HasName("pk_device_alerts");
 
@@ -316,6 +322,10 @@ namespace DeviceDbModel.Migrations
                     b.Property<DateTime>("MessageDate")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("message_date");
+
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
 
                     b.HasKey("Id")
                         .HasName("pk_device_encashes");
@@ -409,6 +419,10 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("real")
                         .HasColumnName("quantity");
 
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
+
                     b.HasKey("Id")
                         .HasName("pk_device_sales");
 
@@ -495,6 +509,10 @@ namespace DeviceDbModel.Migrations
                     b.Property<float>("Temperature")
                         .HasColumnType("real")
                         .HasColumnName("temperature");
+
+                    b.Property<double>("Timestamp")
+                        .HasColumnType("double precision")
+                        .HasColumnName("timestamp");
 
                     b.Property<float>("TotalMoney")
                         .HasColumnType("real")

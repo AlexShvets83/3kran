@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -40,7 +41,11 @@ namespace ThirdVendingWebApi.Controllers
     //[Authorize]
     public async Task<IActionResult> Get()
     {
-      var devList = DeviceDbProvider.GetDevices();
+      Stopwatch st = new Stopwatch();
+      st.Start();
+      var devList = DeviceDbProvider.GetAllDevices();
+      st.Stop();
+      Console.WriteLine(st.Elapsed);
       //todo add last state
       //var user = await _userManager.GetUserAsync(HttpContext.User);
       //if (user == null) return NotFound();
@@ -98,7 +103,38 @@ namespace ThirdVendingWebApi.Controllers
       return BadRequest();
     }
 
+    [HttpPut("/api/device/{id}")]
+    [Authorize]
+    public async Task<IActionResult> Edit(string id, [FromBody] DeviceAddModel dev)
+    {
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated) return NotFound("Пользователь деактивирован!");
+      
+      var userRoles = await _userManager.GetRolesAsync(user);
 
+      var ovnerID = dev.OwnerId;
+      if (string.IsNullOrEmpty(ovnerID))
+      {
+        //ovnerID = userRoles.Contains(Roles.Owner) ? user.Id : DeviceTool.GetNewDeviceOwner(user, userRoles);
+        ovnerID = DeviceTool.GetNewDeviceOwner(user, userRoles);
+      }
+
+      var device = new Device
+      {
+        Id = Guid.NewGuid().ToString(),
+        Address = dev.Address,
+        Currency = dev.Currency,
+        Imei = dev.DeviceId,
+        Phone = dev.Phone,
+        TimeZone = dev.TimeZone,
+        OwnerId = ovnerID
+      };
+
+      if (await DeviceDbProvider.AddDevice(device)) return Ok();
+
+      return BadRequest();
+    }
 
 
 

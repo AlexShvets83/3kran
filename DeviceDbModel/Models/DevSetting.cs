@@ -8,9 +8,11 @@ namespace DeviceDbModel.Models
 
     public string DeviceId { get; set; }
 
-    public DateTime ReceivedDate { get; set; }
+    //public DateTime ReceivedDate { get; set; }
 
     public DateTime MessageDate { get; set; }
+
+    public int TopicType { get; set; }
 
     public string Topic { get; set; }
 

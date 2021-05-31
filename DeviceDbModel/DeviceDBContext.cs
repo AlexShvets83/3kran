@@ -93,7 +93,7 @@ namespace DeviceDbModel
       modelBuilder.Entity<DevStatus>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        entity.HasIndex(e => e.ReceivedDate);
+        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevStatuses).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -101,7 +101,7 @@ namespace DeviceDbModel
       modelBuilder.Entity<DevSale>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        entity.HasIndex(e => e.ReceivedDate);
+        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevSales).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -109,7 +109,7 @@ namespace DeviceDbModel
       modelBuilder.Entity<DevEncash>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        entity.HasIndex(e => e.ReceivedDate);
+        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevEncashes).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -117,7 +117,7 @@ namespace DeviceDbModel
       modelBuilder.Entity<DevAlert>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        entity.HasIndex(e => e.ReceivedDate);
+        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevAlerts).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -136,6 +136,7 @@ namespace DeviceDbModel
       {
         entity.HasIndex(e => new {e.DeviceId, e.MessageDate, e.Md5}).IsUnique();
         entity.HasIndex(e => e.DeviceId);
+        entity.HasIndex(e => e.TopicType);
 
         //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);

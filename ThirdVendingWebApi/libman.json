@@ -117,6 +117,11 @@
       "provider": "unpkg",
       "library": "daterangepicker@3.1.0",
       "destination": "wwwroot/lib/daterangepicker/"
+    },
+    {
+      "provider": "unpkg",
+      "library": "jquery-dateformat@1.0.4",
+      "destination": "wwwroot/lib/jquery-dateformat/"
     }
   ]
 }
