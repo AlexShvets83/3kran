@@ -135,7 +135,7 @@ namespace CommonVending.DbProvider
             var alerts = new List<string>();
             var lastStatus = context.DeviceLastStatus.Where(w => w.DeviceId == dev.Id).OrderByDescending(o => o.MessageDate).Take(1).ToList();
             dev.LastStatus = lastStatus.Count > 0 ? lastStatus[0].GetNewObj<DevStatusView>() : null;
-            if ((dev.LastStatus == null) || (dev.LastStatus.MessageDate.AddMinutes(12) < currDate))
+            if ((dev.LastStatus == null) || (dev.LastStatus.MessageDate.AddMinutes(32) < currDate))
             {
               alerts.Add("NO_LINK");
             }

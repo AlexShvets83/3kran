@@ -41,11 +41,11 @@ namespace ThirdVendingWebApi.Controllers
     //[Authorize]
     public async Task<IActionResult> Get()
     {
-      Stopwatch st = new Stopwatch();
-      st.Start();
+      //Stopwatch st = new Stopwatch();
+      //st.Start();
       var devList = DeviceDbProvider.GetAllDevices();
-      st.Stop();
-      Console.WriteLine(st.Elapsed);
+      //st.Stop();
+      //Console.WriteLine(st.Elapsed);
       //todo add last state
       //var user = await _userManager.GetUserAsync(HttpContext.User);
       //if (user == null) return NotFound();
@@ -78,6 +78,7 @@ namespace ThirdVendingWebApi.Controllers
       var user = await _userManager.GetUserAsync(HttpContext.User);
       if (user == null) return NotFound("Пользователь не найден!");
       if (!user.Activated) return NotFound("Пользователь деактивирован!");
+      
       var userRoles = await _userManager.GetRolesAsync(user);
 
       var ovnerID = dev.OwnerId;
@@ -113,32 +114,28 @@ namespace ThirdVendingWebApi.Controllers
       
       var userRoles = await _userManager.GetRolesAsync(user);
 
-      var ovnerID = dev.OwnerId;
-      if (string.IsNullOrEmpty(ovnerID))
+      var ownerId = dev.OwnerId;
+      if (string.IsNullOrEmpty(ownerId))
       {
-        //ovnerID = userRoles.Contains(Roles.Owner) ? user.Id : DeviceTool.GetNewDeviceOwner(user, userRoles);
-        ovnerID = DeviceTool.GetNewDeviceOwner(user, userRoles);
+        ownerId = DeviceTool.GetNewDeviceOwner(user, userRoles);
       }
 
       var device = new Device
       {
-        Id = Guid.NewGuid().ToString(),
+        Id = id,
         Address = dev.Address,
         Currency = dev.Currency,
         Imei = dev.DeviceId,
         Phone = dev.Phone,
         TimeZone = dev.TimeZone,
-        OwnerId = ovnerID
+        OwnerId = ownerId
       };
 
       if (await DeviceDbProvider.AddDevice(device)) return Ok();
 
       return BadRequest();
     }
-
-
-
-
+    
     /// <summary>
     /// Удалить автомат
     /// </summary>
@@ -158,7 +155,7 @@ namespace ThirdVendingWebApi.Controllers
       if (device.OwnerId == user.Id) DeviceDbProvider.RemoveDevice(device);
       else
       {
-        var deviceOwner = await _userManager.FindByIdAsync(device.Id);
+        var deviceOwner = await _userManager.FindByIdAsync(device.OwnerId);
         //todo check role
         var useRoles = await _userManager.GetRolesAsync(user);
         

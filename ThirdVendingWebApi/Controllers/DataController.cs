@@ -66,7 +66,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       // errors connect
       if (lastState != null)
       {
-        if (lastState.MessageDate.AddMinutes(12) < msgDate)
+        if (lastState.MessageDate.AddMinutes(32) < msgDate)
         {
           var lastConnAlert = AlertsDbProvider.GetLastConnAlert(device.Id);
           if ((lastConnAlert == null) || (lastConnAlert.CodeType == 1))
@@ -76,7 +76,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
             // со временем послед. + 10мин
             var alert = new DevAlert
             {
-              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = lastState.MessageDate.AddMinutes(12), CodeType = -1,
+              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = lastState.MessageDate.AddMinutes(10), CodeType = -1,
               Message = "Пропала связь с автоматом"
             };
             AlertsDbProvider.InsertDeviceAlert(alert);

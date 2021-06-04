@@ -16,6 +16,8 @@ namespace MqttTest
     static async Task Main(string[] args)
     {
       Console.WriteLine("Hello World!");
+      //869244046767509 - my   @"{""maintain"":0}"
+      //869395032100038   - 3kran  "priceCard":1.000
       var topic = "3voda/device/869244046767509/settings/todevice";
       var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(@"{""maintain"":1}").WithExactlyOnceQoS().WithRetainFlag().Build();
       //var message = new MqttApplicationMessageBuilder()

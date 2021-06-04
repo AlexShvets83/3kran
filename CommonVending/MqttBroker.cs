@@ -121,7 +121,7 @@ namespace CommonVending
     {
       if (context == null) { return; }
 
-      await DeviceMqtt.SubscriptionHandler(context.TopicFilter.Topic);
+      //await DeviceMqtt.SubscriptionHandler(context.TopicFilter.Topic);
       var message = successful
                       ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
                       : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";

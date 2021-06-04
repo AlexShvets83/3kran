@@ -156,7 +156,7 @@ namespace CommonVending
             {
               var lastConnAlert = AlertsDbProvider.GetLastConnAlert(device.Id);
 
-              if (lastState.MessageDate.AddMinutes(12) < msgDate)
+              if (lastState.MessageDate.AddMinutes(32) < msgDate)
               {
                 if ((lastConnAlert == null) || (lastConnAlert.CodeType == 1))
                 {

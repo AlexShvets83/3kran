@@ -59,8 +59,9 @@
 
 
 <div id="popup"></div>
+
 <div class="row dashboard">
-    <section class="col-12 col-lg-4 order-lg-1 left">
+    <section class="col-12 col-lg-4 order-lg-1 left" style="height: 650px">
         <div id="gridContainer"></div>
         @*<div> <br /></div>*@
         <br />
@@ -140,7 +141,7 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#popupContainer" onclick="addDevice(device)"><i class="fa fa-list-ul"></i>&nbsp;&nbsp;Профиль</a>
-                        <a class="dropdown-item" href="#"><i class="fa fa-wrench"></i>&nbsp;&nbsp;Техн. настройки</a>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#popupDevSettings" onclick="devSettings(device)"><i class="fa fa-wrench"></i>&nbsp;&nbsp;Техн. настройки</a>
                     </div>
                 </div>
             </div>
@@ -225,6 +226,12 @@
                             <i class="fa fa-cloud-upload text-danger text-center" id="saleDepo"></i>&nbsp;Пополн.
                         </label>
                     </div>
+                    
+                    @*<div class="text-center">
+                        <i class="fa fa-money text-success" id="saleCash"></i>&nbsp;Наличн.
+                        <i class="fa fa-credit-card text-warning text-center" id="saleCashless"></i>&nbsp;Картой
+                        <i class="fa fa-cloud-upload text-danger text-center" id="saleDepo"></i>&nbsp;Пополн.
+                    </div>*@
                     <hr>
                     <div class="dashboard-sales_wrapper">
                         <div id="tbSales"></div>
@@ -273,7 +280,7 @@
             </div>
 
             <!-- Колонка для списка аварий -->
-            <div class="col-12  col-sm-6 col-xl-4 mt-2">
+            <div class="col-12  col-sm-6 col-xl-4 mt-2" style="height: 350px">
                 <div class="dashboard-short_list_header"><i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии</div>
                 <div class="dashboard-short_list_body">
                     <!-- Список последних аварий -->
@@ -334,8 +341,33 @@
     </div>
 </div>
 
+<div class="modal" tabindex="-1" role="dialog" id="popupDevSettings">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title fa fa-wrench text-secondary">&nbsp;&nbsp;Технические настройки автомата</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @*<div class="alert alert-danger" id="errors" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <strong>Errors</strong>
+                </div>*@
+                <div id="deviceSettingsForm"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Закрыть</button>
+                @*<button type="button" id="btnSaveSetings" class="btn btn-primary fa fa-plus-square" onclick="saveSettings(event)"> Добавить</button>*@
+            </div>
+        </div>
+    </div>
+</div>    
 
-<script>
+
+
+    <script>
         var period = "MONTHS";
         var user;
         var device;
@@ -457,11 +489,8 @@
                 showBorders: true,
                 wordWrapEnabled: true,
                 selection: { mode: 'single' },
-                //scrolling: {mode: "virtual"},
                 //height: 800,
                 hoverStateEnabled: true,
-                //columns: GetColumns(headers),
-                //columnChooser: { enabled: true, mode: 'select', title: 'ColumnChooser' },
                 @* "export": {
             ignoreExcelErrors: true,
                 enabled: true,
@@ -474,33 +503,12 @@
             }
         },*@
                 loadPanel: { enabled: true },
-
-
-                //paging: {
-                //    pageSize: 10
-                //},
-                //pager: {
-                //    showPageSizeSelector: true,
-                //    allowedPageSizes: [10, 25, 50, 100]
-                //},
-                //remoteOperations: false,
                 searchPanel: {
                     visible: true,
                     highlightCaseSensitive: true,
                     placeholder: "Начните вводить адрес автомата или IMEI...",
                     width: '100%'
                 },
-                //groupPanel: { visible: true },
-                //grouping: {
-                //    autoExpandAll: false
-                //},
-                //allowColumnReordering: true,
-                //rowAlternationEnabled: true,
-                //showBorders: true,
-                //onSelectionChanged: function(e) {
-                //    device = e.selectedRowsData[0];
-                //    updateDevice(device.id);
-                //},
                 onFocusedRowChanging: function(e) {
                     var rowsCount = e.component.getVisibleRows().length;
                     const pageCount = e.component.pageCount();
@@ -528,13 +536,6 @@
                         updateDevice(device.id);
                         //todo get device data and fill page
                     }
-                    //const taskItem = getTaskDataItem(e.row);
-                    //const focusedRowKey = e.component.option("focusedRowKey");
-                    //$("#taskSubject").html(taskItem.subject);
-                    //$("#taskDetails").html(taskItem.description);
-                    //$("#taskStatus").html(taskItem.status);
-                    //$("#taskProgress").text(taskItem.progress);
-                    //$("#taskId").dxNumberBox("instance").option("value", focusedRowKey);
                 },
                 onCellPrepared: function(options) {
                     const fieldData = options.value;
@@ -548,64 +549,11 @@
                         if (!dev.lastStatus || (dev.alerts && (jQuery.inArray("NO_LINK", dev.alerts) !== -1))) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
 
                         if (dev.alerts && (jQuery.inArray("TANK_EMPTY", dev.alerts) !== -1)) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Бак пуст';
-
-                        //if (dev.lastStatus) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
-                        //if (dev.alerts) {
-                        //    if (jQuery.inArray("NO_SALES", dev.alerts) !== -1) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет продаж';
-                        //    if (jQuery.inArray("NO_LINK", dev.alerts) !== -1) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
-                        //    if (jQuery.inArray("TANK_EMPTY", dev.alerts) !== -1) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Бак пуст';
-                        //}
-
-                        //if (dev.alerts.contain)
-                        //fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
                         options.cellElement.html(fieldHtml);
                     }
-
-                    //<span *ngSwitchCase="alertTypes.NO_LINK">
-                    //    <i class="fa fa-exclamation-triangle text-danger"></i>&nbsp;Нет связи
-                    //    </span>
-                    //    <span *ngSwitchCase="alertTypes.TANK_EMPTY">
-                    //    <i class="fa fa-exclamation-triangle text-danger"></i>&nbsp;Бак пуст
-                    //    </span>
-                    //    <span *ngSwitchCase="alertTypes.NO_SALES">
-                    //    <i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;Нет продаж
-                    //    </span>
-                    //    <span *ngSwitchDefault>
-                    //    <i class="fa fa-check text-success"></i>&nbsp;В работе
-                    //    </span>
-                    //if (fieldData && fieldData.value) {
-                    //    if (fieldData.diff) {
-                    //        options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
-                    //        fieldHtml += "<div class='current-value'>" +
-                    //            DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
-                    //            "</div> <div class='diff'>" +
-                    //            Math.abs(fieldData.diff).toFixed(2) +
-                    //            "  </div>";
-                    //    } else {
-                    //        fieldHtml = fieldData.value;
-                    //    }
-                    //    options.cellElement.html(fieldHtml);
-                    //}
                 },
-                //onCellPrepared: function(cellElement, cellInfo) {
-                //    if (!cellInfo) return;
-                //    if (cellInfo.column.dataField === 'alerts') {
-                //        var arr = cellInfo.data;
-                //        if (!cellInfo.data) { cellElement.addClass('Red'); }
-
-                //        if (jQuery.inArray("NO_LINK", arr)){cellElement.addClass('Red');}
-                //        if (jQuery.inArray("TANK_EMPTY", arr)){cellElement.addClass('Orange');}
-                //        if (jQuery.inArray("NO_SALES", arr)){cellElement.addClass('Yellow');}
-                //        //if(cellInfo.data[0] === 'Green'){cellElement.addClass('Green');}
-                //    }
-                //},
                 columns: [
-                    //{
-                    //    dataField: "Id",
-                    //    groupIndex: 0
-                    //},
                     {
-                        //width: '170px',
                         dataField: "imei",
                         allowSorting: false,
                         caption: "IMEI",
@@ -615,24 +563,7 @@
                                 .css('font-size', '14px')
                                 .appendTo(header);
                         }
-                        //dataType: "number",
-                        //format: "currency",
-                        //alignment: "right"
                     },
-                    //{
-                    //    dataField: "Discount",
-                    //    caption: "Discount %",
-                    //    dataType: "number",
-                    //    format: "percent",
-                    //    alignment: "right",
-                    //    allowGrouping: false,
-                    //    //cellTemplate: discountCellTemplate,
-                    //    cssClass: "bullet"
-                    //},
-                    //{
-                    //    dataField: "SaleDate",
-                    //    dataType: "date"
-                    //},
                     {
                         allowSorting: false,
                         dataField: "address",
@@ -649,7 +580,6 @@
                         allowSorting: false,
                         dataField: "alerts",
                         caption: "Состояние",
-                        //width: '110px',
                         headerCellTemplate: function(header, info) {
                             $('<b style="color: black">')
                                 .html(info.column.caption)
@@ -663,7 +593,6 @@
                         //}
                     },
                     {
-                        //caption: "Удалить",
                         width: 30,
                         minWidth: 30,
                         headerCellTemplate: function(header, info) {
@@ -674,10 +603,6 @@
                         },
                         type: "buttons",
                         buttons: [
-                            //{
-                            //    name: "delete",
-                            //    cssClass: "fa fa-window-close text-danger"
-                            //},
                             {
                                 hint: "Удалить",
                                 //icon: "fa fa-window-close",
@@ -729,45 +654,10 @@
                                             return;
                                         }
                                     });
-
-                                    //var result = DevExpress.ui.dialog.confirm('Удаление автомата', 'Вы уверены, что хотите удалить этот автомат из списка?');
-                                    //result.done(function (dialogResult) {
-                                    //    if (dialogResult) {
-                                    //        //$.delete
-                                    //        //post(urlStr, { __RequestVerificationToken: token, id: data[0].ID });
-                                    //    } else
-                                    //        return;
-                                    //});
-
-                                    //$("#popupContainer").dxPopup({
-                                    //    showTitle: true,
-                                    //    visible: true
-                                    //}).show();
-
-                                    //popup.show();
-                                    //var clonedItem = $.extend({}, e.row.data, { ID: ++maxID });
-
-                                    //employees.splice(e.row.rowIndex, 0, clonedItem);
-
-                                    //e.component.refresh(true);
-                                    //e.event.preventDefault();
                                 }
                             }
                         ]
                     }
-                    //{
-                    //    dataField: "Sector",
-                    //    dataType: "string",
-                    //},
-                    //{
-                    //    dataField: "Channel",
-                    //    dataType: "string",
-                    //},
-                    //{
-                    //    dataField: "Customer",
-                    //    dataType: "string",
-                    //    width: 150
-                    //}
                 ]
             });
             updateDevicesList();
@@ -857,65 +747,20 @@
 
         function popupSales(id, name) {
             const header = document.getElementById("popupTitle");
-            //header.innerText = "  Продажи за период";
             header.innerHTML = '<i class="fa fa-shopping-cart text-warning"></i>&nbsp;&nbsp;Продажи за период';
-
             $('#alertsPopup').modal('toggle');
-
-            //document.getElementById("errors").innerHTML = data.responseText;
-
         }
 
         function popupEncash(id, name) {
             const header = document.getElementById("popupTitle");
-            //header.innerText = "  Продажи за период";
             header.innerHTML = '<i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;Инкассации за период';
-
             $('#alertsPopup').modal('toggle');
-
-            //document.getElementById("errors").innerHTML = data.responseText;
-
         }
 
         function popupAlerts(id, name) {
-
             const header = document.getElementById("popupTitle");
             header.innerHTML = '<i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии за период';
-            //header.innerText = "  Аварии за период";
-            //header.setAttribute("class", "fa fa-exclamation-triangle text-warning");
-
-            //var dateNow = Date.now();
-            //dateNow.setDate(dateNow.getDate() + 1);
-
-            //const startDate = dateNow.getDate() - 7;
-            //$('#dateRangePicker').daterangepicker({
-            //    singleDatePicker: true,
-            //    startDate: moment().subtract(6, 'days')
-            //});
-
-            //$('#dateRangePicker').daterangepicker({
-            //    "startDate": "05/18/2021",
-            //    "endDate": "05/24/2021"
-            //}, function(start, end, label) {
-            //    console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-            //});
-
             $('#alertsPopup').modal('toggle');
-            //var urlStr = "/api/data/GetTaskReport?id=" + id;
-            ////var data = httpGet(urlStr);
-            ////var dataSource = JSON.parse(data);
-
-            //httpGetAsync(urlStr, parse);
-            //function parse(data) {
-            //    var dataSource = JSON.parse(data);
-
-
-            //var grid = $("<div>");
-            //    var datePicker = $("<div>");
-
-
-            //}
-
         }
 
         function addDevice(dev) {
@@ -951,10 +796,6 @@
                             mode: "number",
                             value: null,
                             readOnly: isEdit
-                            //disabled: false,
-                            //readonly: function() {
-                            //    return dev.id;
-                            //}
                         },
                         validationRules: [
                             {
@@ -1056,10 +897,7 @@
             }).dxForm("instance");
 
             if (isEdit) {
-                //var imei = Number(dev.imei);
-                var editor = form.getEditor("imei");
-                //editor.option("disabled", true);
-                //editor.option("readOnly", true);
+                let editor = form.getEditor("imei");
                 editor.option("value", Number(dev.imei));
 
                 editor = form.getEditor("address");
@@ -1073,19 +911,17 @@
 
                 editor = form.getEditor("currency");
                 editor.option("value", dev.currency);
-            } else {
-
             }
         }
 
+        function devSettings(dev) {
+            
+        }
         var checkImei = function(value) {
             //return $.getJSON(`/api/validation/imei/${value}`, null).promise;
             const get = $.get(`/api/validation/imei/${value}`);
             return get.promise();
         }
-
-        // onclick="postDevice()"
-        //$("btnAddDevice").click(function (event) { postDevice(event);});
 
         function postDevice(e) {
             document.getElementById("errors").style.display = "none";
@@ -1107,7 +943,7 @@
             const id = document.getElementById("popupDevId").value;
             var request;
             if (id) {
-                request = $.putJSON('/api/device/' + id, dev, null);
+                request = $.putJSON(`/api/device/${id}`, dev, null);
 
             } else {
                 request = $.postJSON('/api/device', dev, null);
