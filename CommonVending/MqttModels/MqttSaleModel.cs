@@ -1,4 +1,7 @@
-﻿namespace CommonVending.MqttModels
+﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+
+namespace CommonVending.MqttModels
 {
   public class MqttSaleModel
   {
@@ -44,9 +47,12 @@
 value – float
 amount – int
      */
-
+    [JsonProperty("value")]
+    [JsonPropertyName("value")]
     public float Value { get; set; }
 
+    [JsonProperty("amount")]
+    [JsonPropertyName("amount")]
     public int Amount { get; set; }
   }
 }

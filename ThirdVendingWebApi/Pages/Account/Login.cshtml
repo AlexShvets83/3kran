@@ -18,7 +18,7 @@
                 </i>&nbsp;&nbsp;«CapsLock» включен.
             </div>
 
-            <div id="formWidget"></div>
+            <div id="formWidget" autocomplete="on"></div>
 
             <div class="form-inline">
                 <button onclick="login_post()" class="btn btn-primary mb-2 mt-2 mr-4"><i class="fa fa-sign-in pr-2"></i>&nbsp;Войти</button>
@@ -229,12 +229,14 @@
             items: [
                 {
                     dataField: "username",
+                    editorType: "dxAutocomplete",
                     label: {
                         text: "Email",
                         visible: false
                     },
                     editorOptions: {
-                        placeholder: "Введите Email"
+                        placeholder: "Введите Email",
+                        showClearButton: true
                     },
                     validationRules: [
                         {
@@ -245,13 +247,15 @@
                 },
                 {
                     dataField: "password",
+                    editorType: "dxAutocomplete",
                     label: {
                         text: "Пароль",
                         visible: false
                     },
                     editorOptions: {
                         placeholder: "Введите пароль",
-                        mode: "password"
+                        mode: "password",
+                        showClearButton: true
                     },
                     validationRules: [
                         {

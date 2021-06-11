@@ -4,7 +4,7 @@
     /*min-height: calc(100vh);*/
     /*overflow: auto;*/
     /*max-height: 100vh;*/
-    min-height: calc(100vh - 200px); /* 150px*/
+    min-height: calc(100vh - 150px); /* 150px*/
 /*    height: calc(100vh);*/
 }
 
@@ -26,7 +26,9 @@
 
 .dashboard_header-device_status {
     opacity: 1 !important;
-    line-height: 14px;
+    text-align: center !important;
+    vertical-align: middle !important;
+    line-height: 9px;
 }
 
 .dashboard_header-device_edit {

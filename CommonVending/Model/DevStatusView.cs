@@ -19,7 +19,7 @@ namespace CommonVending.Model
     /// <summary>
     /// Текущая температура
     /// </summary>
-    public float Temperature { get; set; }
+    public float? Temperature { get; set; }
 
     /// <summary>
     /// 0 - ок, 1 - бак пуст

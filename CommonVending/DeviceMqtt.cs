@@ -9,13 +9,55 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MQTTnet.Client;
 
 namespace CommonVending
 {
-  public class DeviceMqtt
+  public static class DeviceMqtt
   {
-    public static async Task SubscriptionHandler(string topic)
+    //private static IMqttClient _mqttClient;
+
+    //static DeviceMqtt()
+    //{
+    //  SubscriptionConnect().RunSynchronously();
+    //}
+
+//    private static async Task SubscriptionConnect()
+//    {
+//      try
+//      {
+//        var options = new MqttClientOptionsBuilder()
+//#if RELEASE
+//          .WithTcpServer("localhost", 8883)
+//#endif
+//          .WithTcpServer("monitoring3voda.ru", 8883)
+
+//          //.WithTcpServer("127.0.0.1", 8883)
+//          .WithClientId("device_settings")
+//          .WithCredentials("3voda", "Leimnoj8Knod")
+//          .WithTls(new MqttClientOptionsBuilderTlsParameters
+//          {
+//            UseTls = true, SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+
+//            //Certificates = certs,
+//            AllowUntrustedCertificates = true, IgnoreCertificateChainErrors = true, IgnoreCertificateRevocationErrors = true
+//          })
+//          .Build();
+
+//        // Create a new MQTT client.
+//        var factory = new MqttFactory();
+//        _mqttClient = factory.CreateMqttClient();
+//        await _mqttClient.ConnectAsync(options, CancellationToken.None); // Since 3.0.5 with CancellationToken
+//      }
+//      catch (Exception ex)
+//      {
+//        Console.WriteLine(ex.Message);
+//      }
+//    }
+
+    public static async Task SubscriptionHandler(string topic, string payLoad)
     {
+      IMqttClient mqttClient = null;
       try
       {
         if (!topic.Contains("settings/todevice")) return;
@@ -31,70 +73,47 @@ namespace CommonVending
         imei = new string(imei.Where(char.IsDigit).ToArray());
         if (string.IsNullOrEmpty(imei) || (imei.Length < 15) || (imei.Length > 17)) return;
 
-        var theme = tps[3];
-
-        var device = DeviceDbProvider.GetDeviceByImei(imei);
-        if (device == null)
-        {
-          device = new Device
-          {
-            Id = Guid.NewGuid().ToString(), Address = "", Currency = "RUB", Imei = imei,
-            Phone = "", TimeZone = 2,
-
-            //OwnerId = ""
-          };
-          await DeviceDbProvider.AddDevice(device);
-        }
-
-        device = DeviceDbProvider.GetDeviceByImei(imei);
-
-        //topic = "3voda/device/869244046767509/settings/todevice";
-        //var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        ////var currentPath = "/etc/letsencrypt/live/monitoring3voda.ru/";
-        //var certificate = new X509Certificate2(Path.Combine(currentPath ?? string.Empty, "certificate.pfx"), "qwerty", X509KeyStorageFlags.Exportable);
-        
-
-//        var pathCert = "/etc/letsencrypt/live/monitoring3voda.ru/fullchain.pem";
-//        var pathKey = "/etc/letsencrypt/live/monitoring3voda.ru/privkey.pem";
-
-//#if DEBUG
-//        pathCert = "d:\\!Projects\\!3Cran\\SSL\\monitoring3voda.ru\\cert.pem";
-//        pathKey = "d:\\!Projects\\!3Cran\\SSL\\monitoring3voda.ru\\privkey.pem";
-//#endif
-//        var fc = await File.ReadAllTextAsync(pathCert);
-//        var fk = await File.ReadAllTextAsync(pathKey);
-
-//        var certificate = X509Certificate2.CreateFromPem(fc, fk);
-        
-//        List<X509Certificate> certs = new List<X509Certificate>
-//        {
-//          certificate
-//        };
-
-        var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(@"{""pricePerLitre"":3.000}").WithExactlyOnceQoS().WithRetainFlag().Build();
+        var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(payLoad).WithExactlyOnceQoS().WithRetainFlag().Build();
         var options = new MqttClientOptionsBuilder()
-          
-          //.WithTcpServer("127.0.0.1", 8883)
+#if RELEASE
           .WithTcpServer("localhost", 8883)
+#endif
+          .WithTcpServer("monitoring3voda.ru", 8883)
+
+          //.WithTcpServer("127.0.0.1", 8883)
           .WithClientId("device_settings")
           .WithCredentials("3voda", "Leimnoj8Knod")
           .WithTls(new MqttClientOptionsBuilderTlsParameters
           {
-            UseTls = true, SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+            UseTls = true,
+            SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
 
             //Certificates = certs,
-            AllowUntrustedCertificates = true, IgnoreCertificateChainErrors = true, IgnoreCertificateRevocationErrors = true
+            AllowUntrustedCertificates = true,
+            IgnoreCertificateChainErrors = true,
+            IgnoreCertificateRevocationErrors = true
           })
           .Build();
 
         // Create a new MQTT client.
         var factory = new MqttFactory();
-        var mqttClient = factory.CreateMqttClient();
+        mqttClient = factory.CreateMqttClient();
         await mqttClient.ConnectAsync(options, CancellationToken.None); // Since 3.0.5 with CancellationToken
+
+        //if (_mqttClient == null) await SubscriptionConnect();
+
         await mqttClient.PublishAsync(message, CancellationToken.None);
-        Console.WriteLine("Message send!");
+        Console.WriteLine("Message sent!");
       }
-      catch (Exception ex) { Console.WriteLine(ex.Message); }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.Message);
+      }
+      finally
+      {
+        await mqttClient?.DisconnectAsync();
+        mqttClient?.Dispose();
+      }
     }
 
     public static async Task MessageHandler(string topic, string message)
@@ -120,12 +139,12 @@ namespace CommonVending
         {
           device = new Device
           {
-            Id = Guid.NewGuid().ToString(), Address = "", Currency = "RUB", Imei = imei,
+            Id = null, Address = "", Currency = "RUB", Imei = imei,
             Phone = "", TimeZone = 2,
 
             //OwnerId = ""
           };
-          await DeviceDbProvider.AddDevice(device);
+          await DeviceDbProvider.AddOrEditDevice(device);
         }
 
         device = DeviceDbProvider.GetDeviceByImei(imei);
@@ -331,7 +350,7 @@ namespace CommonVending
             DeviceDbProvider.WriteDeviceSettings(settings);
             break;
           case "cleaner":
-            if (tps[5] != "status") return;
+            if (tps[4] != "status") return;
 
             const string tpcCleaner = "cleaner/status";
             const int tpcCleanerType = 1;
@@ -346,6 +365,8 @@ namespace CommonVending
             };
             var lastCleanerSettings = DeviceDbProvider.GetLastSettings(device.Id, tpcCleanerType);
             if (lastCleanerSettings?.Md5 == cleaner.Md5) cleaner.Id = lastCleanerSettings.Id;
+
+            DeviceDbProvider.WriteDeviceSettings(cleaner);
             break;
         }
       }

@@ -46,7 +46,7 @@ namespace ThirdVendingWebApi.Models
     /// <summary>
     ///   Активирован ли пользователь
     /// </summary>
-    public bool Activated { get; set; }
+    public bool? Activated { get; set; }
 
     /// <summary>
     ///   Язык

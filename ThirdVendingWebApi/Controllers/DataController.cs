@@ -41,12 +41,12 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       {
         device = new Device
         {
-          Id = Guid.NewGuid().ToString(), Address = "", Currency = "RUB", Imei = imei,
+          Id = null, Address = "", Currency = "RUB", Imei = imei,
           Phone = "", TimeZone = 2,
 
           //OwnerId = ""
         };
-        result = await DeviceDbProvider.AddDevice(device);
+        result = await DeviceDbProvider.AddOrEditDevice(device);
       }
 
       device = DeviceDbProvider.GetDeviceByImei(imei);

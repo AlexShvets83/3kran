@@ -147,7 +147,6 @@
 <script>
     $(document).ready(
         function () {
-
             //var autocomplete1 = new google.maps.places.Autocomplete($("#address")[0], {});
 
             //google.maps.event.addListener(autocomplete1, 'place_changed', function() {
@@ -499,18 +498,19 @@
             organization: $("#organization").dxTextBox("instance").option('value'),
             password: $("#password").dxTextBox("instance").option('value'),
         };
-        var message = "Ваша заявка на подключение к системе мониторинга «Третий кран» была принята." +
-            "Запомните и запишите ваш логин и пароль в надежном месте." +
-            "Для активации аккаунта напишите вашему персональному менеджеру ваш логин." +
-            "В течение суток ваш аккаунт будет активирован.";
 
+        var message = [];
+        message.push('<div>Ваша заявка на подключение к системе мониторинга «Третий кран» была принята.</div>');
+        message.push('<div>Запомните и запишите ваш логин и пароль в надежном месте.</div>');
+        message.push('<div>Для активации аккаунта напишите вашему персональному менеджеру ваш логин.</div>');
+        message.push('<div>В течение суток ваш аккаунт будет активирован.</div>');
         var request = $.postJSON('/api/Register', formData, null);
 
-        request.then(function(data) {
-                DevExpress.ui.dialog.alert(message, "Ok" + data);
+        request.then(function() {
+            DevExpress.ui.dialog.alert(message.join(""), "Ok");
             },
             function(data) {
-                if (data.readyState === 4 && data.status === 200) DevExpress.ui.dialog.alert(message, "Ok" + data);
+                if (data.readyState === 4 && data.status === 200) DevExpress.ui.dialog.alert(message.join(""), "Ok");
                 else {
                     DevExpress.ui.dialog.alert(data.responseText, "Ошибка");
 

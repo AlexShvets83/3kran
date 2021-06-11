@@ -18,8 +18,12 @@ namespace MqttTest
       Console.WriteLine("Hello World!");
       //869244046767509 - my   @"{""maintain"":0}"
       //869395032100038   - 3kran  "priceCard":1.000
-      var topic = "3voda/device/869244046767509/settings/todevice";
-      var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(@"{""maintain"":1}").WithExactlyOnceQoS().WithRetainFlag().Build();
+      var topic = "3voda/device/869395032100038/status";
+      //var topic = "3voda/device/869395032100038/cleaner/status";
+
+      var pl = @"{""timestamp"":1623325680,""totalSold"":15,""totalMoney"":160.000,""temperature"":15.280,""status"":0}";
+      //var pl = @"{""timestamp"":1623320006,""tds"":25,""status"":4}";
+      var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(pl).WithExactlyOnceQoS().WithRetainFlag().Build();
       //var message = new MqttApplicationMessageBuilder()
       //  .WithTopic("MyTopic")
       //  .WithPayload("Hello World")
@@ -65,7 +69,7 @@ namespace MqttTest
         var mqttClient = factory.CreateMqttClient();
         await mqttClient.ConnectAsync(options, CancellationToken.None); // Since 3.0.5 with CancellationToken
         await mqttClient.PublishAsync(message, CancellationToken.None);
-        Console.WriteLine("Message send!");
+        Console.WriteLine("Message sent!");
       }
       catch (Exception ex)
       {

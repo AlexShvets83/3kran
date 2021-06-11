@@ -29,7 +29,7 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("access_failed_count");
 
-                    b.Property<bool>("Activated")
+                    b.Property<bool?>("Activated")
                         .HasColumnType("boolean")
                         .HasColumnName("activated");
 
@@ -492,7 +492,7 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
-                    b.Property<float>("Temperature")
+                    b.Property<float?>("Temperature")
                         .HasColumnType("real")
                         .HasColumnName("temperature");
 

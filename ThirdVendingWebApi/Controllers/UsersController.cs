@@ -79,7 +79,7 @@ namespace ThirdVendingWebApi.Controllers
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
       if (user == null) return NotFound();
-      if (!user.Activated) return NotFound();
+      if (!user.Activated.GetValueOrDefault()) return NotFound();
 
       var roles = await _userManager.GetRolesAsync(user);
 
@@ -92,11 +92,11 @@ namespace ThirdVendingWebApi.Controllers
       //check admin
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Invalid ADMIN account!");
-      if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      if (!admin.Activated.GetValueOrDefault()) return BadRequest("Invalid ADMIN activation!");
       
       //check admin role
       var adminRoles = await _userManager.GetRolesAsync(admin);
-      if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+      if (!adminRoles.Contains(Roles.Admin)) return StatusCode(403);
 
       var user = await _userManager.FindByNameAsync(email) ?? await _userManager.FindByEmailAsync(email);
       if (user == null) { return BadRequest("Invalid email!"); }
@@ -120,11 +120,11 @@ namespace ThirdVendingWebApi.Controllers
         //check superadmin
         var admin = await _userManager.GetUserAsync(HttpContext.User);
         if (admin == null) return NotFound("Invalid ADMIN account!");
-        if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+        if (!admin.Activated.GetValueOrDefault()) return BadRequest("Invalid ADMIN activation!");
       
         //check superadmin role
         var adminRoles = await _userManager.GetRolesAsync(admin);
-        if (!adminRoles.Contains(Roles.SuperAdmin)) return Forbid();
+        if (!adminRoles.Contains(Roles.SuperAdmin)) return StatusCode(403);
         
         var userApp = await _userManager.FindByIdAsync(user.Id);
         if (userApp == null) return BadRequest("Invalid user account!");
@@ -198,7 +198,7 @@ namespace ThirdVendingWebApi.Controllers
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
       if (user == null) return NotFound();
-      if (!user.Activated) return NotFound();
+      if (!user.Activated.GetValueOrDefault()) return NotFound();
 
       var returnRole = new HashSet<string>();
 

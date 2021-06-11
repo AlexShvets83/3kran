@@ -77,7 +77,7 @@ namespace ThirdVendingWebApi.Controllers
                       _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper()) ??
                       _userManager.Users.SingleOrDefault(r => r.PhoneNumber == person.UserName);
 
-        if ((appUser != null) && appUser.Activated)
+        if ((appUser != null) && appUser.Activated.GetValueOrDefault())
         {
           var result = await _signInManager.CheckPasswordSignInAsync(appUser, person.Password, false);
           if (result.Succeeded)
@@ -139,7 +139,7 @@ namespace ThirdVendingWebApi.Controllers
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
       if (user == null) return NotFound();
-      if (!user.Activated) return NotFound();
+      if (!user.Activated.GetValueOrDefault()) return NotFound();
 
       var retUser = user.GetNewObj<UserAccount>();
 
@@ -209,7 +209,7 @@ namespace ThirdVendingWebApi.Controllers
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
       if (user == null) return;
-      if (!user.Activated) return;
+      if (!user.Activated.GetValueOrDefault()) return;
 
       await _userManager.ChangePasswordAsync(user, pws.CurrentPassword, pws.NewPassword);
     }
@@ -271,7 +271,8 @@ namespace ThirdVendingWebApi.Controllers
         var userApp = new ApplicationUser();
         userApp.CopyObjectProperties(user);
         //todo userApp.Activated = false;
-        userApp.Activated = true;
+        //todo check invate  = true
+        userApp.Activated = null;
         userApp.CreatedBy = user.UserName;
         userApp.CreatedDate = DateTime.Now;
         userApp.UserAlerts = 15;
@@ -402,11 +403,11 @@ namespace ThirdVendingWebApi.Controllers
       if (admin == null) return NotFound("Invalid ADMIN account!");
 
       //redundant check
-      if (!admin.Activated) return BadRequest("Invalid ADMIN activation!");
+      if (!admin.Activated.GetValueOrDefault()) return BadRequest("Invalid ADMIN activation!");
 
       //check admin role
       var adminRoles = await _userManager.GetRolesAsync(admin);
-      if (!adminRoles.Contains(Roles.Admin)) return Forbid();
+      if (!adminRoles.Contains(Roles.Admin)) return StatusCode(403);
 
       return Ok();
     }
@@ -423,11 +424,11 @@ namespace ThirdVendingWebApi.Controllers
       //check admin
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Invalid ADMIN account!");
-      if (!admin.Activated) return Forbid("Invalid ADMIN activation!");
+      if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Invalid ADMIN activation!");
 
       //check admin role
       var adminRoles = await _userManager.GetRolesAsync(admin);
-      if (!adminRoles.Contains(Roles.SuperAdmin)) return Forbid();
+      if (!adminRoles.Contains(Roles.SuperAdmin)) return StatusCode(403);
 
       return Ok();
     }

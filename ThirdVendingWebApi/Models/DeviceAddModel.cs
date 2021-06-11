@@ -9,7 +9,7 @@ namespace ThirdVendingWebApi.Models
   {
     public string Id { get; set; }
 
-    public string DeviceId { get; set; }
+    public string Imei { get; set; }
 
     public string OwnerId { get; set; }
 

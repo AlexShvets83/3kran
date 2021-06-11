@@ -122,6 +122,21 @@
       "provider": "unpkg",
       "library": "jquery-dateformat@1.0.4",
       "destination": "wwwroot/lib/jquery-dateformat/"
+    },
+    {
+      "provider": "unpkg",
+      "library": "exceljs@4.2.1",
+      "destination": "wwwroot/lib/exceljs/"
+    },
+    {
+      "provider": "unpkg",
+      "library": "file-saver@2.0.5",
+      "destination": "wwwroot/lib/file-saver/"
+    },
+    {
+      "provider": "unpkg",
+      "library": "babel-polyfill@6.26.0",
+      "destination": "wwwroot/lib/babel-polyfill/"
     }
   ]
 }

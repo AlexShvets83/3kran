@@ -17,9 +17,12 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Microsoft.Extensions.Primitives;
 using ThirdVendingWebApi.Services;
 
 namespace ThirdVendingWebApi
@@ -128,7 +131,7 @@ namespace ThirdVendingWebApi
 
         // If the LoginPath isn't set, ASP.NET Core defaults 
         // the path to /Account/Login.
-        options.LoginPath = "/#/";
+        options.LoginPath = "/Account/Login";
 
         // If the AccessDeniedPath isn't set, ASP.NET Core defaults 
         // the path to /Account/AccessDenied.
@@ -211,7 +214,17 @@ namespace ThirdVendingWebApi
       app.UseAuthentication();
       app.UseAuthorization();
       app.UseDefaultFiles();
-      app.UseStaticFiles();
+      //app.UseStaticFiles();
+
+      const int cachePeriod = 24 * 60 * 60; // seconds
+      app.UseStaticFiles(new StaticFileOptions
+      {
+        OnPrepareResponse = ctx =>
+        {
+          //ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={cachePeriod}");
+          ctx.Context.Response.Headers.Append(new KeyValuePair<String, StringValues>("Cache-Control", $"public, max-age={cachePeriod}"));
+        }
+      });
 
       app.UseSwagger();
       app.UseSwaggerUI(c =>

@@ -115,27 +115,24 @@
         </member>
         <member name="T:ThirdVendingWebApi.Controllers.DevicesController">
             <summary>
-            
             </summary>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.DevicesController.#ctor(Microsoft.AspNetCore.Identity.UserManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{DeviceDbModel.Models.ApplicationUser})">
             <summary>
-            
             </summary>
-            <param name="userManager"></param>
-            <param name="signInManager"></param>
+            <param name = "userManager"></param>
+            <param name = "signInManager"></param>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Get">
             <summary>
-            
             </summary>
             <returns></returns>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Delete(System.String)">
             <summary>
-            Удалить автомат
+              Удалить автомат
             </summary>
-            <param name="id"></param>
+            <param name = "id"></param>
             <returns></returns>
         </member>
         <member name="T:ThirdVendingWebApi.Controllers.ManagementController">
@@ -201,6 +198,91 @@
         <member name="P:ThirdVendingWebApi.Models.ChangePsw.NewPassword">
             <summary>
             Новый пароль
+            </summary>
+        </member>
+        <member name="T:ThirdVendingWebApi.Models.Device.DeviceEncashModel">
+            <summary>
+              Модель инкассации
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.MessageDate">
+            <summary>
+              Дата операции
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.Amount">
+            <summary>
+              Сумма операции
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.AmountCoin">
+            <summary>
+            Общая сумма монет
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.AmountBill">
+            <summary>
+              Общая сумма купюр
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.Coins">
+            <summary>
+              Количество и номинал принятых монет [{"value":1.000,"amount":1}
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.Bills">
+            <summary>
+              Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
+            </summary>
+        </member>
+        <member name="T:ThirdVendingWebApi.Models.Device.DeviceSaleModel">
+            <summary>
+            Модель продаж
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.MessageDate">
+            <summary>
+            Дата операции
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.PaymentType">
+            <summary>
+            Тип продажи 0 - налич., 1 - безнал. (-1) - пополнение карты
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.Quantity">
+            <summary>
+              Объем проданной воды
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.AmountCoin">
+            <summary>
+            Общая сумма монет
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.AmountBill">
+            <summary>
+            Общая сумма купюр
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.AmountCard">
+            <summary>
+            Сумма оплаты картой
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.AmountCash">
+            <summary>
+            Сумма оплаты наличными или зачисления
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.Coins">
+            <summary>
+              Количество и номинал принятых монет [{"value":1.000,"amount":1}
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.Bills">
+            <summary>
+              Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.Device.DeviceStatus.TotalSold">

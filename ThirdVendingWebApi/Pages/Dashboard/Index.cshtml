@@ -16,6 +16,24 @@
     #gridContainer .dx-datagrid-search-panel {
         margin-left: 0;
     }
+
+    .lbl-txt {
+        line-height: 9px;
+    }
+
+    /*.dx-datagrid-headers {*/
+        /*background-color: yellow;*/
+    /*}*/
+
+    .dx-datagrid-headers .dx-datagrid-text-content {
+        text-align: center !important;
+        vertical-align: middle !important;
+        /*margin: auto;*/
+        font-size: 14px !important;
+        color: black !important;
+        padding: 0 !important;
+    }
+
 </style>
 <!-- Модальное окно показа полного списка аварий и событий -->
 <div class="modal" tabindex="-1" role="dialog" id="alertsPopup">
@@ -42,7 +60,7 @@
                 <div id="gridAlerts"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" (click)="openDownloadFileDialog()">
+                <button type="button" class="btn btn-primary" onclick="openDownloadFileDialog()">
                     <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Экспорт
                 </button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clear()">
@@ -61,43 +79,41 @@
 <div id="popup"></div>
 
 <div class="row dashboard">
-    <section class="col-12 col-lg-4 order-lg-1 left" style="height: 650px">
-        <div id="gridContainer"></div>
-        @*<div> <br /></div>*@
-        <br />
-        <div class="row">
-            <div class="col">
-                <span data-toggle="tooltip" data-placement="left" title="Обновить информацию">
-                    <button onclick="updatePage()"
-                            class="btn btn-info btn-sm mb-3">
-                        <i class="fa fa-refresh"></i>&nbsp;&nbsp;Обновить
-                    </button>
-                </span>
-            </div>
-
-            <!-- Кнопка вызова окна добавления автомата -->
-
-            <div class="col" align="right">
-                <span data-toggle="tooltip" data-placement="left" title="Добавить (зарегистрировать) автомат">
-                    <button onclick="addDevice(null)"
-                            class="btn btn-primary btn-sm mb-3" data-toggle="modal"
-                            data-target="#popupContainer">
-                        <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
-                    </button>
-                </span>
-            </div>
+<section class="col-12 col-lg-4 order-lg-1 left" style="height: 650px">
+    @*<div style="height: 40px">
+        <h4><i class="fa fa-smile-o text-warning"></i>&nbsp;Умный поиск</h4>
+    </div>*@
+    <div id="gridContainer"></div>
+    @*<div> <br /></div>*@
+    <br/>
+    <div class="row">
+        <div class="col" style="display: none">
+            <span data-toggle="tooltip" data-placement="left" title="Обновить информацию">
+                <button onclick="updatePage()"
+                        class="btn btn-info btn-sm mb-3">
+                    <i class="fa fa-refresh"></i>&nbsp;&nbsp;Обновить
+                </button>
+            </span>
         </div>
-    </section>
 
+        <!-- Кнопка вызова окна добавления автомата -->
+        @*<button class="col" align="right"" onclick="addDevice(null)"
+                class="btn btn-primary btn-sm mb-3" data-toggle="modal"
+                data-target="#popupContainer">
+            <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
+        </button>*@
 
-
-
-
-
-
-
-
-
+        <div class="col" align="right">
+            <span data-toggle="tooltip" data-placement="left" title="Добавить (зарегистрировать) автомат">
+                <button onclick="addDevice(null)"
+                        class="btn btn-primary btn-sm mb-3" data-toggle="modal"
+                        data-target="#popupContainer">
+                    <i class="fa fa-plus-square"></i>&nbsp;&nbsp;Добавить автомат
+                </button>
+            </span>
+        </div>
+    </div>
+</section>
 
 
 
@@ -112,25 +128,20 @@
                 </div>
             </div>
             <div id="strAddress" class="col-sm-5 dashboard_header-device_address"></div>
-            <div class="col-sm-4 d-flex btn-group text-white"
-                 [ngSwitch]="getSingleAlert(selected)">
-                <span *ngSwitchCase="alertTypes.NO_LINK" class="btn btn-danger flex-grow-1 disabled dashboard_header-device_status">
+            <div class="col-sm-4 d-flex btn-group text-white">
+                <span id="lblNoLink" style="display: none" class="btn btn-danger flex-grow-1 disabled dashboard_header-device_status">
                     <i class="fa fa-exclamation-triangle"></i>&nbsp;Нет связи
                 </span>
-                <span *ngSwitchCase="alertTypes.TANK_EMPTY" style="display: none" class="btn btn-danger flex-grow-1 disabled dashboard_header-device_status">
+                <span id="lblTankEmpty" style="display: none" class="btn btn-danger flex-grow-1 disabled dashboard_header-device_status">
                     <i class="fa fa-exclamation-triangle"></i>&nbsp;Бак пуст
                 </span>
-                <span *ngSwitchCase="alertTypes.NO_SALES" style="display: none" class="btn btn-warning flex-grow-1 disabled dashboard_header-device_status">
+                <span id="lblNoSales" style="display: none" class="btn btn-warning flex-grow-1 disabled dashboard_header-device_status">
                     <i class="fa fa-exclamation-triangle"></i>&nbsp;Нет продаж<br>
-                    @*<small *ngIf="selected.lastCleanerStatus">
-                            {{cleanerStateToString(selected.lastCleanerStatus.status)}}
-                        </small>*@
+                    <small id="lblClrStatu1"></small>
                 </span>
-                <span *ngSwitchDefault style="display: none" class="btn btn-success flex-grow-1 disabled dashboard_header-device_status">
+                <span id="lblInWork" *ngSwitchDefault style="display: none" class="btn btn-success flex-grow-1 disabled dashboard_header-device_status">
                     <i class="fa fa-check"></i>&nbsp;В работе<br>
-                    @*<small *ngIf="selected.lastCleanerStatus">
-                            {{cleanerStateToString(selected.lastCleanerStatus.status)}}
-                        </small>*@
+                    <small id="lblClrStatu2"></small>
                 </span>
 
                 <!-- Кнопка вызова окна редактирования данных автомата -->
@@ -151,17 +162,10 @@
         <h4 class="mt-2"><i class="fa fa-bar-chart-o text-warning"></i>&nbsp;&nbsp;Динамика продаж</h4>
         <div class="row">
             <div class="col-12 col-md-9 col-xl-8 mt-2">
-                <canvas baseChart height="100%"
-                        [datasets]="chartData"
-                        [labels]="chartLabels"
-                        [options]="chartOptions"
-                        [colors]="chartColors"
-                        [legend]="chartLegend"
-                        [chartType]="chartType">
-                </canvas>
+                <div id="saleChart"></div>
             </div>
             <div class="col-12 col-md-3 col-xl-4 mt-2">
-                <div class="col dashboard_graph-legend">
+                <div class="col">
                     <div class="dashboard_graph-legend_item">
                         <span class="dashboard_graph-legend_money"><i class="fa fa-square"></i></span>
                         <span>Выручка:</span>
@@ -186,15 +190,24 @@
                         <input type="radio" onchange="periodChange(this)" value="YEARS"><i class="fa fa-calendar"></i>&nbsp;Год
                     </label>
                 </div>
+                @*<div class="p-3">
+                    <info-badge><span class="badge mr-1 mb-1 badge-secondary"><i class="fa pr-1 fa-tint"></i><br><small>TDS, ppm</small></span></info-badge>
+                    <info-badge><span class="badge mr-1 mb-1 badge-secondary"><i class="fa pr-1 fa-thermometer"></i><br><small>Температура, &deg;C</small></span></info-badge>
+                    <info-badge><span class="badge mr-1 mb-1 badge-secondary"><i class="fa pr-1 fa-wifi"></i><br><small>Cигнал</small></span></info-badge>
+                    <info-badge><span class="badge mr-1 mb-1 badge-secondary"><i class="fa pr-1 fa-wifi"></i><br><small>Баланс SIM</small></span></info-badge>
+                    <info-badge><span class="badge mr-1 mb-1 badge-secondary"><i class="fa pr-1 fa-plug"></i><br><small>Тариф 1, КВт&middot;ч</small></span></info-badge>
+                    <info-badge><span class="badge mr-1 mb-1 badge-secondary"><i class="fa pr-1 fa-plug"></i><br><small>Тариф 2, КВт&middot;ч</small></span></info-badge>
+                    <info-badge><span class="badge mr-1 mb-1 badge-secondary"><i class="fa pr-1 fa-tint"></i><br><small>Водомер, м&sup3;</small></span></info-badge>
 
-                <div class="p-3">
-                    <info-badge *ngIf="selected.lastCleanerStatus"
+                </div>*@
+                <div class="p-3" id="devMetrics">
+                    @*<info-badge *ngIf="selected.lastCleanerStatus"
                                 [info]="makeDeviceInfo('tds', selected.lastCleanerStatus.tds, 0)">
                     </info-badge>
                     <info-badge *ngIf="selected.lastStatus && selected.lastStatus.temperature && selected.lastStatus.temperature != 999.0"
                                 [info]="makeDeviceInfo('temperature', selected.lastStatus.temperature, 1)">
                     </info-badge>
-                    <info-badge *ngFor="let info of selected.info" [info]="info"></info-badge>
+                    <info-badge *ngFor="let info of selected.info" [info]="info"></info-badge>*@
                 </div>
                 <!-- Деньги/литры -->
             </div>
@@ -203,7 +216,7 @@
         
 
         <!-- Вложенная сетка 2 -->
-        <!-- Клонка для списка продаж -->
+        <!-- Колонка для списка продаж -->
         <div class="row small">
             <div class="col-12 col-sm-6 col-xl-4 mt-2">
                 <div class="dashboard-short_list_header"><i class="fa fa-shopping-cart text-warning"></i>&nbsp;&nbsp;Продажи</div>
@@ -280,7 +293,7 @@
             </div>
 
             <!-- Колонка для списка аварий -->
-            <div class="col-12  col-sm-6 col-xl-4 mt-2" style="height: 350px">
+            <div class="col-12  col-sm-6 col-xl-4 mt-2" style="height: 380px">
                 <div class="dashboard-short_list_header"><i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии</div>
                 <div class="dashboard-short_list_body">
                     <!-- Список последних аварий -->
@@ -335,7 +348,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
-                <button type="button" id="btnAddDevice" class="btn btn-primary fa fa-plus-square" onclick="postDevice(event)"> Добавить</button>
+                <button type="button" id="btnAddDevice" class="btn btn-primary fa fa-plus-square" onclick="postDevice()"> Добавить</button>
             </div>
         </div>
     </div>
@@ -367,85 +380,43 @@
 
 
 
-    <script>
-        var period = "MONTHS";
-        var user;
-        var device;
-        var timeZones = [
-            {
-                value: 2,
-                name: "UTC+02:00 Калининград"
-            },
-            {
-                value: 3,
-                name: "UTC+03:00 Москва"
-            },
-            {
-                value: 4,
-                name: "UTC+04:00 Самара"
-            },
-            {
-                value: 5,
-                name: "UTC+05:00 Екатеринбург"
-            },
-            {
-                value: 6,
-                name: "UTC+06:00 Омск"
-            },
-            {
-                value: 7,
-                name: "UTC+07:00 Красноярск"
-            },
-            {
-                value: 8,
-                name: "UTC+08:00 Иркутск"
-            },
-            {
-                value: 9,
-                name: "UTC+09:00 Якутск"
-            },
-            {
-                value: 10,
-                name: "UTC+10:00 Владивосток"
-            },
-            {
-                value: 11,
-                name: "UTC+11:00 Магадан"
-            },
-            {
-                value: 12,
-                name: "UTC+12:00 Камчатский край"
-            }
-        ];
-        var currencies = [
-            {
-                value: "RUB",
-                name: "Российский рубль"
-            },
-            {
-                value: "KZT",
-                name: "Казахстанский тенге"
-            },
-            {
-                value: "AZN",
-                name: "Азербайджанский манат"
-            },
-            {
-                value: "UZS",
-                name: "Узбекский сум"
-            },
-            {
-                value: "BYR",
-                name: "Белорусский рубль"
-            }
-        ];
+<script>
+    const accStr = sessionStorage.getItem(accountKey);
+    if (!accStr) {
+        window.location.replace("/");
+    }
 
-        function updatePage() {
+    setInterval(function() {
+            updatePage();
+        }, 10000);
+
+    var period = "MONTHS";
+    var user;
+    var device;
+
+    function updatePage() {
             updateDevicesList();
+            //const dataGrid = $("#gridContainer").dxDataGrid('instance');
+            //const selectedRowsData = dataGrid.getSelectedRowsData();
+            //const rowKey = dataGrid.option("focusedRowKey");
+
+            //if (selectedRowsData && selectedRowsData.length > 0) {
+            //    device = selectedRowsData[0];
+            //}
+            //var dataGrid = $("#gridContainer").dxDataGrid("instance");
+            //dataGrid.refresh()
+            //    .done(function() {
+            //        alert("done");
+            //        // ...
+            //    })
+            //    .fail(function(error) {
+            //        alert(`fail: ${error}`);
+            //        // ...
+            //    });
             if (device) updateDevice(device.id);
         }
 
-        function updateDevicesList() {
+    function updateDevicesList() {
             var dataGrid = $("#gridContainer").dxDataGrid('instance');
             if (!dataGrid) return;
             var focusedRowKey = dataGrid.option('focusedRowKey');
@@ -454,16 +425,87 @@
                 .then(function(data) { // добавляем обработчик при удачном выполнении запроса
                     $("#gridContainer").dxDataGrid('instance').option('dataSource', data);
 
+                    setDevice(data, focusedRowKey);
                     if (focusedRowKey) dataGrid.option("focusedRowKey", focusedRowKey);
                     else {
                         dataGrid.option("focusedRowKey", data[0].id);
                     }
-                });
+                },
+                    function (res) {
+                        window.location.replace("/Account/Login");
+                    });
         }
 
-        $(function() {
+    function setDevice(data, key) {
+        if (!data || ! key) return;
+        data.forEach(function (h) {
+            if (h["id"] === key) device = h;
 
-            const dataGrid = $("#gridContainer").dxDataGrid({
+        });
+    }
+    function updateDevice(id) {
+            getSales(id);
+            getEncashes(id);
+            getAlerts(id);
+            updateInfo();
+            getInfos(id);
+            chartDrow(period);
+        }
+    
+    function postDevice() {
+        document.getElementById("errors").style.display = "none";
+        const valid = $('#deviceForm').dxForm('instance').validate();
+        if (valid.isValid === false) return;
+
+        const data = $('#deviceForm').dxForm('instance').option('formData');
+        data.imei = `${data.imei}`;
+        data.phone = `${data.phone}`;
+
+        const dev = {
+            imei: `${data.imei}`,
+            address: data.address,
+            phone: data.phone,
+            timeZone: data.timeZone,
+            currency: data.currency,
+            ownerId: null
+        }
+
+        const id = document.getElementById("popupDevId").value;
+        var request;
+        if (id) {
+            request = $.putJSON(`/api/device/${id}`, dev, null);
+            device.address = data.address;
+            device.phone = data.phone;
+            device.timeZone = data.timeZone;
+            device.currency = data.currency;
+        } else {
+            request = $.postJSON('/api/device', dev, null);
+        }
+
+        request.then(function() {
+                $('#popupContainer').modal('hide');
+                updateDevicesList();
+            },
+            function(res) {
+                if (res.readyState === 4 && res.status === 200) {
+                    $('#popupContainer').modal('hide');
+                    updateDevicesList();
+                } else {
+                    const message = res.responseText ? res.responseText : `Error${res.status}`;
+                    document.getElementById("errors").innerHTML = message;
+                    document.getElementById("errors").style.display = "block";
+                }
+            });
+    }
+
+
+    $(function() {
+            //const accStr = sessionStorage.getItem(accountKey);
+            //if (!accStr) {
+            //    window.location.replace("/");
+            //}
+
+            $("#gridContainer").dxDataGrid({
                 //dataSource: dataS,
                 showColumnLines: true,
                 focusedRowEnabled: true,
@@ -471,10 +513,10 @@
                 keyExpr: "id",
                 //allowColumnResizing: true,
                 //columnResizingMode: 'widget',
-                columnAutoWidth: true,
+                columnAutoWidth: false,
                 columnFixing: { enabled: true },
                 cellHintEnabled: true,
-                paging: { pageSize: 10 },
+                paging: { pageSize: 11 },
                 pager: {
                     //showPageSizeSelector: true,
                     //allowedPageSizes: [10, 20, 30, 50, 100],
@@ -487,22 +529,42 @@
                 //},
                 //headerFilter: { visible: true },
                 showBorders: true,
-                wordWrapEnabled: true,
-                selection: { mode: 'single' },
-                //height: 800,
+                wordWrapEnabled: false,
+                //selection: { mode: 'single' },
+                selection: { mode: 'none' },
+                height: 521,
                 hoverStateEnabled: true,
-                @* "export": {
-            ignoreExcelErrors: true,
-                enabled: true,
-                    fileName: document.title,
-                        allowExportSelectedData: false,
-                            texts: {
-                exportAll: '@Localizer["ExportAll"]',
-                    exportSelectedRows: '@Localizer["Export selected rows"]',
-                        exportTo: '@Localizer["Export"]'
-            }
-        },*@
-                loadPanel: { enabled: true },
+                //export: {
+                //    ignoreExcelErrors: true,
+                //    enabled: true,
+                //    fileName: document.title, //user.lastName
+                //    allowExportSelectedData: false,
+                //    texts: {
+                //        exportAll: 'Экспортировать'
+                //        //exportSelectedRows: 'Экспортировать выделенное',
+                //        //exportTo: 'Экспорт'
+                //    }
+
+                //},
+                //onExporting: function(e) { 
+                //    var workbook = new window.ExcelJS.Workbook(); 
+                //    var worksheet = workbook.addWorksheet('Main sheet'); 
+                //    DevExpress.excelExporter.exportDataGrid({ 
+                //        worksheet: worksheet, 
+                //        component: e.component,
+                //        customizeCell: function(options) {
+                //            var excelCell = options;
+                //            excelCell.font = { name: 'Arial', size: 12 };
+                //            excelCell.alignment = { horizontal: 'left' };
+                //        } 
+                //    }).then(function() {
+                //        workbook.xlsx.writeBuffer().then(function(buffer) { 
+                //            saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'DataGrid.xlsx'); 
+                //        }); 
+                //    }); 
+                //    e.cancel = true; 
+                //},
+                loadPanel: { enabled: false },
                 searchPanel: {
                     visible: true,
                     highlightCaseSensitive: true,
@@ -538,11 +600,11 @@
                     }
                 },
                 onCellPrepared: function(options) {
-                    const fieldData = options.value;
-                    var fieldHtml = "";
+                    //const fieldData = options.value;
+                    var fieldHtml;
                     const column = options.column;
                     if (options.rowType === "data" && column.dataField === "alerts") {
-                        var dev = options.data;
+                        const dev = options.data;
                         fieldHtml = '<i class="fa fa-check text-success"></i> В работе';
                         if (dev.alerts && (jQuery.inArray("NO_SALES", dev.alerts) !== -1)) fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет продаж';
 
@@ -554,6 +616,7 @@
                 },
                 columns: [
                     {
+                        width: 130,
                         dataField: "imei",
                         allowSorting: false,
                         caption: "IMEI",
@@ -577,6 +640,8 @@
                         }
                     },
                     {
+                        width: 120,
+                        minWidth: 100,
                         allowSorting: false,
                         dataField: "alerts",
                         caption: "Состояние",
@@ -585,7 +650,7 @@
                                 .html(info.column.caption)
                                 .css('font-size', '14px')
                                 .appendTo(header);
-                        },
+                        }
                         //cellTemplate: function(element, info) {
                         //    if (!info.text)
                         //        element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
@@ -647,7 +712,7 @@
                                             $.deleteObj(`/api/device/${id}`).then(function() {
                                                     updateDevicesList();
                                                 },
-                                                function(res) {
+                                                function() {
                                                     updateDevicesList();
                                                 });
                                             //updateDevicesList();
@@ -661,331 +726,139 @@
                 ]
             });
             updateDevicesList();
-/*
- "locale": {
-        "format": "MM/DD/YYYY",
-        "separator": " - ",
-        "applyLabel": "Apply",
-        "cancelLabel": "Cancel",
-        "fromLabel": "From",
-        "toLabel": "To",
-        "customRangeLabel": "Custom",
-        "weekLabel": "W",
-        "daysOfWeek": [
-            "Su",
-            "Mo",
-            "Tu",
-            "We",
-            "Th",
-            "Fr",
-            "Sa"
-        ],
-        "monthNames": [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
-        ],
-        "firstDay": 1
-    },
- */
-            $('#dateRangePicker').daterangepicker({
-                //singleDatePicker: true,
-                "locale": {
-                    "format": "DD.MM.YYYY",
-                    "separator": " - ",
-                    "applyLabel": "Применить",
-                    "cancelLabel": "Отмена",
-                    "fromLabel": "От",
-                    "toLabel": "До",
-                    "customRangeLabel": "Пользовательский",
-                    "weekLabel": "Неделя",
-                    "daysOfWeek": [
-                        "Пн.",
-                        "Вт.",
-                        "Ср.",
-                        "Чт.",
-                        "Пт.",
-                        "Сб.",
-                        "Вс."
-                    ],
-                    "monthNames": [
-                        "Январь",
-                        "Февраль",
-                        "Март",
-                        "Апрель",
-                        "Май",
-                        "Июнь",
-                        "Июль",
-                        "Август",
-                        "Сентябрь",
-                        "Октябрь",
-                        "Ноябрь",
-                        "Декабрь"
-                    ],
-                    "firstDay": 1
-                },
-
-                endDate: moment().add(1, 'days'),
-                startDate: moment().subtract(7, 'days')
-            });
-
+            datePickerInite();
         });
 
-        //function closePopup() {
+    //function closePopup() {
         //    $('#alertsPopup').modal('hide');
 
         //}
+        
+       
 
-        function popupSales(id, name) {
-            const header = document.getElementById("popupTitle");
-            header.innerHTML = '<i class="fa fa-shopping-cart text-warning"></i>&nbsp;&nbsp;Продажи за период';
-            $('#alertsPopup').modal('toggle');
-        }
+        //function calculateBills(element, info) {
+        //    if (!info.data) return;
+        //    if (!info.data.bills) return;
 
-        function popupEncash(id, name) {
-            const header = document.getElementById("popupTitle");
-            header.innerHTML = '<i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;Инкассации за период';
-            $('#alertsPopup').modal('toggle');
-        }
+        //    var data = JSON.parse(info.data.bills);
+        //    if (!data || data.length === 0) return;
+        //    var vlc = null;
+        //    data.forEach(function (h) {
+        //        var vl = h["value"] * h["amount"];
+        //        vlc += vl;
+        //    });
 
-        function popupAlerts(id, name) {
-            const header = document.getElementById("popupTitle");
-            header.innerHTML = '<i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии за период';
-            $('#alertsPopup').modal('toggle');
-        }
+        //    element.append('<div>' + vlc.toFixed(2) + '</div>');
+        //}
 
-        function addDevice(dev) {
-            var isEdit = false;
-            document.getElementById("errors").style.display = "none";
-            if (dev) {
-                isEdit = true;
-                document.getElementById("headerAddDevice").innerHTML = " Профиль автомата";
-                const btn = document.getElementById("btnAddDevice");
-                btn.className = 'btn btn-primary fa fa-save';
-                btn.innerText = ' Сохранить';
-                document.getElementById("popupDevId").value = dev.id;
-            }
-            else {
-                document.getElementById("popupDevId").value = null;
-            }
+        //function calculateCoins(element, info) {
+        //    if (!info.data) return;
+        //    if (!info.data.coins) return;
 
-            const form = $("#deviceForm").dxForm({
-                //formData: dev,
-                readOnly: false,
-                showColonAfterLabel: true,
-                labelLocation: "top",
-                items: [
-                    {
-                        dataField: "imei",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "ID автомата",
-                            visible: true
-                        },
-                        editorOptions: {
-                            placeholder: "Введите ID автомата (15 цифр)",
-                            mode: "number",
-                            value: null,
-                            readOnly: isEdit
-                        },
-                        validationRules: [
-                            {
-                                type: "required",
-                                message: "Введите ID автомата (15 цифр)"
-                            },
-                            {
-                                type: "stringLength",
-                                min: 15,
-                                message: "ID автомата должен быть не менее 15 цифр"
-                            },
-                            {
-                                type: "stringLength",
-                                max: 17,
-                                message: "ID автомата не должен быть длиннее 17 цифр"
-                            },
-                            {
-                                type: "async",
-                                message: "ID автомата уже зарегистрирован.",
-                                validationCallback: function (params) {
-                                    if (isEdit) {
-                                        var d = $.Deferred();
-                                        setTimeout(function() {
-                                            d.resolve(true);
-                                        }, 1);
-                                        return d.promise();
-                                    }
-                                    return checkImei(params.value);
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        dataField: "address",
-                        label: {
-                            text: "Адрес",
-                            visible: true
-                        },
-                        editorOptions: {
-                            placeholder: "Адрес автомата",
-                            value: null,
-                        },
-                        validationRules: [
-                            {
-                                type: "required",
-                                message: "Нужно ввести адрес"
-                            }
-                        ]
-                    },
-                    {
-                        dataField: "phone",
-                        editorType: "dxTextBox",
-                        label: {
-                            text: "Телефон",
-                            visible: true
-                        },
-                        editorOptions: {
-                            placeholder: "Введите номер телефона",
-                            value: null
-                        },
-                        validationRules: [
-                            {
-                                type: 'pattern',
-                                pattern: '^\\d+$'
-                            }
-                        ]
-                    },
-                    {
-                        dataField: "timeZone",
-                        editorType: "dxSelectBox",
-                        label: {
-                            text: "Часовой пояс",
-                            visible: true
-                        },
-                        editorOptions: {
-                            dataSource: timeZones,
-                            valueExpr: "value",
-                            displayExpr: "name",
-                            value: 2
-                        }
-                    },
-                    {
-                        dataField: "currency",
-                        editorType: "dxSelectBox",
-                        label: {
-                            text: "Валюта",
-                            visible: true
-                        },
-                        editorOptions: {
-                            dataSource: currencies,
-                            valueExpr: "value",
-                            displayExpr: "name",
-                            value: "RUB"
-                        }
-                    }
-                ]
-                //minColWidth: 300,
-                //colCount: 2
-            }).dxForm("instance");
+        //    var data = JSON.parse(info.data.coins);
+        //    if (!data || data.length === 0) return;
+        //    var vlc = null;
+        //    data.forEach(function (h) {
+        //        var vl = h["value"] * h["amount"];
+        //        vlc += vl;
+        //    });
 
-            if (isEdit) {
-                let editor = form.getEditor("imei");
-                editor.option("value", Number(dev.imei));
+        //    element.append('<div>' + vlc.toFixed(2) + '</div>');
+        //}
 
-                editor = form.getEditor("address");
-                editor.option("value", dev.address);
+        //function calculateCustomsSum(options) {
+        //    if (options.name === "coins") {
+        //        if (options.summaryProcess === "start") {
+        //            options.totalValue = 0;
+        //        }
+        //        if (options.summaryProcess === "calculate") {
+        //            if (!options.value.coins) return;
+        //            var dataC = JSON.parse(options.value.coins);
+        //            if (!dataC) return;
+        //            var vlcC = null;
+        //            dataC.forEach(function (h) {
+        //                var vl = h["value"] * h["amount"];
+        //                vlcC += vl;
+        //            });
+        //            options.totalValue += vlcC;   
+        //        }
+        //    }
 
-                editor = form.getEditor("phone");
-                editor.option("value", dev.phone);
+        //    if (options.name === "bills") {
+        //        if (options.summaryProcess === "start") {
+        //            options.totalValue = 0;
+        //        }
+        //        if (options.summaryProcess === "calculate") {
+        //            if (!options.value.bills) return;
+        //            var dataB = JSON.parse(options.value.bills);
+        //            if (!dataB) return;
+        //            var vlcB = null;
+        //            dataB.forEach(function (h) {
+        //                var vl = h["value"] * h["amount"];
+        //                vlcB += vl;
+        //            });
+        //            options.totalValue += vlcB;
+        //        }
+        //    }
+        //}
 
-                editor = form.getEditor("timeZone");
-                editor.option("value", dev.timeZone);
 
-                editor = form.getEditor("currency");
-                editor.option("value", dev.currency);
-            }
-        }
 
-        function devSettings(dev) {
-            
-        }
-        var checkImei = function(value) {
-            //return $.getJSON(`/api/validation/imei/${value}`, null).promise;
-            const get = $.get(`/api/validation/imei/${value}`);
-            return get.promise();
-        }
-
-        function postDevice(e) {
-            document.getElementById("errors").style.display = "none";
-            const valid = $('#deviceForm').dxForm('instance').validate();
-            if (valid.isValid === false) return;
-
-            const data = $('#deviceForm').dxForm('instance').option('formData');
-            data.imei = `${data.imei}`;
-            data.phone = `${data.phone}`;
-
-            const dev = {
-                imei: `${data.imei}`,
-                address: data.address,
-                phone: data.phone,
-                timeZone: data.timeZone,
-                currency: data.currency,
-                ownerId: null
-            }
-            const id = document.getElementById("popupDevId").value;
-            var request;
-            if (id) {
-                request = $.putJSON(`/api/device/${id}`, dev, null);
-
-            } else {
-                request = $.postJSON('/api/device', dev, null);
-            }
-
-            request.then(function() {
-                    $('#popupContainer').modal('hide');
-                    updateDevicesList();
-                },
-                function(res) {
-                    if (res.readyState === 4 && res.status === 200) {
-                        $('#popupContainer').modal('hide');
-                        updateDevicesList();
-                    } else {
-                        const message = res.responseText ? res.responseText : `Error${res.status}`;
-                        document.getElementById("errors").innerHTML = message;
-                        document.getElementById("errors").style.display = "block";
-                    }
-                });
-        }
-
-        function updateDevice(id) {
-            getSales(id);
-            getEncashes(id);
-            getAlerts(id);
-            updateInfo();
-        }
-
-        function updateInfo() {
+    function updateInfo() {
             const tm = document.getElementById("totalMoney");
             const ts = document.getElementById("totalSold");
 
-            if (!device || !device.lastStatus) {
+            if (device && device.lastStatus) {
+                tm.innerHTML = `${device.lastStatus.totalMoney} ${getCurrencySign(device)}`;
+                ts.innerHTML = `${device.lastStatus.totalSold} л.`;
+            } else {
                 tm.innerHTML = '';
                 ts.innerHTML = '';
-                return;
             }
 
-            tm.innerHTML = `${device.lastStatus.totalMoney} ${getCurrencySign(device)}`;
-            ts.innerHTML = `${device.lastStatus.totalSold} л.`;
+            if (!device.lastStatus || (device.alerts && (jQuery.inArray("NO_LINK", device.alerts) !== -1))) {
+                document.getElementById("lblNoLink").style.display = "block";
+                document.getElementById("lblTankEmpty").style.display = "none";
+                document.getElementById("lblNoSales").style.display = "none";
+                document.getElementById("lblInWork").style.display = "none";
+            }
+            else if (device.alerts && (jQuery.inArray("TANK_EMPTY", device.alerts) !== -1)) {
+                document.getElementById("lblNoLink").style.display = "none";
+                document.getElementById("lblTankEmpty").style.display = "block";
+                document.getElementById("lblNoSales").style.display = "none";
+                document.getElementById("lblInWork").style.display = "none";
+            }
+            else if (device.alerts && (jQuery.inArray("NO_SALES", device.alerts) !== -1)) {
+                document.getElementById("lblNoLink").style.display = "none";
+                document.getElementById("lblTankEmpty").style.display = "none";
+                document.getElementById("lblNoSales").style.display = "block";
+                document.getElementById("lblInWork").style.display = "none";
+            } else {
+                document.getElementById("lblNoLink").style.display = "none";
+                document.getElementById("lblTankEmpty").style.display = "none";
+                document.getElementById("lblNoSales").style.display = "none";
+                document.getElementById("lblInWork").style.display = "block";
+            }
+            if (device.lastCleanerStatus) {
+                var msg;
+                switch (device.lastCleanerStatus.status) {
+                case 0: msg = 'Полный бак'; break;
+                case 1: msg = 'Фильтрация'; break;
+                case 2: msg = 'Промывка'; break;
+                case 3: msg = 'Нет воды'; break;
+                case 4: msg = 'Затопление'; break;
+                case 5: msg = 'Настройка'; break;
+                default: msg = 'Неизвестно'; break;
+                }
+                document.getElementById("lblClrStatu1").innerText = msg;
+                document.getElementById("lblClrStatu2").innerText = msg;
+            } else {
+                document.getElementById("lblClrStatu1").innerText = "";
+                document.getElementById("lblClrStatu2").innerText = "";
+            }
         }
-        function getAlerts(id) {
+
+    function getAlerts(id) {
             $.getJSON(`/api/alerts?deviceId=${id}`, null)
                 .then(function(data) {
                     if (data == null || data.count === 0) return;
@@ -1017,7 +890,7 @@
                 });
         }
 
-        function getSales(id) {
+    function getSales(id) {
             $.getJSON(`/api/sales/info?deviceId=${id}`, null)
                 .then(function(data) {
                     if (data == null || data.count === 0) return;
@@ -1027,17 +900,25 @@
                         //todo add toltip
                         var i = '';
                         const dd = $.format.date(h["messageDate"], "dd.MM HH:mm");
-                        const msg = h["quantity"] + "л./" + h["amount"] + getCurrencySign(device);
+                        const currency = getCurrencySign(device);
+                        var mon = "";
+                        if (h["amountCash"]) mon = h["amountCash"].toFixed(2) + currency;
+
+                        var lt = "";
+                        if (h["quantity"]) lt = h["quantity"].toFixed(2) + "л./";
+
+                        var card = "";
+                        if (h["amountCard"]) card = h["amountCard"].toFixed(2) + currency;
 
                         switch (h["paymentType"]) {
                         case 0:
-                                i = `<div><i class="fa fa-money text-success"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${msg}</div>`;
+                            i = `<div><i class="fa fa-money text-success"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${lt + mon}</div>`;
                             break;
                         case 1:
-                                i = `<div><i class="fa fa-credit-card text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${msg}</div>`;
+                            i = `<div><i class="fa fa-credit-card text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${lt + card}</div>`;
                             break;
                         case -1:
-                                i = `<div><i class="fa fa-cloud-upload text-danger"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${data.amount}</div>`;
+                            i = `<div><i class="fa fa-cloud-upload text-danger"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${mon}</div>`;
                             break;
                         }
                         salesList.push(i);
@@ -1052,7 +933,7 @@
                 });
         }
 
-        function getEncashes(id) {
+    function getEncashes(id) {
             $.getJSON(`/api/encash?deviceId=${id}`, null)
                 .then(function (data) {
                     if (data == null || data.count === 0) return;
@@ -1061,7 +942,9 @@
                     data.forEach(function (h) {
                         //todo add toltip
                         const dd = $.format.date(h["messageDate"], "dd.MM HH:mm");
-                        var i = `<div><i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${h["amount"]}${getCurrencySign(device)}</div>`;
+                        var encash = "";
+                        if (h["amount"]) encash = h["amount"].toFixed(2);
+                        const i = `<div><i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${encash}${getCurrencySign(device)}</div>`;
 
 
                         encashList.push(i);
@@ -1077,28 +960,222 @@
                 });
         }
 
-        function getCurrencySign(device) {
+    function getInfos(id) {
+            $.getJSON(`/api/device/info/${id}`, null)
+                .then(function (data) {
+                    if (data == null || data.count === 0) return;
+
+                    var metrics = [];
+                    if (device.lastCleanerStatus) {
+                        const clV = device.lastCleanerStatus.tds.toFixed(0);
+                        let cl = 'badge-success';
+                        if (clV > 50.0) { cl = 'badge-warning'; }
+                        if (clV < 0.0 || clV > 100.0) {cl = 'badge-danger';}
+                        metrics.push(`<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-tint"></i> ${clV}<br> <small>TDS, ppm</small> </span> </info-badge>`);
+                    }
+                    if (device.lastStatus) {
+                        if (device.lastStatus.temperature) {
+                            const stV = device.lastStatus.temperature;
+                            let clT = 'badge-success';
+                            if (stV < 5.0 || stV > 40.0) { clT = 'badge-warning'; }
+                            if (stV < 0.0 || stV > 50.0) {clT = 'badge-danger';}
+                            metrics.push(`<info-badge><span class="badge mr-1 mb-1 ${clT}"> <i class="fa pr-1 fa-thermometer"></i> ${stV}<br> <small>Температура, &deg;C</small> </span> </info-badge>`);
+                        }
+                    }
+
+                    data.forEach(function (h) {
+                        //todo add toltip
+                        const nameM = h["name"];
+                        const valueM = h["value"];
+                        var i = '';
+                        var cl = 'badge-success';
+                        switch (nameM) {
+                        case 'signalStrength':
+                            if (valueM < 15.0) { cl = 'badge-danger';}
+
+                            if (valueM < 20.0) { cl = 'badge-warning';}
+
+                            i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-wifi"></i> ${valueM}<br> <small>Cигнал</small> </span> </info-badge>`;
+                            //'fa-wifi
+                            break;
+                        case 'simBalance':
+                            if (valueM < 20.0) cl = 'badge-danger';
+                            i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-wifi"></i> ${valueM}<br> <small>Баланс SIM</small> </span> </info-badge>`;
+                            //'fa-wifi';
+                            break;
+                        case 'energyT1':
+                            if (valueM < 0.0) cl = 'badge-danger';
+                            i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-plug"></i> ${valueM}<br> <small>Тариф 1, КВт&middot;ч</small> </span> </info-badge>`;
+                            //'fa-plug'
+                            break;
+                        case 'energyT2':
+                            if (valueM < 0.0) cl = 'badge-danger';
+                            i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-plug"></i> ${valueM}<br> <small>Тариф 2, КВт&middot;ч</small> </span> </info-badge>`;
+                            //'fa-plug';
+                            break;
+                        case 'waterInput':
+                            if (valueM < 0.0) cl = 'badge-danger';
+                            i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-tint"></i> ${valueM}<br> <small>Водомер, м&sup3;</small> </span> </info-badge>`;
+                            //'fa-tint';
+                            break;
+                        case 'tds':
+                            //0.0, 0.0, 100.0, 50.0
+                            if (valueM > 50.0) { cl = 'badge-warning'; }
+                            if (valueM < 0.0 || valueM > 100.0) {cl = 'badge-danger';}
+                            i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-tint"></i> ${valueM}<br> <small>TDS, ppm</small> </span> </info-badge>`;
+                            //'fa-tint'
+                            break;
+                        case 'temperature':
+                            if (valueM < 5.0 || valueM > 40.0) { cl = 'badge-warning'; }
+                            if (valueM < 0.0 || valueM > 50.0) {cl = 'badge-danger';}
+                            //0.0, 5.0, 50.0, 40.0
+                            i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-thermometer"></i> ${valueM}<br> <small>Температура, &deg;C</small> </span> </info-badge>`;
+                            //'fa-thermometer';
+                            break;
+                        }
+                        //var i = `<div><i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${h["amount"]}${getCurrencySign(device)}</div>`;
+                        
+                        metrics.push(i);
+                    });
+
+                    const devM = document.getElementById("devMetrics");
+                    devM.innerHTML = metrics.join("");
+                });
+        }
+
+    function getCurrencySign(device) {
             switch (device.currency) {
-                case 'RUB':
-                    return `&#x20BD;`;
-                    return '₽';
-                case 'KZT':
-                    return '&#x20B8;';
-                    return '₸';
-                case 'AZN':
-                    return '&#x20BC;';
-                    return '₼';
-                case 'UZS':
-                    return 'сўм';
-                case 'BYR':
-                    return 'Br';
-                    default :
-                        return '';
+            case 'RUB':
+                return `&#x20BD;`;
+                return '₽';
+            case 'KZT':
+                return '&#x20B8;';
+                return '₸';
+            case 'AZN':
+                return '&#x20BC;';
+                return '₼';
+            case 'UZS':
+                return 'сўм';
+            case 'BYR':
+                return 'Br';
+            default :
+                return '';
             }
         }
 
-        function periodChange(selectObject) {
+    function periodChange(selectObject) {
             period = selectObject.value;
-            //alert(period);
+            chartDrow(period);
+        }
+
+    function chartDrow(period) {
+            $.getJSON(`/api/sales-graph/${device.id}?period=${period}`, null)
+                .then(function (data) {
+                    //if (data == null || data.count === 0) {
+                    //    $("#saleChart").dxChart('instance').option('visible', false);
+                    //    return;
+                    //}
+                    var timeFormat = "HH";
+                    var ti = "hour";
+                    var mi = "minutes";
+                    switch (period) {
+                    case "MONTHS": timeFormat = "dd";
+                        ti = "day";
+                        mi = "hour";
+                        break;
+                    case "YEARS": timeFormat = "MMM"; 
+                        ti = "month";
+                        mi = "day";
+                        break;
+                    }
+
+                    $("#saleChart").dxChart({
+                        dataSource: data,
+                        size: {
+                            height: 200,
+                            width: "100%"
+                        },
+                        //adaptiveLayout: {
+                        //    height: 200,
+                        //    width: "100%"
+                        //},
+                        commonSeriesSettings: {
+                            argumentField: "date",
+                            barPadding: 0.0,
+                            //argumentField: "formattedDate",
+                            type: "bar",
+                            hoverMode: "allArgumentPoints",
+                            selectionMode: "allArgumentPoints",
+                            //label: {
+                            //    visible: true,
+                            //    format: {
+                            //        type: "fixedPoint",
+                            //        precision: 0
+                            //    }
+                            //}
+                        },
+                        //commonSeriesSettings: {
+                        //    argumentField: "formattedDate",
+                        //    type: "stackedBar"
+                        //},
+                        series: [
+                            { valueField: "amount", name: "Выручка", color: "#ff6699" },
+                            { valueField: "quantity", name: "Продано", color: "#003399" }
+                            //{ valueField: "femaleolder", name: "Female: 65 and older", stack: "female" }
+                        ],
+                        //legend: {
+                        //    horizontalAlignment: "right",
+                        //    position: "inside",
+                        //    border: { visible: true },
+                        //    columnCount: 1,
+                        //    //customizeItems: function(items) { 
+                        //    //    var sortedItems = [];
+
+                        //    //    items.forEach(function (item) {
+                        //    //        var startIndex = item.series.stack === "male" ? 0 : 3;
+                        //    //        sortedItems.splice(startIndex, 0, item);
+                        //    //    });
+                        //    //    return sortedItems;
+                        //    //}
+                        //},
+                        legend: {
+                            verticalAlignment: "bottom",
+                            horizontalAlignment: "center",
+                            visible: false
+                        },
+                        //"export": {
+                        //    enabled: true
+                        //},
+                        //onPointClick: function (e) {
+                        //    e.target.select();
+                        //},
+                        argumentAxis: {
+                            argumentType: "datetime",
+                            label: {  
+                                format: timeFormat  
+                            },
+                            //tickInterval: 'year',
+                            //minorTickInterval: 'month'
+                            tickInterval: ti,
+                            //minorTickInterval: mi
+                            //visualRange: {
+                            //    startValue: moment().subtract(1, 'days'),
+                            //    endValue: moment()
+                            //}
+                        },
+                        //valueAxis: {
+                        //    title: {
+                        //        text: "Populations, millions"
+                        //    }
+                        //},
+                        //title: "Population: Age Structure",
+                        //"export": {
+                        //    enabled: true
+                        //},
+                        tooltip: {
+                            enabled: true
+                        }
+                    });
+                });
         }
 </script>

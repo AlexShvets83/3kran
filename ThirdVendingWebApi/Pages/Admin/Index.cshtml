@@ -45,7 +45,7 @@
         /*vertical-align: middle !important;
         padding: 0 !important;
         font-size: 14px !important;*/
-  /*      padding: 0 !important;*/
+        /*      padding: 0 !important;*/
         padding-left: 0;
         padding-right: 0;
         /*vertical-align: bottom !important;*/
@@ -56,6 +56,43 @@
     }
 </style>
 
+<!-- Модальное окно показа полного списка аварий и событий -->
+<div class="modal" tabindex="-1" role="dialog" id="alertsPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="popupTitle"><i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии за период</h4>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="dateRangePicker">
+                </div>
+
+                @*<div id="dateRangePicker"></div>*@
+                <small class="form-text text-muted">
+                    Задайте календарный диапазон
+                </small>
+
+                <div id="gridAlerts"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="openDownloadFileDialog()">
+                    <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Экспорт
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clear()">
+                    <i class="fa fa-times"></i>&nbsp;&nbsp;Закрыть
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <div class="row admin-dashboard">
     <!-- Левая колонка -------------------------------------------------------------->
     <section class="col-12 col-lg-6 col-xl-6 col-md-auto left" style="height: 650px">
@@ -63,18 +100,18 @@
 
         <!-- Форма поиска пользователя -->
         @*<form>
-            <div class="input-group">
-                <input name="userQuery" type="text" class="form-control" placeholder="Поиск пользователя" [(ngModel)]="userQuery" (change)="loadAllUsers()">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" (click)="loadAllUsers()">
-                        <i class="fa fa-search"></i>
-                    </button>
+                <div class="input-group">
+                    <input name="userQuery" type="text" class="form-control" placeholder="Поиск пользователя" [(ngModel)]="userQuery" (change)="loadAllUsers()">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" (click)="loadAllUsers()">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <small class="form-text text-muted mb-2">
-                Ведите Email, фамилию, организацию или населённый пункт.
-            </small>
-        </form>*@
+                <small class="form-text text-muted mb-2">
+                    Ведите Email, фамилию, организацию или населённый пункт.
+                </small>
+            </form>*@
         <div id="tbUsers"></div>
     </section>
 
@@ -83,24 +120,29 @@
         <h4 class="mb-3"><i class="fa fa-map-marker mr-2 text-warning" aria-hidden="true"></i>Автоматы</h4>
         <!--Форма поиска автомата-->
         @*<form>
-            <div class="input-group">
-                <input name="deviceQuery" type="text" class="form-control" placeholder="Поиск автомата" [(ngModel)]="deviceQuery" (change)="loadAllDevices()">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" (click)="loadAllDevices()">
-                        <i class="fa fa-search"></i>
-                    </button>
+                <div class="input-group">
+                    <input name="deviceQuery" type="text" class="form-control" placeholder="Поиск автомата" [(ngModel)]="deviceQuery" (change)="loadAllDevices()">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" (click)="loadAllDevices()">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <small class="form-text text-muted mb-2">
-                Введите ID или адрес автомата.
-            </small>
-        </form>*@
+                <small class="form-text text-muted mb-2">
+                    Введите ID или адрес автомата.
+                </small>
+            </form>*@
         <div id="tbDevices"></div>
     </section>
 
 </div>
 
 <script>
+    var device;
+    const accStr = sessionStorage.getItem(accountKey);
+    if (!accStr) {
+        window.location.replace("/");
+    }
 
     function updateDevicesList() {
         $.getJSON("/api/devices", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
@@ -123,10 +165,10 @@
         $.putJSON("/api/users/setActive/" + rowKey, value, null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
             .then(function () { // добавляем обработчик при удачном выполнении запроса
                     //$('#popupContainer').modal('hide');
-                updateUsersList();
-                //$("#tbUsers").dxDataGrid('instance').option('dataSource', data);
-            },
-                function(res) {
+                    updateUsersList();
+                    //$("#tbUsers").dxDataGrid('instance').option('dataSource', data);
+                },
+                function (res) {
                     if (res.readyState === 4 && res.status === 200) {
                         //$('#popupContainer').modal('hide');
                         updateUsersList();
@@ -134,12 +176,13 @@
                         const message = res.responseText ? res.responseText : `Error${res.status}`;
                         DevExpress.ui.notify(message,);
                         //DevExpress.ui.notify({ message: message, width: 300, shading: true }, "error", 2000);
-                        DevExpress.ui.notify({ message: message}, "error", 5000);
+                        DevExpress.ui.notify({ message: message }, "error", 5000);
                         //document.getElementById("errors").style.display = "block";
                     }
                 });
     }
-    $(function() {
+
+    $(function () {
         $("#tbUsers").dxDataGrid({
             focusedRowEnabled: true,
             showColumnLines: true,
@@ -161,7 +204,7 @@
             //},
             //headerFilter: { visible: true },
             showBorders: true,
-            wordWrapEnabled: true,
+            wordWrapEnabled: false,
             selection: { mode: 'single' },
             //scrolling: {mode: "virtual"},
             //height: 800,
@@ -182,7 +225,7 @@
             onContentReady: function (e) {
                 e.component.columnOption("command:edit", "visibleIndex", -1); // if you want fixedPosition: left, uncomment this code
             },
-            onCellPrepared: function(options) {
+            onCellPrepared: function (options) {
                 var fieldData = options.value,
                     fieldHtml = "";
                 //if(fieldData && fieldData.value) {
@@ -269,29 +312,70 @@
                         //}
                     ]
                 },
-            ,
-            {
-                width: 32,
-                dataField: "activated",
-                allowSorting: true,
-                alignment: "center",
-                cssClass: "vert-btn-align",
-                caption: "",
-                cellTemplate: function(element, info) {
-                    var user = info.data;
-                    if (user.activated) {
-                        //var dx = '<a href="#" style="width: 32px" class="dx-link btn btn-success btn-sm text-white fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
-                        var dx = '<a href="#" class="btn btn-success btn-sm btn-font fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
-                        element.append(dx);
-                        //element.append('<button type="button" class="btn btn-success btn-sm" onclick="setActive(false)" title="Деактивировать"><i class="fa fa-unlock"></i></button>');
-                    } else {
-                        //var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
-                        var dx1 = '<a href="#" class="btn btn-danger btn-sm btn-font fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
-                        element.append(dx1);
-                        //element.append('<button type="button" class="btn btn-danger btn-sm" onclick="setActive(true)" title="Активировать"><i class="fa fa-lock"></i></button>');
+                ,
+                {
+                    width: 32,
+                    dataField: "activated",
+                    allowSorting: true,
+                    alignment: "center",
+                    cssClass: "vert-btn-align",
+                    caption: "",
+                    cellTemplate: function (element, info) {
+                        var user = info.data;
+                        var dx;
+                        switch (user.activated) {
+                        case true:
+                            dx = '<a href="#" class="btn btn-success btn-sm btn-font fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
+                            element.append(dx);
+                            break;
+                        case false:
+                            dx = '<a href="#" class="btn btn-danger btn-sm btn-font fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
+                            element.append(dx);
+                            break;
+                        default:
+                            dx = '<a href="#" class="btn btn-warning btn-sm btn-font fa fa-warning" onclick="setActive(true)" title="Зарегистрировать"></a>';
+                            element.append(dx);
+                            break;
+                        }
+                        //if (user.activated) {
+                        //    //var dx = '<a href="#" style="width: 32px" class="dx-link btn btn-success btn-sm text-white fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
+                        //    var dx = '<a href="#" class="btn btn-success btn-sm btn-font fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
+                        //    element.append(dx);
+                        //    //element.append('<button type="button" class="btn btn-success btn-sm" onclick="setActive(false)" title="Деактивировать"><i class="fa fa-unlock"></i></button>');
+                        //} else {
+                        //    //var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
+                        //    dx1 = '<a href="#" class="btn btn-danger btn-sm btn-font fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
+                        //    element.append(dx1);
+                        //    //element.append('<button type="button" class="btn btn-danger btn-sm" onclick="setActive(true)" title="Активировать"><i class="fa fa-lock"></i></button>');
+                        //}
+                    },
+                    headerFilter: {
+                        dataSource: [
+                            {
+                                text: "Активные",
+                                value: ["activated", "=", true],
+                                template: function () {
+                                    return '<i class="fa fa-unlock text-success" aria-hidden="true"></i>&nbsp;Активные';
+                                }
+                            },
+                            {
+                                text: "Неактивные",
+                                value: ["activated", "=", false],
+                                template: function () {
+                                    return '<i class="fa fa-lock text-danger" aria-hidden="true"></i>&nbsp;Неактивные';
+                                }
+                            },
+                            {
+                                text: "Пополнение карты",
+                                value: ["activated", "=", null],
+                                template: function () {
+                                    //"btn btn-warning btn-sm text-dark fa fa-warning""
+                                    return '<i class="fa fa-warning text-warning" aria-hidden="true"></i>&nbsp;Новые';
+                                }
+                            }
+                        ]
                     }
-                }
-            },
+                },
                 {
                     dataField: "lastName",
                     allowSorting: true,
@@ -302,7 +386,7 @@
                             .css('font-size', '14px')
                             .appendTo(header);
                     },
-                    cellTemplate: function(element, info) {
+                    cellTemplate: function (element, info) {
                         element.append('<div>' + info.value + '</div>');
                         element.append('<div>' + info.data.email + '</div>'); //.css("class","fa fa-exclamation-triangle text-danger");
                     }
@@ -344,7 +428,7 @@
                             .css('font-size', '14px')
                             .appendTo(header);
                     },
-                    cellTemplate: function(element, info) {
+                    cellTemplate: function (element, info) {
                         element.append(`<div>${info.value}</div>`);
                         element.append(`<div>${info.data.activated}</div>`);
                     }
@@ -393,7 +477,7 @@
             //},
             headerFilter: { visible: true },
             showBorders: true,
-            wordWrapEnabled: true,
+            wordWrapEnabled: false,
             selection: { mode: 'single' },
             //scrolling: {mode: "virtual"},
             //height: 800,
@@ -407,10 +491,10 @@
                 placeholder: "Введите ID или адрес автомата.",
                 //width: '100%'
             },
-            onSelectionChanged: function(e) {
+            onSelectionChanged: function (e) {
                 var device = e.selectedRowsData[0];
             },
-            onContentReady: function(e) {
+            onContentReady: function (e) {
                 e.component.columnOption("command:edit", "visibleIndex", -1); // if you want fixedPosition: left, uncomment this code
             },
             //onCellPrepared: function(options) {
@@ -452,7 +536,7 @@
                     //},
                     fixed: false,
                     //visibleIndex: -1,
-           /*         allowSorting: true,*/
+                    /*         allowSorting: true,*/
                     width: 210,
                     type: "buttons",
                     cssClass: "vert-btn-align",
@@ -486,7 +570,8 @@
                             //icon: "fa fa-shopping-cart",
                             cssClass: "btn btn-success btn-sm text-white fa fa-shopping-cart",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                device = e.row.data;
+                                popupSales();
                             }
                         },
                         {
@@ -494,7 +579,8 @@
                             //icon: "fa fa-truck",
                             cssClass: "btn btn-secondary btn-sm text-light fa fa-truck",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                device = e.row.data;
+                                popupEncash();
                             }
                         },
                         {
@@ -502,7 +588,8 @@
                             //icon: "fa fa-warning",
                             cssClass: "btn btn-warning btn-sm text-dark fa fa-warning",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                device = e.row.data;
+                                popupAlerts();
                             }
                         }
                     ]
@@ -511,7 +598,7 @@
                     dataField: "imei",
                     allowSorting: true,
                     caption: "ID автомата",
-                    headerCellTemplate: function(header, info) {
+                    headerCellTemplate: function (header, info) {
                         $('<b style="color: black">')
                             .html(info.column.caption)
                             .css('font-size', '14px')
@@ -528,7 +615,7 @@
                     dataField: "address",
                     caption: "Адрес",
                     dataType: "string",
-                    headerCellTemplate: function(header, info) {
+                    headerCellTemplate: function (header, info) {
                         $('<b style="color: black">')
                             .html(info.column.caption)
                             .css('font-size', '14px')
@@ -540,21 +627,24 @@
                     dataField: "owner",
                     caption: "Владелец",
                     //width: '110px',
-                    headerCellTemplate: function(header, info) {
+                    headerCellTemplate: function (header, info) {
                         $('<b style="color: black">')
                             .html(info.column.caption)
                             .css('font-size', '14px')
                             .appendTo(header);
                     },
-                    cellTemplate: function(element, info) {
+                    cellTemplate: function (element, info) {
                         if (!info.text)
                             element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
-                               // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                        // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
                     }
                 }
             ]
         });
         updateDevicesList();
+
+        datePickerInite();
+
     });
 
 </script>

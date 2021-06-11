@@ -40,5 +40,11 @@
     "inputFiles": [
       "wwwroot/lib/popperjs/core/dist/cjs/popper.js"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/js/popups.min.js",
+    "inputFiles": [
+      "wwwroot/js/popups.js"
+    ]
   }
 ]

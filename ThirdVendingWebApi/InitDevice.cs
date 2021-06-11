@@ -15,7 +15,7 @@ namespace ThirdVendingWebApi
       {
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Москва",
           Currency = "RUB",
           Imei = "1234567890123456",
@@ -25,7 +25,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Питер",
           Currency = "RUB",
           Imei = "984412565144539",
@@ -35,7 +35,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Питер",
           Currency = "RUB",
           Imei = "997324988453220",
@@ -45,7 +45,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-        Id = Guid.NewGuid().ToString(),
+        Id = null,
         Address = "Питер",
         Currency = "RUB",
         Imei = "504216888443440",
@@ -55,7 +55,7 @@ namespace ThirdVendingWebApi
       },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Питер",
           Currency = "RUB",
           Imei = "339357915628677",
@@ -65,7 +65,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Москва",
           Currency = "RUB",
           Imei = "984778473534049",
@@ -75,7 +75,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Москва",
           Currency = "RUB",
           Imei = "107726859245617",
@@ -85,7 +85,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Москва",
           Currency = "RUB",
           Imei = "497004910809617",
@@ -95,7 +95,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Москва",
           Currency = "RUB",
           Imei = "100506464134555",
@@ -105,7 +105,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Москва",
           Currency = "RUB",
           Imei = "536139870000378",
@@ -115,7 +115,7 @@ namespace ThirdVendingWebApi
         },
         new()
         {
-          Id = Guid.NewGuid().ToString(),
+          Id = null,
           Address = "Москва",
           Currency = "RUB",
           Imei = "535737247591036",
@@ -130,11 +130,11 @@ namespace ThirdVendingWebApi
       
       foreach (var dev in devList)
       {
-        var result = DeviceDbProvider.AddDevice(dev).Result;
+        var result = DeviceDbProvider.AddOrEditDevice(dev).Result;
       }
       //var dev = new Device()
       //{
-      //  Id = Guid.NewGuid().ToString(),
+      //  Id = null,
       //  Address = "Москва",
       //  Currency = "RUB",
       //  Imei = "1234567890123456",
@@ -147,7 +147,7 @@ namespace ThirdVendingWebApi
 
       //dev = new Device()
       //{
-      //  Id = Guid.NewGuid().ToString(),
+      //  Id = null,
       //  Address = "Питер",
       //  Currency = "RUB",
       //  Imei = "984412565144539",

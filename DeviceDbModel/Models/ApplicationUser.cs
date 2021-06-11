@@ -29,7 +29,7 @@ namespace DeviceDbModel.Models
 
     public string InfoEmails { get; set; }
 
-    public bool Activated { get; set; }
+    public bool? Activated { get; set; }
 
     public string LangKey { get; set; }
 
