@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using DeviceDbModel.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using CommonVending;
+﻿using CommonVending;
 using CommonVending.DbProvider;
 using CommonVending.Model;
 using CommonVending.MqttModels;
 using DeviceDbModel;
+using DeviceDbModel.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 using ThirdVendingWebApi.Models;
-using ThirdVendingWebApi.Tools;
 
 namespace ThirdVendingWebApi.Controllers
 {
@@ -26,17 +24,19 @@ namespace ThirdVendingWebApi.Controllers
   [ApiController]
   public class DevicesController : ControllerBase
   {
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    //private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
+    //private readonly RoleManager<IdentityRole> _roleManager;
 
     /// <summary>
     /// </summary>
     /// <param name = "userManager"></param>
     /// <param name = "signInManager"></param>
-    public DevicesController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    public DevicesController(UserManager<ApplicationUser> userManager) //, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
     {
       _userManager = userManager;
-      _signInManager = signInManager;
+      //_signInManager = signInManager;
+      //_roleManager = roleManager;
     }
 
     /// <summary>
@@ -48,14 +48,50 @@ namespace ThirdVendingWebApi.Controllers
     {
       //Stopwatch st = new Stopwatch();
       //st.Start();
-      var devList = DeviceDbProvider.GetAllDevices();
+      //var devList = DeviceDbProvider.GetAllDevices();
+      
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
+      List<DevView> devList = null;
+      List<string> chId = null;
+      List<ApplicationUser> children = null;
+
+      //var userRoles = await _userManager.GetRolesAsync(user);
+      //var role = userRoles[0];
+      switch (user.Role)
+      {
+        case Roles.SuperAdmin:
+        case Roles.Admin:
+          return new ObjectResult(DeviceDbProvider.GetAllDevices());
+        case Roles.Dealer:
+          children = UserDbProvider.GetUserDescendants(user.Id, true);
+          chId = new List<string>();
+          foreach (var ch in children)
+          {
+            chId.Add(ch.Id);
+          }
+
+          return new ObjectResult(DeviceDbProvider.GetAllDevices(chId));
+        case Roles.DealerAdmin:
+          children = UserDbProvider.GetUserDescendants(user.OwnerId, true);
+          chId = new List<string>();
+          foreach (var ch in children)
+          {
+            chId.Add(ch.Id);
+          }
+
+          return new ObjectResult(DeviceDbProvider.GetAllDevices(chId));
+        case Roles.Owner:
+          return new ObjectResult(DeviceDbProvider.GetAllDevices(new List<String>{user.Id}));
+        case Roles.Technician:
+          return new ObjectResult(DeviceDbProvider.GetAllDevices(new List<String>{user.OwnerId}, user.CommerceVisible));
+      }
 
       //st.Stop();
       //Console.WriteLine(st.Elapsed);
 
-      //var user = await _userManager.GetUserAsync(HttpContext.User);
-      //if (user == null) return NotFound();
-      //if (!user.Activated) return NotFound();
 
       //var headerStr = $@"</api/devices?page=1&size={size}>; rel=""next"",</api/devices?page=1&size={size}>; rel=""last"",</api/devices?page=0&size={size}>; rel=""first""";
       //Response.Headers.Add("Link", headerStr);
@@ -81,13 +117,14 @@ namespace ThirdVendingWebApi.Controllers
     [Authorize]
     public async Task<IActionResult> Add([FromBody] DeviceAddModel dev)
     {
-      //var user = await _userManager.GetUserAsync(HttpContext.User);
-      //if (user == null) return NotFound("Пользователь не найден!");
-      //if (!user.Activated) return NotFound("Пользователь деактивирован!");
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
       //var userRoles = await _userManager.GetRolesAsync(user);
+      var ovnerID = user.Id;
+      if (user.Role == Roles.Technician) { ovnerID = user.OwnerId; }
 
-      var ovnerID = dev.OwnerId;
       //if (string.IsNullOrEmpty(ovnerID))
       //{
       //  //ovnerID = userRoles.Contains(Roles.Owner) ? user.Id : DeviceTool.GetNewDeviceOwner(user, userRoles);
@@ -115,14 +152,20 @@ namespace ThirdVendingWebApi.Controllers
 
       //var userRoles = await _userManager.GetRolesAsync(user);
 
-      var ownerId = dev.OwnerId;
+      //var ownerId = dev.OwnerId;
       //if (string.IsNullOrEmpty(ownerId)) { ownerId = DeviceTool.GetNewDeviceOwner(user, userRoles); }
+      var device = DeviceDbProvider.GetDeviceById(id);
+      device.Imei = dev.Imei;
+      device.Address = dev.Address;
+      device.Currency = dev.Currency;
+      device.Phone = dev.Phone;
+      device.TimeZone = dev.TimeZone;
 
-      var device = new Device
-      {
-        Id = id, Address = dev.Address, Currency = dev.Currency, Imei = dev.Imei,
-        Phone = dev.Phone, TimeZone = dev.TimeZone, OwnerId = ownerId
-      };
+      //var device = new Device
+      //{
+      //  Id = id, Address = dev.Address, Currency = dev.Currency, Imei = dev.Imei,
+      //  Phone = dev.Phone, TimeZone = dev.TimeZone//, OwnerId = ownerId
+      //};
 
       if (await DeviceDbProvider.AddOrEditDevice(device)) return Ok();
 
@@ -138,12 +181,18 @@ namespace ThirdVendingWebApi.Controllers
     [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
-      //var user = await _userManager.GetUserAsync(HttpContext.User);
-      //if (user == null) return NotFound("Пользователь не найден!");
-      //if (!user.Activated) return StatusCode(403, "Пользователь деактивирован!");
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
       var device = DeviceDbProvider.GetDeviceById(id);
       if (device == null) return NotFound("Автомат не найден!");
+      
+      //var userRoles = await _userManager.GetRolesAsync(user);
+      if (user.Role == Roles.Technician)
+      {
+        if (user.OwnerId != device.OwnerId) return StatusCode(403, "Запрещено удалять чужие автоматы!"); 
+      }
 
       //if (device.OwnerId == user.Id) DeviceDbProvider.RemoveDevice(device);
       //else
@@ -284,6 +333,33 @@ namespace ThirdVendingWebApi.Controllers
       {
         Console.WriteLine(ex);
         return BadRequest(ex.Message);
+      }
+    }
+
+    [HttpPut("/api/device/setOwner/{id}")]
+    [Authorize]
+    public async Task<IActionResult> SetOwner(string id, [FromBody] string ownerId) //Get(int size)
+    {
+      try
+      {
+        var user = await _userManager.FindByIdAsync(ownerId);
+        if (user == null) return NotFound("Пользователь не найден!");
+        if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
+        //var userRoles = await _userManager.GetRolesAsync(user);
+        if (user.Role == Roles.Technician) return StatusCode(403, "Данные действия запрещены для техника!");
+        if (user.Role != Roles.Owner) return NotFound("Пользователь не является владельцем!");
+
+        await DeviceDbProvider.SetDeviceOwner(id, ownerId);
+        return Ok();
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return BadRequest(ex.Message);
+
+        //Response.StatusCode = 400;
+        //await Response.WriteAsync(ex.Message);
       }
     }
 

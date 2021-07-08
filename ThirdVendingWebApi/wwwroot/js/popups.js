@@ -191,7 +191,7 @@ function popupSales() {
         showRowLines: true,
         keyExpr: "messageDate",
         columnAutoWidth: false,
-        columnFixing: { enabled: true },
+        columnFixing: { enabled: false },
         cellHintEnabled: true,
         showBorders: true,
         wordWrapEnabled: false,
@@ -434,7 +434,7 @@ function popupEncash() {
         showRowLines: true,
         keyExpr: "messageDate",
         columnAutoWidth: false,
-        columnFixing: { enabled: true },
+        columnFixing: { enabled: false },
         cellHintEnabled: true,
         showBorders: true,
         wordWrapEnabled: false,
@@ -571,7 +571,7 @@ function popupAlerts() {
         showRowLines: true,
         keyExpr: "messageDate",
         columnAutoWidth: false,
-        columnFixing: { enabled: true },
+        columnFixing: { enabled: false },
         cellHintEnabled: true,
         showBorders: true,
         wordWrapEnabled: false,
@@ -704,457 +704,592 @@ function openDownloadFileDialog() {
         });
     }
 
+function addDevice(dev, component) {
 
-    function addDevice(dev) {
-            var isEdit = false;
-            document.getElementById("errors").style.display = "none";
-            if (dev) {
-                isEdit = true;
-                document.getElementById("headerAddDevice").innerHTML = " Профиль автомата";
-                const btn = document.getElementById("btnAddDevice");
-                btn.className = 'btn btn-primary fa fa-save';
-                btn.innerText = ' Сохранить';
-                document.getElementById("popupDevId").value = dev.id;
-            }
-            else {
-                document.getElementById("popupDevId").value = null;
-            }
+    var isEdit = false;
+    document.getElementById("errors").style.display = "none";
+    if (dev) {
+        isEdit = true;
+        document.getElementById("headerAddDevice").innerHTML = '<i class="fa fa-list-ul text-secondary"></i>&nbsp;&nbsp;Профиль автомата';
+        const btn = document.getElementById("btnAddDevice");
+        btn.className = 'btn btn-primary fa fa-save';
+        btn.innerText = ' Сохранить';
+        document.getElementById("popupDevId").value = dev.id;
+    }
+    else {
+        document.getElementById("headerAddDevice").innerHTML = '<i class="fa fa-list-ul text-secondary"></i>&nbsp;&nbsp;Добавить (зарегистрировать) автомат';
+        const btn = document.getElementById("btnAddDevice");
+        btn.className = 'btn btn-primary fa fa-plus-square';
+        btn.innerText = ' Добавить';
+        document.getElementById("popupDevId").value = null;
+    }
 
-            const form = $("#deviceForm").dxForm({
-                //formData: dev,
-                readOnly: false,
-                showColonAfterLabel: true,
-                labelLocation: "top",
-                items: [
+    const form = $("#deviceForm").dxForm({
+        //formData: dev,
+        readOnly: false,
+        showColonAfterLabel: true,
+        labelLocation: "top",
+        items: [
+            {
+                dataField: "imei",
+                editorType: "dxNumberBox",
+                label: {
+                    text: "ID автомата",
+                    visible: true
+                },
+                editorOptions: {
+                    placeholder: "Введите ID автомата (15 цифр)",
+                    mode: "number",
+                    value: null
+                    //readOnly: isEdit
+                },
+                validationRules: [
                     {
-                        dataField: "imei",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "ID автомата",
-                            visible: true
-                        },
-                        editorOptions: {
-                            placeholder: "Введите ID автомата (15 цифр)",
-                            mode: "number",
-                            value: null,
-                            readOnly: isEdit
-                        },
-                        validationRules: [
-                            {
-                                type: "required",
-                                message: "Введите ID автомата (15 цифр)"
-                            },
-                            {
-                                type: "stringLength",
-                                min: 15,
-                                message: "ID автомата должен быть не менее 15 цифр"
-                            },
-                            {
-                                type: "stringLength",
-                                max: 17,
-                                message: "ID автомата не должен быть длиннее 17 цифр"
-                            },
-                            {
-                                type: "async",
-                                message: "ID автомата уже зарегистрирован.",
-                                validationCallback: function (params) {
-                                    if (isEdit) {
-                                        var d = $.Deferred();
-                                        setTimeout(function() {
-                                            d.resolve(true);
-                                        }, 1);
-                                        return d.promise();
-                                    }
-                                    return checkImei(params.value);
-                                }
+                        type: "required",
+                        message: "Введите ID автомата (15 цифр)"
+                    },
+                    {
+                        type: "stringLength",
+                        min: 15,
+                        message: "ID автомата должен быть не менее 15 цифр"
+                    },
+                    {
+                        type: "stringLength",
+                        max: 17,
+                        message: "ID автомата не должен быть длиннее 17 цифр"
+                    },
+                    {
+                        type: "async",
+                        message: "ID автомата уже зарегистрирован.",
+                        validationCallback: function (params) {
+                            if (isEdit) {
+                                var d = $.Deferred();
+                                setTimeout(function() {
+                                    d.resolve(true);
+                                }, 1);
+                                return d.promise();
                             }
-                        ]
-                    },
-                    {
-                        dataField: "address",
-                        label: {
-                            text: "Адрес",
-                            visible: true
-                        },
-                        editorOptions: {
-                            placeholder: "Адрес автомата",
-                            value: null
-                        },
-                        validationRules: [
-                            {
-                                type: "required",
-                                message: "Нужно ввести адрес"
-                            }
-                        ]
-                    },
-                    {
-                        dataField: "phone",
-                        editorType: "dxTextBox",
-                        label: {
-                            text: "Телефон",
-                            visible: true
-                        },
-                        editorOptions: {
-                            placeholder: "Введите номер телефона",
-                            value: null
-                        },
-                        validationRules: [
-                            {
-                                type: 'pattern',
-                                pattern: '^\\d+$',
-                                message: "Телефон должен состоять только из цифр"
-                            }
-                        ]
-                    },
-                    {
-                        dataField: "timeZone",
-                        editorType: "dxSelectBox",
-                        label: {
-                            text: "Часовой пояс",
-                            visible: true
-                        },
-                        editorOptions: {
-                            dataSource: timeZones,
-                            valueExpr: "value",
-                            displayExpr: "name",
-                            value: 2
-                        }
-                    },
-                    {
-                        dataField: "currency",
-                        editorType: "dxSelectBox",
-                        label: {
-                            text: "Валюта",
-                            visible: true
-                        },
-                        editorOptions: {
-                            dataSource: currencies,
-                            valueExpr: "value",
-                            displayExpr: "name",
-                            value: "RUB"
+                            return checkImei(params.value);
                         }
                     }
                 ]
-                //minColWidth: 300,
-                //colCount: 2
-            }).dxForm("instance");
+            },
+            {
+                dataField: "address",
+                label: {
+                    text: "Адрес",
+                    visible: true
+                },
+                editorOptions: {
+                    placeholder: "Адрес автомата",
+                    value: null
+                },
+                validationRules: [
+                    {
+                        type: "required",
+                        message: "Нужно ввести адрес"
+                    }
+                ]
+            },
+            {
+                dataField: "phone",
+                editorType: "dxTextBox",
+                label: {
+                    text: "Телефон",
+                    visible: true
+                },
+                editorOptions: {
+                    placeholder: "Введите номер телефона",
+                    value: null
+                },
+                validationRules: [
+                    {
+                        type: 'pattern',
+                        pattern: '^\\d+$',
+                        message: "Телефон должен состоять только из цифр"
+                    }
+                ]
+            },
+            {
+                dataField: "timeZone",
+                editorType: "dxSelectBox",
+                label: {
+                    text: "Часовой пояс",
+                    visible: true
+                },
+                editorOptions: {
+                    dataSource: timeZones,
+                    valueExpr: "value",
+                    displayExpr: "name",
+                    value: 2
+                }
+            },
+            {
+                dataField: "currency",
+                editorType: "dxSelectBox",
+                label: {
+                    text: "Валюта",
+                    visible: true
+                },
+                editorOptions: {
+                    dataSource: currencies,
+                    valueExpr: "value",
+                    displayExpr: "name",
+                    value: "RUB"
+                }
+            }
+        ]
+        //minColWidth: 300,
+        //colCount: 2
+    }).dxForm("instance");
 
-            if (isEdit) {
-                let editor = form.getEditor("imei");
-                editor.option("value", Number(dev.imei));
+    if (isEdit) {
+        let editor = form.getEditor("imei");
+        editor.option("value", Number(dev.imei));
 
-                editor = form.getEditor("address");
+        editor = form.getEditor("address");
 
-                editor.option("value", dev.address ? dev.address : null);
+        editor.option("value", dev.address ? dev.address : null);
 
+        editor = form.getEditor("phone");
+        editor.option("value", dev.phone);
+
+        editor = form.getEditor("timeZone");
+        editor.option("value", dev.timeZone);
+
+        editor = form.getEditor("currency");
+        editor.option("value", dev.currency);
+        getInfos(dev.id, component);
+    }
+}
+
+function postDevice() {
+    const dfd = new $.Deferred();
+    document.getElementById("errors").style.display = "none";
+    const valid = $('#deviceForm').dxForm('instance').validate();
+    if (valid.isValid === false) dfd.reject(false);;
+
+    const data = $('#deviceForm').dxForm('instance').option('formData');
+    data.imei = `${data.imei}`;
+    data.phone = `${data.phone}`;
+
+    const dev = {
+        imei: `${data.imei}`,
+        address: data.address,
+        phone: data.phone,
+        timeZone: data.timeZone,
+        currency: data.currency,
+        ownerId: null
+    }
+
+    const id = document.getElementById("popupDevId").value;
+    var request;
+    if (id) {
+        request = $.putJSON(`/api/device/${id}`, dev, null);
+        device.address = data.address;
+        device.phone = data.phone;
+        device.timeZone = data.timeZone;
+        device.currency = data.currency;
+    } else {
+        request = $.postJSON('/api/device', dev, null);
+    }
+   
+    request.then(function() {
+            $('#popupDevice').modal('hide');
+            dfd.resolve(true);
+        },
+        function(res) {
+            if (res.readyState === 4 && res.status === 200) {
+                $('#popupDevice').modal('hide');
+                dfd.resolve(true);
+            } else {
+                const message = res.responseText ? res.responseText : `Error${res.status}`;
+                document.getElementById("errors").innerHTML = message;
+                document.getElementById("errors").style.display = "block";
+                dfd.reject(false);
+            }
+        });
+    return dfd.promise();
+}
+
+function devSettings(dev) {
+
+    var isInit = true;
+    const form = $("#deviceSettingsForm").dxForm({
+        //formData: dev,
+        readOnly: false,
+        showColonAfterLabel: true,
+        labelLocation: "left", // or "left" | "right" "top"
+        visible: false,
+        items: [
+            {
+                dataField: "pulsesPerLitre",
+                editorType: "dxNumberBox",
+                label: {
+                    text: "Количество импульсов на литр",
+                    visible: true
+                },
+                editorOptions: {
+                    mode: "number",
+                    value: null,
+                    format: "####",
+                    min: 0,
+                    max: 9999,
+                    onValueChanged: function (data) {
+                        if (!data.previousValue) return;
+                        if (data.value >= 0 && data.value <= 9999) {
+                            postSettings('pulsesPerLitre', data.value);
+                        }
+                    }
+                }
+            },
+            {
+                dataField: "pricePerLitre",
+                editorType: "dxNumberBox",
+                label: {
+                    text: "Цена за литр",
+                    visible: true
+                },
+                editorOptions: {
+                    mode: "number",
+                    value: null,
+                    format: "#####0.0##",
+                    min: 0,
+                    max: 100000,
+                    onValueChanged: function (data) {
+                        if (!data.previousValue) return;
+                        if (data.value >= 0 && data.value <= 100000) {
+                            postSettings('pricePerLitre', data.value);
+                        }
+                    }
+                }
+            },
+            {
+                dataField: "priceCard",
+                editorType: "dxNumberBox",
+                label: {
+                    text: "Цена по карте",
+                    visible: true
+                },
+                editorOptions: {
+                    mode: "number",
+                    value: null,
+                    format: "#####0.0##",
+                    min: 0,
+                    max: 100000,
+                    onValueChanged: function (data) {
+                        if (!data.previousValue) return;
+                        if (data.value >= 0 && data.value <= 100000) {
+                            postSettings('priceCard', data.value);
+                        }
+                    }
+                }
+            },
+            {
+                dataField: "pulseValueCoin",
+                editorType: "dxNumberBox",
+                label: {
+                    text: "Цена импульса монетоприемника",
+                    visible: true
+                },
+                editorOptions: {
+                    mode: "number",
+                    value: null,
+                    format: "###.0##",
+                    //value: 20,
+                    min: 0,
+                    max: 100,
+                    onValueChanged: function (data) {
+                        if (!data.previousValue) return;
+                        if (data.value >= 0 && data.value <= 100) {
+                            postSettings('pulseValueCoin', data.value);
+                        }
+                    }
+                }
+            },
+            {
+                dataField: "pulseValueBill",
+                editorType: "dxNumberBox",
+                label: {
+                    text: "Цена импульса купюроприемника",
+                    visible: true
+                },
+                editorOptions: {
+                    mode: "number",
+                    value: null,
+                    format: "####.0##",
+                    //value: 20,
+                    min: 0,
+                    max: 1000,
+                    onValueChanged: function (data) {
+                        if (!data.previousValue) return;
+                        if (data.value >= 0 && data.value <= 1000) {
+                            postSettings('pulseValueBill', data.value);
+                        }
+                    }
+                }
+            },
+            {
+                dataField: "therm",
+                editorType: "dxNumberBox",
+                label: {
+                    text: "Заданная температура",
+                    visible: true
+                },
+                editorOptions: {
+                    mode: "number",
+                    value: null,
+                    format: "###.0##",
+                    min: -10,
+                    max: 30,
+                    onValueChanged: function (data) {
+                        if (!data.previousValue) return;
+                        if (data.value >= -10 && data.value <= 30) {
+                            postSettings('therm', data.value);
+                        }
+                    }
+                }
+            },
+            {
+                dataField: "logo",
+                editorType: "dxSelectBox",
+                label: {
+                    text: "Приветственное сообщение",
+                    visible: true
+                },
+                editorOptions: {
+                    dataSource: [ 
+                        { value: 0, name: 'Третий кран' },
+                        { value: 1, name: 'Добро пожаловать'},
+                        { value: 2, name: 'Продажа воды'}
+                    ],
+                    valueExpr: "value",
+                    displayExpr: "name",
+                    value: null,
+                    onValueChanged: function (data) {
+                        if (data.previousValue == null) return;
+                        
+                        postSettings('logo', data.value);
+                    }
+                }
+            },
+            {
+                dataField: "date",
+                editorType: "dxDateBox",
+                label: {
+                    text: "Дата смены фильтров",
+                    visible: true
+                },
+                editorOptions: {
+                    displayFormat: "dd.MM.yyyy",
+                    type: "date",
+                    applyValueMode: "useButtons",
+                    value: null,
+                    //max: new Date(),
+                    min: new Date(2000, 1, 1),
+                    onValueChanged: function(data) {
+                        if (data.previousValue == null) return;
+                        
+                        postSettings('date', data.value);
+                    }
+                }
+            },
+            {
+                dataField: "phone",
+                editorType: "dxTextBox",
+                label: {
+                    text: "Телефон сервисной поддержки",
+                    visible: true
+                },
+                editorOptions: {
+                    value: null,
+                    onValueChanged: function(data) {
+                        if (data.previousValue == null) return;
+                        if (data.value) {
+                            if (!$.isNumeric(data.value)) return;
+                        }
+
+                        postSettings('phone', data.value);
+                    }
+                },
+                validationRules: [
+                    {
+                        type: 'pattern',
+                        pattern: '^\\d+$',
+                        message: "Телефон должен состоять только из цифр"
+                    }
+                ]
+            },
+            {
+                dataField: "maintain",
+                editorType: "dxSwitch",
+                label: {
+                    //location: "left",
+                    //alignment: "right", // or "left" | "center"
+                    text: "Режим обслуживания",
+                    visible: true
+                },
+                editorOptions: {
+                    switchedOffText:"Выключен",
+                    switchedOnText:"Включен",
+                    height: 50,
+                    width: 100,
+                    elementAttr: {
+                        //style: "color:red;font-size:40px;"
+                        class: "dx-field-item-label"
+                    },
+                    value: null,
+                    onValueChanged: function (data) {
+                        //if (data.previousValue == null) return;
+                        if (isInit) {
+                            isInit = false;
+                            return;
+                        }
+                        const val = data.value ? 1 : 0;
+                        postSettings('maintain', val);
+                    }
+                }
+            }
+        ]
+        //Телефон сервисной поддержки
+        //minColWidth: 300,
+        //colCount: 2
+    }).dxForm("instance");
+
+    $.getJSON("/api/device/settings/" + dev.id, null)
+        .then(function(data) {
+            if (data) {
+                form.option("visible", true);
+                let editor = form.getEditor("pulsesPerLitre");
+                editor.option("value", Number(data.pulsesPerLitre));
+
+                editor = form.getEditor("pricePerLitre");
+                editor.option("value", Number(data.pricePerLitre));
+
+                editor = form.getEditor("priceCard");
+                editor.option("value", Number(data.priceCard));
+
+                editor = form.getEditor("pulseValueCoin");
+                editor.option("value", Number(data.pulseValueCoin));
+
+                editor = form.getEditor("pulseValueBill");
+                editor.option("value", Number(data.pulseValueBill));
+
+                editor = form.getEditor("therm");
+                editor.option("value", Number(data.therm));
+                
+                editor = form.getEditor("logo");
+                editor.option("value", Number(data.logo));
+
+                editor = form.getEditor("date");
+                const date = new Date(data.date*1000);
+                editor.option("value", Number(date));
+                
                 editor = form.getEditor("phone");
-                editor.option("value", dev.phone);
+                editor.option("value", data.phone);
 
-                editor = form.getEditor("timeZone");
-                editor.option("value", dev.timeZone);
-
-                editor = form.getEditor("currency");
-                editor.option("value", dev.currency);
+                editor = form.getEditor("maintain");
+                const mn = data.maintain === 0 ? false : true;
+                if (!mn) isInit = false;
+                editor.option("value", mn);
+            } else {
+                form.option("visible", false);
             }
-        }
+        });
+}
 
-    function devSettings(dev) {
-            var isInit = true;
-            const form = $("#deviceSettingsForm").dxForm({
-                //formData: dev,
-                readOnly: false,
-                showColonAfterLabel: true,
-                labelLocation: "top",
-                visible: false,
-                items: [
-                    {
-                        dataField: "pulsesPerLitre",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "Количество импульсов на литр",
-                            visible: true
-                        },
-                        editorOptions: {
-                            mode: "number",
-                            value: null,
-                            format: "####",
-                            min: 0,
-                            max: 9999,
-                            onValueChanged: function (data) {
-                                if (!data.previousValue) return;
-                                if (data.value >= 0 && data.value <= 9999) {
-                                    postSettings('pulsesPerLitre', data.value);
-                                }
-                            }
-                        }
-                    },
-                    {
-                        dataField: "pricePerLitre",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "Цена за литр",
-                            visible: true
-                        },
-                        editorOptions: {
-                            mode: "number",
-                            value: null,
-                            format: "#####0.0##",
-                            min: 0,
-                            max: 100000,
-                            onValueChanged: function (data) {
-                                if (!data.previousValue) return;
-                                if (data.value >= 0 && data.value <= 100000) {
-                                    postSettings('pricePerLitre', data.value);
-                                }
-                            }
-                        }
-                    },
-                    {
-                        dataField: "priceCard",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "Цена по карте",
-                            visible: true
-                        },
-                        editorOptions: {
-                            mode: "number",
-                            value: null,
-                            format: "#####0.0##",
-                            min: 0,
-                            max: 100000,
-                            onValueChanged: function (data) {
-                                if (!data.previousValue) return;
-                                if (data.value >= 0 && data.value <= 100000) {
-                                    postSettings('priceCard', data.value);
-                                }
-                            }
-                        }
-                    },
-                    {
-                        dataField: "pulseValueCoin",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "Цена импульса монетоприемника",
-                            visible: true
-                        },
-                        editorOptions: {
-                            mode: "number",
-                            value: null,
-                            format: "###.0##",
-                            //value: 20,
-                            min: 0,
-                            max: 100,
-                            onValueChanged: function (data) {
-                                if (!data.previousValue) return;
-                                if (data.value >= 0 && data.value <= 100) {
-                                    postSettings('pulseValueCoin', data.value);
-                                }
-                            }
-                        }
-                    },
-                    {
-                        dataField: "pulseValueBill",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "Цена импульса купюроприемника",
-                            visible: true
-                        },
-                        editorOptions: {
-                            mode: "number",
-                            value: null,
-                            format: "####.0##",
-                            //value: 20,
-                            min: 0,
-                            max: 1000,
-                            onValueChanged: function (data) {
-                                if (!data.previousValue) return;
-                                if (data.value >= 0 && data.value <= 1000) {
-                                    postSettings('pulseValueBill', data.value);
-                                }
-                            }
-                        }
-                    },
-                    {
-                        dataField: "therm",
-                        editorType: "dxNumberBox",
-                        label: {
-                            text: "Заданная температура",
-                            visible: true
-                        },
-                        editorOptions: {
-                            mode: "number",
-                            value: null,
-                            format: "###.0##",
-                            min: -10,
-                            max: 30,
-                            onValueChanged: function (data) {
-                                if (!data.previousValue) return;
-                                if (data.value >= -10 && data.value <= 30) {
-                                    postSettings('therm', data.value);
-                                }
-                            }
-                        }
-                    },
-                    {
-                        dataField: "logo",
-                        editorType: "dxSelectBox",
-                        label: {
-                            text: "Приветственное сообщение",
-                            visible: true
-                        },
-                        editorOptions: {
-                            dataSource: [ 
-                                { value: 0, name: 'Третий кран' },
-                                { value: 1, name: 'Добро пожаловать'},
-                                { value: 2, name: 'Продажа воды'}
-                            ],
-                            valueExpr: "value",
-                            displayExpr: "name",
-                            value: null,
-                            onValueChanged: function (data) {
-                                if (data.previousValue == null) return;
-                                
-                                postSettings('logo', data.value);
-                            }
-                        }
-                    },
-                    {
-                        dataField: "date",
-                        editorType: "dxDateBox",
-                        label: {
-                            text: "Дата смены фильтров",
-                            visible: true
-                        },
-                        editorOptions: {
-                            displayFormat: "dd.MM.yyyy",
-                            type: "date",
-                            applyValueMode: "useButtons",
-                            value: null,
-                            //max: new Date(),
-                            min: new Date(2000, 1, 1),
-                            onValueChanged: function(data) {
-                                if (data.previousValue == null) return;
-                                
-                                postSettings('date', data.value);
-                            }
-                        }
-                    },
-                    {
-                        dataField: "phone",
-                        editorType: "dxTextBox",
-                        label: {
-                            text: "Телефон сервисной поддержки",
-                            visible: true
-                        },
-                        editorOptions: {
-                            value: null,
-                            onValueChanged: function(data) {
-                                if (data.previousValue == null) return;
-                                if (data.value) {
-                                    if (!$.isNumeric(data.value)) return;
-                                }
+var checkImei = function(value) {
+    const get = $.get(`/api/validation/imei/${value}`);
+    return get.promise();
+}
 
-                                postSettings('phone', data.value);
-                            }
-                        },
-                        validationRules: [
-                            {
-                                type: 'pattern',
-                                pattern: '^\\d+$',
-                                message: "Телефон должен состоять только из цифр"
-                            }
-                        ]
-                    },
-                    {
-                        dataField: "maintain",
-                        editorType: "dxSwitch",
-                        label: {
-                            text: "Режим обслуживания",
-                            visible: true
-                        },
-                        editorOptions: {
-                            switchedOffText:"Выключен",
-                            switchedOnText:"Включен",
-                            height: 50,
-                            width: 100,
-                            elementAttr: {
-                                //style: "color:red;font-size:40px;"
-                                class: "dx-field-item-label"
-                            },
-                            value: null,
-                            onValueChanged: function (data) {
-                                //if (data.previousValue == null) return;
-                                if (isInit) {
-                                    isInit = false;
-                                    return;
-                                }
-                                const val = data.value ? 1 : 0;
-                                postSettings('maintain', val);
-                            }
-                        }
-                    }
-                ]
-                //Телефон сервисной поддержки
-                //minColWidth: 300,
-                //colCount: 2
-            }).dxForm("instance");
+function postSettings(pName, pValue) {
 
-            $.getJSON("/api/device/settings/" + dev.id, null)
-                .then(function(data) {
-                    if (data) {
-                        form.option("visible", true);
-                        let editor = form.getEditor("pulsesPerLitre");
-                        editor.option("value", Number(data.pulsesPerLitre));
+    const payload = { name: pName, value: pValue };
+    $.putJSON(`/api/device/settings/${device.imei}`, payload, null).then(function() {
+        return;
+    });
+}
 
-                        editor = form.getEditor("pricePerLitre");
-                        editor.option("value", Number(data.pricePerLitre));
+function getInfos(id, componentId) {
+         $.getJSON(`/api/device/info/${id}`, null)
+             .then(function (data) {
+                 if (data == null || data.count === 0) return;
 
-                        editor = form.getEditor("priceCard");
-                        editor.option("value", Number(data.priceCard));
+                 var metrics = [];
+                 if (device.lastCleanerStatus) {
+                     const clV = device.lastCleanerStatus.tds.toFixed(0);
+                     let cl = 'badge-success';
+                     if (clV > 50.0) { cl = 'badge-warning'; }
+                     if (clV < 0.0 || clV > 100.0) {cl = 'badge-danger';}
+                     metrics.push(`<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-tint"></i> ${clV}<br> <small>TDS, ppm</small> </span> </info-badge>`);
+                 }
+                 if (device.lastStatus) {
+                     if (device.lastStatus.temperature) {
+                         const stV = device.lastStatus.temperature;
+                         let clT = 'badge-success';
+                         if (stV < 5.0 || stV > 40.0) { clT = 'badge-warning'; }
+                         if (stV < 0.0 || stV > 50.0) {clT = 'badge-danger';}
+                         metrics.push(`<info-badge><span class="badge mr-1 mb-1 ${clT}"> <i class="fa pr-1 fa-thermometer"></i> ${stV}<br> <small>Температура, &deg;C</small> </span> </info-badge>`);
+                     }
+                 }
 
-                        editor = form.getEditor("pulseValueCoin");
-                        editor.option("value", Number(data.pulseValueCoin));
+                 data.forEach(function (h) {
+                     //todo add toltip
+                     const nameM = h["name"];
+                     const valueM = h["value"];
+                     var i = '';
+                     var cl = 'badge-success';
+                     switch (nameM) {
+                     case 'signalStrength':
+                         if (valueM < 15.0) { cl = 'badge-danger';}
 
-                        editor = form.getEditor("pulseValueBill");
-                        editor.option("value", Number(data.pulseValueBill));
+                         if (valueM < 20.0) { cl = 'badge-warning';}
 
-                        editor = form.getEditor("therm");
-                        editor.option("value", Number(data.therm));
-                        
-                        editor = form.getEditor("logo");
-                        editor.option("value", Number(data.logo));
+                         i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-wifi"></i> ${valueM}<br> <small>Cигнал</small> </span> </info-badge>`;
+                         //'fa-wifi
+                         break;
+                     case 'simBalance':
+                         if (valueM < 20.0) cl = 'badge-danger';
+                         i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-wifi"></i> ${valueM}<br> <small>Баланс SIM</small> </span> </info-badge>`;
+                         //'fa-wifi';
+                         break;
+                     case 'energyT1':
+                         if (valueM < 0.0) cl = 'badge-danger';
+                         i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-plug"></i> ${valueM}<br> <small>Тариф 1, КВт&middot;ч</small> </span> </info-badge>`;
+                         //'fa-plug'
+                         break;
+                     case 'energyT2':
+                         if (valueM < 0.0) cl = 'badge-danger';
+                         i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-plug"></i> ${valueM}<br> <small>Тариф 2, КВт&middot;ч</small> </span> </info-badge>`;
+                         //'fa-plug';
+                         break;
+                     case 'waterInput':
+                         if (valueM < 0.0) cl = 'badge-danger';
+                         i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-tint"></i> ${valueM}<br> <small>Водомер, м&sup3;</small> </span> </info-badge>`;
+                         //'fa-tint';
+                         break;
+                     case 'tds':
+                         //0.0, 0.0, 100.0, 50.0
+                         if (valueM > 50.0) { cl = 'badge-warning'; }
+                         if (valueM < 0.0 || valueM > 100.0) {cl = 'badge-danger';}
+                         i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-tint"></i> ${valueM}<br> <small>TDS, ppm</small> </span> </info-badge>`;
+                         //'fa-tint'
+                         break;
+                     case 'temperature':
+                         if (valueM < 5.0 || valueM > 40.0) { cl = 'badge-warning'; }
+                         if (valueM < 0.0 || valueM > 50.0) {cl = 'badge-danger';}
+                         //0.0, 5.0, 50.0, 40.0
+                         i = `<info-badge><span class="badge mr-1 mb-1 ${cl}"> <i class="fa pr-1 fa-thermometer"></i> ${valueM}<br> <small>Температура, &deg;C</small> </span> </info-badge>`;
+                         //'fa-thermometer';
+                         break;
+                     }
+                     //var i = `<div><i class="fa fa-truck text-warning"></i>&nbsp;&nbsp;${dd}&nbsp;&ndash;&nbsp;${h["amount"]}${getCurrencySign(device)}</div>`;
+                     
+                     metrics.push(i);
+                 });
 
-                        editor = form.getEditor("date");
-                        const date = new Date(data.date*1000);
-                        editor.option("value", Number(date));
-                        
-                        editor = form.getEditor("phone");
-                        editor.option("value", data.phone);
-
-                        editor = form.getEditor("maintain");
-                        const mn = data.maintain === 0 ? false : true;
-                        if (!mn) isInit = false;
-                        editor.option("value", mn);
-                        
-
-                    } else {
-                        form.option("visible", false);
-                    }
-
-                });
-        }
-
-    var checkImei = function(value) {
-            //return $.getJSON(`/api/validation/imei/${value}`, null).promise;
-            const get = $.get(`/api/validation/imei/${value}`);
-            return get.promise();
-        }
-
-    function postSettings(pName, pValue) {
-            const payload = { name: pName, value: pValue };
-            $.putJSON(`/api/device/settings/${device.imei}`, payload, null).then(function() {
-                //$('#popupContainer').modal('hide');
-                //updateDevicesList();
-                return;
-            });
-        }
+                 const devM = document.getElementById(componentId);
+                 devM.innerHTML = metrics.join("");
+             });
+}

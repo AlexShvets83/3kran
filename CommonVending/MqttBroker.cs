@@ -57,23 +57,28 @@ namespace CommonVending
           //.WithMultiThreadedApplicationMessageInterceptor()
           .WithEncryptedEndpointPort(8883)
           .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
-          .WithClientCertificate(ClientCertificateValidationCallback)
+          //.WithClientCertificate(ClientCertificateValidationCallback)
           .WithEncryptionSslProtocol(SslProtocols.None)
           .WithConnectionValidator(ConnectionValidatorCallback)
           .WithSubscriptionInterceptor(async c =>
           {
             c.AcceptSubscription = true;
-            await LogSubscription(c, true);
+
+            //if (c.ClientId.Contains("869640058515506"))
+            //{
+            //  Console.WriteLine($"New connection: {c.ClientId}");
+            //}
+            //await LogSubscription(c, true);
           })
           .WithApplicationMessageInterceptor(async c =>
           {
             c.AcceptPublish = true;
             await LogMessage(c);
-          })
-          .WithDisconnectedInterceptor(c =>
-          {
-            Console.WriteLine("Disconnect: ClientId = {0}, DisconnectType = {1}}", c.ClientId, c.DisconnectType);
           });
+          //.WithDisconnectedInterceptor(c =>
+          //{
+          //  Console.WriteLine("Disconnect: ClientId = {0}, DisconnectType = {1}}", c.ClientId, c.DisconnectType);
+          //});
 
         var mqttServer = new MqttFactory().CreateMqttServer();
         await mqttServer.StartAsync(optionsBuilder.Build());
@@ -84,8 +89,13 @@ namespace CommonVending
     private static void ConnectionValidatorCallback(MqttConnectionValidatorContext c)
     {
       if (c == null) return;
-      
-      Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
+
+      //if (c.ClientId.Contains("869640058515506"))
+      //{
+      //  Console.WriteLine($"New connection: {c.ClientId}");
+      //}
+
+      //Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
 
       if (c.Username != "3voda")
       {
@@ -99,34 +109,35 @@ namespace CommonVending
         return;
       }
 
+      Console.WriteLine($"New connection: {c.ClientId}");
       c.ReasonCode = MqttConnectReasonCode.Success;
     }
 
-    private static bool ClientCertificateValidationCallback(object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
-    {
-      if (certificate != null) { Console.WriteLine("certificate Issuer = {0}", certificate.Issuer); }
+    //private static bool ClientCertificateValidationCallback(object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslpolicyerrors)
+    //{
+    //  if (certificate != null) { Console.WriteLine("certificate Issuer = {0}", certificate.Issuer); }
 
-      if (chain != null) { Console.WriteLine("chain ChainPolicy = {0}", chain.ChainPolicy); }
+    //  if (chain != null) { Console.WriteLine("chain ChainPolicy = {0}", chain.ChainPolicy); }
       
-      Console.WriteLine("SslPolicyErrors = {0}", sslpolicyerrors);
-      return true;
-    }
+    //  Console.WriteLine("SslPolicyErrors = {0}", sslpolicyerrors);
+    //  return true;
+    //}
 
     /// <summary>
     ///   Logs the message from the MQTT subscription interceptor context.
     /// </summary>
     /// <param name = "context">The MQTT subscription interceptor context.</param>
     /// <param name = "successful">A <see cref = "bool" /> value indicating whether the subscription was successful or not.</param>
-    private static async Task LogSubscription(MqttSubscriptionInterceptorContext context, bool successful)
-    {
-      if (context == null) { return; }
+    //private static async Task LogSubscription(MqttSubscriptionInterceptorContext context, bool successful)
+    //{
+    //  if (context == null) { return; }
 
-      //await DeviceMqtt.SubscriptionHandler(context.TopicFilter.Topic);
-      var message = successful
-                      ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
-                      : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";
-      Console.WriteLine(message);
-    }
+    //  //await DeviceMqtt.SubscriptionHandler(context.TopicFilter.Topic);
+    //  var message = successful
+    //                  ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
+    //                  : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";
+    //  Console.WriteLine(message);
+    //}
 
     /// <summary>
     ///   Logs the message from the MQTT message interceptor context.
@@ -139,8 +150,11 @@ namespace CommonVending
       var payload = context.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(context.ApplicationMessage?.Payload);
 
       await DeviceMqtt.MessageHandler(context.ApplicationMessage?.Topic, payload);
-      Console.WriteLine("Message: ClientId = {0}, Topic = {1}, Payload = {2}, QoS = {3}, Retain-Flag = {4}", context.ClientId, context.ApplicationMessage?.Topic, payload,
-                        context.ApplicationMessage?.QualityOfServiceLevel, context.ApplicationMessage?.Retain);
+
+      Console.WriteLine("Topic = {0}, Payload = {1}", context.ApplicationMessage?.Topic, payload);
+
+      //Console.WriteLine("Message: ClientId = {0}, Topic = {1}, Payload = {2}, QoS = {3}, Retain-Flag = {4}", context.ClientId, context.ApplicationMessage?.Topic, payload,
+      //context.ApplicationMessage?.QualityOfServiceLevel, context.ApplicationMessage?.Retain);
     }
   }
 }

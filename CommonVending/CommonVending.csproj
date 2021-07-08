@@ -5,11 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MQTTnet" Version="3.0.15" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DeviceDbModel\DeviceDbModel.csproj" />
+    <ProjectReference Include="..\MQTTnet\MQTTnet.csproj" />
   </ItemGroup>
 
 </Project>

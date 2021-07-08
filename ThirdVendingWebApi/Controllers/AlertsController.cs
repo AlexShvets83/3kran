@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using ThirdVendingWebApi.Models.Device;
 
 namespace ThirdVendingWebApi.Controllers
@@ -13,8 +14,7 @@ namespace ThirdVendingWebApi.Controllers
   public class AlertsController : ControllerBase
   {
     [HttpGet]
-
-    //[Authorize]
+    [Authorize]
     public async Task<IActionResult> Get(string deviceId, DateTime? from, DateTime? to)
     {
       return await Task.Factory.StartNew(() =>

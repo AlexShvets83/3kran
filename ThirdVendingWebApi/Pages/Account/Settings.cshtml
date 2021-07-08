@@ -1,35 +1,475 @@
 ﻿@page
 @model ThirdVendingWebApi.Pages.Account.SettingsModel
 @{
+  ViewData["Title"] = "Профиль";
 }
+<style>
+    .cabinet {
+        padding-top: 20px;
+        background: #fff;
+        min-height: calc(100vh - 150px) !important;
+        /*min-height: 100vh !important;*/
+    }
 
-<div id="form"></div>
+    .hcb {
+        padding-top: 20px;
+        padding-left: 20px;
+        background: #fff;
+    }
+
+    .icon-column button {
+        width: 32px;
+        height: 32px;
+    }
+
+    .icon-column { padding: 0.75rem 2px; }
+
+    .address-wrapper {
+        max-height: 32px;
+        overflow: hidden;
+        display: block;
+        line-height: 16px;
+        padding: 0;
+    }
+</style>
+
+<div class="row hcb">
+    <h4><i class="fa fa-user-circle-o text-warning" aria-hidden="true"></i>&nbsp;&nbsp;Мой профиль</h4>
+</div>
+
+<div class="row cabinet">
+    <section class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 left"> @*style="height: 450px">*@
+        <h5>&nbsp;&nbsp;Данные пользователя</h5>
+
+        <div class="alert alert-danger" id="userError" role="alert" style="display: none">
+            <i class="fa fa-warning" aria-hidden="true"></i>
+        </div>
+        <div id="userForm"></div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary fa fa-save" onclick="saveUser()"> Сохранить</button>
+        </div>
+    </section>
+
+    <section class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 right" style="height: 550px">
+        <div>
+            <h5>&nbsp;&nbsp;Учетные данные</h5>
+        </div>
+        <div class="alert alert-danger" id="accError" role="alert" style="display: none">
+            <i class="fa fa-warning" aria-hidden="true"></i>
+        </div>
+        <div class="alert alert-warning" id="capsLock" role="alert" style="display: none">
+            <i class="fa fa-warning" aria-hidden="true">
+            </i>&nbsp;&nbsp;«CapsLock» включен.
+        </div>
+        <div id="accForm"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary fa fa-save" onclick="saveAccount()"> Сохранить</button>
+        </div>
+    </section>
+</div>
+@*<div id="form"></div>*@
 
 <script>
-    $(function() {
-        var form = $("#form").dxForm({
-            //formData: companies[0],
-            readOnly: true,
-            showColonAfterLabel: true,
-            labelLocation: "top",
-            minColWidth: 300,
-            colCount: 4
-        }).dxForm("instance");
+    $(document).ready(
+        function() {
+            check_capslock_form($('#accForm')); //applies the capslock check to all input tags
+        }
+    );
+    var crEmail = "";
+    var crPhone = "";
+    var oldUser;
 
-        const accStr = sessionStorage.getItem(accountKey);
-        if (!accStr) {
-            const request = $.getJSON('/api/account', null);
+    function saveUser() {
+        const form = $("#userForm").dxForm("instance");
+        const valid = form.validate();
+        var usrError = document.getElementById("userError");
+        usrError.style.display = 'none';
+        if (!valid || !valid.isValid) return;
 
-            request.done(function(data) {
-                const strData = JSON.stringify(data);
-                sessionStorage.setItem(accountKey, strData);
-                //$('#lbl').text(JSON.stringify(strData));
-                $("#form").dxForm('instance').option('formData', data);
+        const data = form.option('formData');
+
+        $.putJSON("/api/account/", data, null)
+            .then(function() {
+                    location.reload();
+                },
+                function(res) {
+                    if (res.readyState === 4 && res.status === 200) {
+                        location.reload();
+                    } else {
+                        const message = res.responseText ? res.responseText : `Error${res.status}`;
+
+                        usrError.innerHTML = `<i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;${message}`;
+                        usrError.style.display = 'block';
+                    }
+                });
+    }
+
+    function saveAccount() {
+        const form = $("#accForm").dxForm("instance");
+        const valid = form.validate();
+        var accError = document.getElementById("accError");
+        accError.style.display = 'none';
+        if (!valid || !valid.isValid) return;
+
+        const data = form.option('formData');
+
+        if (data.email === oldUser.email & data.phone === oldUser.phone & !data.password) {
+            var dl = DevExpress.ui.dialog.custom({
+                title: "Нет изменений",
+                messageHtml: "<div>Нет изменений email, телефона и пароля</div>",
+                buttons: [
+                    {
+                        text: "Ok",
+                        onClick: function(e) {
+                            return { buttonText: e.component.option("text") }
+                        }
+                    }
+                ]
+            });
+            dl.show().done(function(dialogResult) {
+                return;
+                //console.log(dialogResult.buttonText);
             });
         } else {
-            //$('#lbl').text(accStr);
+            var dlC = DevExpress.ui.dialog.custom({
+                title: "Внимание!",
+                messageHtml: "<div>Вы пытаетесь изменить свои регистрационные данные</div>" +
+                    "<div>Email, телефон или пароль, в случае продолжения ваша текущая сессия будет завершена</div>" +
+                    "<div>Вы можете войти повторно используя новые данные</div>" +
+                    "<div>При возникновении проблем, пожалуйста, свяжитесь с тех. поддержкой</div>",
+                buttons: [
+                    {
+                        text: "Ok",
+                        onClick: function(e) {
+                            return { buttonText: e.component.option("text") }
+                        }
+                    },
+                    {
+                        text: "Отмена",
+                        onClick: function(e) {
+                            return { buttonText: e.component.option("text") }
+                        }
+                    }
+                ]
+            });
+            dlC.show().done(function(dialogResult) {
+                if (dialogResult.buttonText !== "Ok") return;
 
-            $("#form").dxForm('instance').option('formData', JSON.parse(accStr));
+                var formData = {
+                    email: data.email,
+                    phone: data.phone,
+                    currentPassword: data.oldPassword,
+                    newPassword: data.password
+                };
+                $.putJSON("/api/account/change-credentials", formData, null)
+                    .then(function() {
+                            alert("Учетные данные изменены");
+                            logout();
+                        },
+                        function(res) {
+                            if (res.readyState === 4 && res.status === 200) {
+                                alert("Учетные данные изменены");
+                                logout();
+                            } else {
+                                const message = res.responseText ? res.responseText : `Error${res.status}`;
+
+                                accError.innerHTML = `<i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;${message}`;
+                                accError.style.display = 'block';
+                            }
+                        });
+            });
         }
+    }
+
+    $(function() {
+        const request = $.getJSON('/api/account', null);
+        request.done(function(user) {
+            const strData = JSON.stringify(user);
+            sessionStorage.setItem(accountKey, strData);
+            crEmail = user.email;
+            crPhone = user.phone;
+            oldUser = jQuery.extend(true, {}, user);
+            const form = $("#userForm").dxForm({
+                formData: user,
+                readOnly: false,
+                showColonAfterLabel: true,
+                labelLocation: "top",
+                items: [
+                    {
+                        dataField: "lastName",
+                        label: {
+                            text: "Фамилия"
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Введите фамилию."
+                            },
+                            {
+                                type: "stringLength",
+                                min: 3,
+                                message: "Фамилия должна быть не менее 3 символов."
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "firstName",
+                        label: {
+                            text: "Имя"
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Введите имя."
+                            },
+                            {
+                                type: "stringLength",
+                                min: 3,
+                                message: "Имя должно быть не менее 3 символов."
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "patronymic",
+                        label: {
+                            text: "Отчество"
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Введите отчество."
+                            },
+                            {
+                                type: "stringLength",
+                                min: 3,
+                                message: "Отчество должно быть не менее 3 символов."
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "organization",
+                        label: {
+                            text: "Наименование организации:"
+                        }
+                    },
+                    {
+                        dataField: "city",
+                        label: {
+                            text: "Город (населённый пункт):"
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Введите населенный пункт."
+                            }
+                        ]
+                    }
+                ]
+            }).dxForm("instance");
+
+            const accForm = $("#accForm").dxForm({
+                formData: user,
+                readOnly: false,
+                showColonAfterLabel: true,
+                labelLocation: "top",
+                items: [
+                    {
+                        dataField: "email",
+                        label: {
+                            text: "Email",
+                            visible: true
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Введите email."
+                            }, {
+                                type: "email",
+                                message: "Неверный email."
+                            }, {
+                                type: "async",
+                                message: "Email уже зарегистрирован.",
+                                validationCallback: function(params) {
+                                    if (params.value === crEmail) {
+                                        var d = $.Deferred();
+                                        setTimeout(function() {
+                                                d.resolve(true);
+                                            },
+                                            1);
+                                        return d.promise();
+                                    }
+
+                                    return checkEmail(params.value);
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "phone",
+                        label: {
+                            text: "Номер моб. телефона:",
+                            visible: true
+                        },
+                        editorOptions: {
+                            placeholder: "+7 XXX-XXX-XX-XX"
+                        },
+                        validationRules: [
+                            {
+                                type: "required",
+                                message: "Введите телефон."
+                            },
+                            {
+                                type: "pattern",
+                                pattern: /^\+?[0-9-()]+$/,
+                                message: "Телефон должен иметь правильный формат."
+                            },
+                            {
+                                type: "async",
+                                message: "Телефон уже зарегистрирован.",
+                                validationCallback: function(params) {
+                                    if (params.value === crPhone) {
+                                        var d = $.Deferred();
+                                        setTimeout(function() {
+                                                d.resolve(true);
+                                            },
+                                            1);
+                                        return d.promise();
+                                    }
+                                    return checkPhone(params.value);
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "oldPassword",
+                        dataType: "string",
+                        label: {
+                            text: "Текущий пароль"
+                        },
+                        editorOptions: {
+                            name: "oldPassword",
+                            mode: "password",
+                            placeholder: "Текущий пароль",
+                            buttons: [
+                                {
+                                    name: "password",
+                                    location: "after",
+                                    options: {
+                                        icon: '../images/eye.png',
+                                        type: "default",
+                                        onClick: function(e) {
+                                            const passwordEditor = accForm.getEditor("oldPassword");
+                                            passwordEditor.option("mode",
+                                                passwordEditor.option("mode") === "text" ? "password" : "text");
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        validationRules: [
+                            {
+                                type: "custom",
+                                validationCallback: function(e) {
+                                    const passwordEditor = accForm.getEditor("password");
+                                    var value = passwordEditor.option("value");
+                                    if (value) {
+                                        if (e.value) return true;
+                                        else return false;
+                                    } else return true;
+                                    //if (!value && !e.value) return true;
+
+                                    //if (value && e.value) return true;
+                                    //return false;
+                                },
+                                message: "Введите текущий пароль!"
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "password",
+                        dataType: "string",
+                        label: {
+                            text: "Новый пароль"
+                        },
+                        editorOptions: {
+                            name: "password",
+                            mode: "password",
+                            placeholder: "Введите новый пароль",
+                            buttons: [
+                                {
+                                    name: "password",
+                                    location: "after",
+                                    options: {
+                                        icon: '../images/eye.png',
+                                        type: "default",
+                                        onClick: function(e) {
+                                            const passwordEditor = accForm.getEditor("password");
+                                            passwordEditor.option("mode",
+                                                passwordEditor.option("mode") === "text" ? "password" : "text");
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        validationRules: [
+                            {
+                                type: "custom",
+                                validationCallback: function(e) {
+                                    if (!e.value) return true;
+
+                                    const pws = $.trim(e.value);
+                                    const withSpace = e.value.length;
+                                    const pwsLg = pws.length;
+                                    if (withSpace !== pwsLg) return false;
+                                    if (withSpace < 4 || withSpace > 50) return false;
+                                    return true;
+                                },
+                                message: "Пароль должен быть от 4 до 50 символов."
+                            }
+                        ]
+                    },
+                    {
+                        dataField: "confirmPassword",
+                        dataType: "string",
+                        label: {
+                            text: "Подтверждение пароля"
+                        },
+                        editorOptions: {
+                            name: "confirmPassword",
+                            mode: "password",
+                            placeholder: "Пароль ещё раз",
+                            buttons: [
+                                {
+                                    name: "confirmPassword",
+                                    location: "after",
+                                    options: {
+                                        icon: '../images/eye.png',
+                                        type: "default",
+                                        onClick: function(e) {
+                                            const passwordEditor = accForm.getEditor("confirmPassword");
+                                            passwordEditor.option("mode",
+                                                passwordEditor.option("mode") === "text" ? "password" : "text");
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        validationRules: [
+                            {
+                                type: "compare",
+                                message: "'Новый пароль' и 'Подтверждение пароля' не совпадают.",
+                                comparisonTarget: function() {
+                                    const password = accForm.getEditor("password"); //$("#password").dxTextBox("instance");
+                                    if (password) {
+                                        return password.option("value");
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }).dxForm("instance");
+        });
     });
 </script>

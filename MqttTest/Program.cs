@@ -18,7 +18,7 @@ namespace MqttTest
       Console.WriteLine("Hello World!");
       //869244046767509 - my   @"{""maintain"":0}"
       //869395032100038   - 3kran  "priceCard":1.000
-      var topic = "3voda/device/869395032100038/status";
+      var topic = "3voda/device/8693950321000381/status";
       //var topic = "3voda/device/869395032100038/cleaner/status";
 
       var pl = @"{""timestamp"":1623325680,""totalSold"":15,""totalMoney"":160.000,""temperature"":15.280,""status"":0}";
@@ -47,7 +47,8 @@ namespace MqttTest
       // Use TCP connection.
       var options = new MqttClientOptionsBuilder()
         //.WithTcpServer("95.183.10.198", 8883) // Port is optional
-        .WithTcpServer("monitoring3voda.ru", 8883)
+        .WithTcpServer("192.168.1.250", 8883)
+        //.WithTcpServer("monitoring3voda.ru", 8883)
         .WithCredentials("3voda", "Leimnoj8Knod")
         //.WithTls(new MqttClientOptionsBuilderTlsParameters
         //{
@@ -55,12 +56,13 @@ namespace MqttTest
         //  SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
         //  Certificates = certs
         //})
-        .WithTls(new MqttClientOptionsBuilderTlsParameters
-        {
-          UseTls = true,
-          SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-          //Certificates = certs
-        })
+
+        //.WithTls(new MqttClientOptionsBuilderTlsParameters
+        //{
+        //  UseTls = true,
+        //  SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+        //  //Certificates = certs
+        //})
         .Build();
       try
       {

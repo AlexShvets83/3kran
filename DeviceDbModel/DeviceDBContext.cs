@@ -1,7 +1,10 @@
-﻿using DeviceDbModel.DataDb;
+﻿using System;
+using DeviceDbModel.DataDb;
 using DeviceDbModel.Models;
 using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +45,8 @@ namespace DeviceDbModel
 
     public DbSet<DevStatus> DeviceLastStatus { get; set; }
 
+    public DbSet<DevErrorStatus> DeviceErrorStatus { get; set; }
+    
     public DbSet<DevSale> DeviceSales { get; set; }
 
     public DbSet<DevEncash> DeviceEncashes { get; set; }
@@ -62,7 +67,7 @@ namespace DeviceDbModel
       {
         entity.HasIndex(e => e.Imei).IsUnique();
         entity.HasIndex(e => e.Address);
-        entity.HasOne(d => d.User).WithMany(p => p.Devices).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne(d => d.User).WithMany(p => p.Devices).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Cascade);
       });
 
       modelBuilder.Entity<UserDevicePermission>(entity =>
@@ -75,6 +80,8 @@ namespace DeviceDbModel
       modelBuilder.Entity<ApplicationUser>(entity =>
       {
         entity.HasIndex(e => e.CountryId);
+        entity.HasIndex(e => e.OwnerId);
+        entity.Property(e => e.CommerceVisible).HasDefaultValueSql("true");
         entity.HasOne(d => d.Country).WithMany(p => p.Users).HasForeignKey(d => d.CountryId).OnDelete(DeleteBehavior.Restrict);
 
         entity.HasOne(d => d.Owner).WithMany(p => p.Сustomers).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Restrict);
@@ -82,7 +89,7 @@ namespace DeviceDbModel
 
       modelBuilder.Entity<InviteRegistration>(entity =>
       {
-        entity.HasOne(d => d.User).WithMany(p => p.InviteRegistrations).HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(d => d.User).WithMany(p => p.InviteRegistrations).HasForeignKey(d => d.OwnerId).OnDelete(DeleteBehavior.Cascade);
       });
 
       modelBuilder.Entity<Country>(entity =>
@@ -93,15 +100,20 @@ namespace DeviceDbModel
       modelBuilder.Entity<DevStatus>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevStatuses).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+
+      modelBuilder.Entity<DevErrorStatus>(entity =>
+      {
+        entity.HasIndex(e => e.DeviceId);
+        entity.HasIndex(e => e.MessageDate);
+        entity.HasOne(d => d.Device).WithMany(p => p.DevErrorStatuses).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
 
       modelBuilder.Entity<DevSale>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevSales).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });

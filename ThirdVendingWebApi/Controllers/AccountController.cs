@@ -9,21 +9,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using Npgsql.NameTranslation;
 using ThirdVendingWebApi.Models;
+using ThirdVendingWebApi.Models.Users;
 
 namespace ThirdVendingWebApi.Controllers
 {
@@ -37,8 +34,9 @@ namespace ThirdVendingWebApi.Controllers
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
-    private readonly IConfiguration _configuration;
-    private readonly RoleManager<IdentityRole> _roleManager;
+
+    //private readonly IConfiguration _configuration;
+    //private readonly RoleManager<IdentityRole> _roleManager;
 
     /// <summary>
     ///   Constructor
@@ -46,19 +44,17 @@ namespace ThirdVendingWebApi.Controllers
     /// <param name = "userManager"></param>
     /// <param name = "signInManager"></param>
     /// <param name = "emailSender"></param>
-    /// <param name = "roleManager"></param>
-    /// <param name = "configuration"></param>
-    public AccountController(UserManager<ApplicationUser> userManager,
-                             SignInManager<ApplicationUser> signInManager,
-                             IEmailSender emailSender,
-                             RoleManager<IdentityRole> roleManager,
-                             IConfiguration configuration)
+    public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender)
+
+      //RoleManager<IdentityRole> roleManager,
+      //IConfiguration configuration)
     {
       _userManager = userManager;
       _signInManager = signInManager;
       _emailSender = emailSender;
-      _roleManager = roleManager;
-      _configuration = configuration;
+
+      //_roleManager = roleManager;
+      //_configuration = configuration;
     }
 
     /// <summary>
@@ -73,9 +69,8 @@ namespace ThirdVendingWebApi.Controllers
     {
       try
       {
-        var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == person.UserName) ??
-                      _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper()) ??
-                      _userManager.Users.SingleOrDefault(r => r.PhoneNumber == person.UserName);
+        var appUser = //_userManager.Users.SingleOrDefault(r => r.UserName == person.UserName) ??
+          _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper()) ?? _userManager.Users.SingleOrDefault(r => r.PhoneNumber == person.UserName);
 
         if ((appUser != null) && appUser.Activated.GetValueOrDefault())
         {
@@ -143,10 +138,10 @@ namespace ThirdVendingWebApi.Controllers
 
       var retUser = user.GetNewObj<UserAccount>();
 
-      var roles = await _userManager.GetRolesAsync(user);
+      //var roles = await _userManager.GetRolesAsync(user);
 
-      retUser.Authorities = roles.ToArray();
-
+      //var usrRoles = roles.ToArray();
+      //retUser.Role = roles.Count > 0 ? roles[0] : null;
       //for (int i = 0; i < retUser.Alerts.Count; i++)
       //{
       //  retUser.Alerts[i].Active = ((retUser.UserAlerts >> i) & 1) == 1;
@@ -169,7 +164,7 @@ namespace ThirdVendingWebApi.Controllers
     /// <returns></returns>
     [HttpPost]
     [Authorize]
-    public async Task Post([FromBody] UserAccountEdit user)
+    public async Task Post([FromBody] UserAccountAdd user)
     {
       var userApp = await _userManager.GetUserAsync(HttpContext.User);
       if ((userApp == null) || (userApp.UserName != user.UserName)) return;
@@ -203,15 +198,60 @@ namespace ThirdVendingWebApi.Controllers
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    [HttpPost("Change-password")]
+    [HttpPost("change-password")]
     [Authorize]
-    public async Task ChangePassword([FromBody] ChangePsw pws)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePsw pws)
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
-      if (user == null) return;
-      if (!user.Activated.GetValueOrDefault()) return;
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
-      await _userManager.ChangePasswordAsync(user, pws.CurrentPassword, pws.NewPassword);
+      if (!string.IsNullOrEmpty(pws.NewPassword) && (pws.NewPassword.Length > 3))
+      {
+        var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
+        var result = await passwordValidator.ValidateAsync(_userManager, user, pws.NewPassword);
+        if (result.Succeeded)
+        {
+          await _userManager.ChangePasswordAsync(user, pws.CurrentPassword, pws.NewPassword);
+          return Ok();
+        }
+
+        return BadRequest("Пароль не соответствует шаблону!");
+      }
+
+      return BadRequest("Пароль не соответствует шаблону!");
+    }
+
+    [HttpPut("change-credentials")]
+    [Authorize]
+    public async Task<IActionResult> ChangeCredentials([FromBody] UserCredentials userEdit)
+    {
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
+      user.Email = userEdit.Email;
+      user.PhoneNumber = userEdit.PhoneNumber;
+
+      var res = await _userManager.UpdateAsync(user);
+      if (!res.Succeeded) return BadRequest("Не удалось сменить email или телефон!");
+
+      if (!string.IsNullOrEmpty(userEdit.NewPassword) && (userEdit.NewPassword.Length > 3))
+      {
+        var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
+        var result = await passwordValidator.ValidateAsync(_userManager, user, userEdit.NewPassword);
+        if (result.Succeeded)
+        {
+          var pRes = await _userManager.ChangePasswordAsync(user, userEdit.CurrentPassword, userEdit.NewPassword);
+          if (pRes.Succeeded) return Ok();
+
+          return BadRequest("Пароль не был изменен!");
+        }
+
+        return BadRequest("Пароль не соответствует шаблону!");
+      }
+
+      return Ok();
     }
 
     /// <summary>
@@ -242,53 +282,56 @@ namespace ThirdVendingWebApi.Controllers
         userCheck = await _userManager.FindByNameAsync(user.PhoneNumber);
         if (userCheck != null) { return BadRequest("Пользователь с таким телефоном уже зарегистрирован!"); }
 
-        var owner = await _userManager.FindByEmailAsync(user.DealerEmail);
-        if (owner == null) { return BadRequest("Дилер с таким email не существует!"); }
+        ApplicationUser owner = null;
 
-        var ownerId = owner.Id;
+        if (!string.IsNullOrEmpty(user.DealerEmail))
+        {
+          owner = await _userManager.FindByEmailAsync(user.DealerEmail);
+          if (owner == null) { return BadRequest("Дилер с таким email не существует!"); }
+        }
+
+        var ownerId = owner?.Id;
+        var role = Roles.Owner;
         InviteRegistration invite = null;
         if (!string.IsNullOrEmpty(user.InviteCode))
         {
-          //todo encode
-          var code = Crypto.Encrypt(user.InviteCode);
-          var ecode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-          //todo parse id owner & user email == user.email
-
-          //var owner = _userManager.Users.FirstOrDefault(f => f.Id == user.InviteCode);
-          //if (owner == null) return NotFound("Пользователь с таким кодом приглашения не найден!");
-
           //get invite
-          invite = DeviceDbProvider.GetInvite(user.InviteCode, user.Email);
+          invite = InviteDbProvider.GetInvite(user.InviteCode);
           if (invite == null) return NotFound("Код приглашения недействителен!");
 
-          user.CountryId = owner.CountryId;
-          ownerId = owner.Id;
+          role = invite.Role;
+          if (!string.IsNullOrEmpty(invite.OwnerId))
+          {
+            owner = await _userManager.FindByIdAsync(invite.OwnerId);
+            if (owner == null) { return BadRequest("Отправитель с таким email не существует!"); }
+            
+            user.CountryId = owner.CountryId;
+
+            if ((role == Roles.Admin) || (role == Roles.Dealer)) ownerId = null;
+            else ownerId = owner.Id;
+          }
         }
 
-        //var userApp1 = await _userManager.GetUserAsync(HttpContext.User);
-        //if ((userApp == null) || (userApp.UserName != user.UserName)) return;
         var userApp = new ApplicationUser();
         userApp.CopyObjectProperties(user);
-        //todo userApp.Activated = false;
-        //todo check invate  = true
-        userApp.Activated = null;
-        userApp.CreatedBy = user.UserName;
+
+        var creator = user.UserName;
+        if (!string.IsNullOrEmpty(user.InviteCode) && (owner != null)) creator = owner.Email;
+
+        userApp.Activated = string.IsNullOrEmpty(user.InviteCode) ? null : true;
+        userApp.CreatedBy = creator;
         userApp.CreatedDate = DateTime.Now;
         userApp.UserAlerts = 15;
 
-        userApp.CountryId = user.CountryId;
+        userApp.CountryId = owner?.CountryId ?? user.CountryId;
         userApp.OwnerId = ownerId;
+        userApp.Role = role;
 
         var result = await _userManager.CreateAsync(userApp, user.Password);
         if (result.Succeeded)
         {
-          //check role
-          if ((invite != null) && (await _roleManager.FindByNameAsync(invite.Role) == null)) invite.Role = Roles.Owner;
-          await _userManager.AddToRoleAsync(userApp, invite != null ? invite.Role : Roles.Owner);
-
-          //delete invate
-          if (invite != null) DeviceDbProvider.RemoveIvite(invite.Id);
+          //delete invite
+          if (invite != null) InviteDbProvider.RemoveInvite(invite.Id);
           return Ok();
         }
 
@@ -316,13 +359,9 @@ namespace ThirdVendingWebApi.Controllers
           return BadRequest();
         }
 
-        var model = new ChangePasswordInitModel
-        {
-          Id = user.Id,
-          Email = user.Email,
-          ExpiryDateTime = DateTime.Now.AddDays(1)
-        };
+        var model = new ChangePasswordInitModel {Id = user.Id, Email = user.Email, ExpiryDateTime = DateTime.Now.AddDays(1)};
         var strModel = JsonConvert.SerializeObject(model);
+
         //var code = Crypto.Encrypt(user.Id);
         var code = Crypto.Encrypt(strModel);
         var ecode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -341,6 +380,7 @@ namespace ThirdVendingWebApi.Controllers
         message.AppendLine($"<div>Уважаемый {user.FirstName} {user.Patronymic}!</div><br />");
         message.AppendLine("<div>Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.</div><br />");
         message.AppendLine("<div>Чтобы сбросить пароль нажмите на");
+
         //var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
         var callbackUrl = $"{sch}://{host}/Account/ResetPsw?key={ecode}";
         await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.</div>");
@@ -362,7 +402,7 @@ namespace ThirdVendingWebApi.Controllers
       var strPswModel = Crypto.Decrypt(code);
 
       var pswModel = JsonConvert.DeserializeObject<ChangePasswordInitModel>(strPswModel);
-      if (pswModel.ExpiryDateTime < DateTime.Now) return BadRequest("Время жизни ссылки истекло!"); 
+      if (pswModel.ExpiryDateTime < DateTime.Now) return BadRequest("Время жизни ссылки истекло!");
 
       var user = await _userManager.FindByIdAsync(pswModel.Id);
       if ((user == null) && (user.NormalizedEmail != pswModel.Email.ToUpper())) { return BadRequest("Пользователь не найден!"); }
@@ -389,52 +429,53 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     /// <summary>
-    /// Обновление изменение профиля пользователя
+    ///   Обновление изменение профиля пользователя
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="value"></param>
+    /// <param name = "userEdit"></param>
     /// <returns></returns>
-    [HttpPut("{id}")]
+    [HttpPut]
     [Authorize]
-    public async Task<IActionResult> Put(int id, [FromBody] string value)
+    public async Task<IActionResult> Put([FromBody] UserAccountEdit userEdit)
     {
-      //check admin
-      var admin = await _userManager.GetUserAsync(HttpContext.User);
-      if (admin == null) return NotFound("Invalid ADMIN account!");
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
-      //redundant check
-      if (!admin.Activated.GetValueOrDefault()) return BadRequest("Invalid ADMIN activation!");
+      user.FirstName = userEdit.FirstName;
+      user.LastName = userEdit.LastName;
+      user.Patronymic = userEdit.Patronymic;
+      user.Organization = userEdit.Organization;
+      user.City = userEdit.City;
 
-      //check admin role
-      var adminRoles = await _userManager.GetRolesAsync(admin);
-      if (!adminRoles.Contains(Roles.Admin)) return StatusCode(403);
+      var result = await _userManager.UpdateAsync(user);
+      if (result.Succeeded) return Ok();
 
-      return Ok();
+      return BadRequest("Профиль не был изменен!");
     }
 
+    ///// <summary>
+    ///// Удалить автомат
+    ///// </summary>
+    ///// <param name="id"></param>
+    ///// <returns></returns>
+    //[HttpDelete("{id}")]
+    //[Authorize(Roles = Roles.SuperAdmin)]
+    //public async Task<IActionResult> Delete(int id)
+    //{
+    //  //check admin
+    //  var admin = await _userManager.GetUserAsync(HttpContext.User);
+    //  if (admin == null) return NotFound("Invalid ADMIN account!");
+    //  if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Invalid ADMIN activation!");
+
+    //  //check admin role
+    //  var adminRoles = await _userManager.GetRolesAsync(admin);
+    //  if (!adminRoles.Contains(Roles.SuperAdmin)) return StatusCode(403);
+
+    //  return Ok();
+    //}
+
     /// <summary>
-    /// Удалить автомат
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpDelete("{id}")]
-    [Authorize(Roles = Roles.SuperAdmin)]
-    public async Task<IActionResult> Delete(int id)
-    {
-      //check admin
-      var admin = await _userManager.GetUserAsync(HttpContext.User);
-      if (admin == null) return NotFound("Invalid ADMIN account!");
-      if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Invalid ADMIN activation!");
-
-      //check admin role
-      var adminRoles = await _userManager.GetRolesAsync(admin);
-      if (!adminRoles.Contains(Roles.SuperAdmin)) return StatusCode(403);
-
-      return Ok();
-    }
-
-    /// <summary>
-    /// Получить список стран
+    ///   Получить список стран
     /// </summary>
     /// <returns></returns>
     [HttpGet("/api/countries")]
@@ -446,6 +487,84 @@ namespace ThirdVendingWebApi.Controllers
 
       //var countries = await new TaskFactory().StartNew(DeviceDbProvider.GetCountries);
       return new ObjectResult(returnList);
+    }
+
+    [HttpGet("invite/{id}")]
+    public async Task<IActionResult> GetInviteData(string id)
+    {
+      var invite = InviteDbProvider.GetInvite(id);
+      if (invite == null) return NotFound("Код приглашения недействителен!");
+
+      var ownerId = invite.OwnerId;
+      var countryId = 1;
+      string ownerEmail = null;
+      if (!string.IsNullOrEmpty(ownerId))
+      {
+        var userApp = await _userManager.FindByIdAsync(ownerId);
+        if (userApp == null) return BadRequest("Invalid user account!");
+
+        countryId = userApp.CountryId;
+        ownerEmail = userApp.Email;
+      }
+      
+      var retData = new InviteData
+      {
+        Email = invite.Email,
+        CountryId = countryId,
+        OwnerEmail = ownerEmail
+      };
+
+      return new ObjectResult(retData);
+    }
+
+    [HttpPost("invite")]
+    [Authorize]
+    public async Task<IActionResult> SetInvite([FromBody] Invite invite)
+    {
+      try
+      {
+        var user = await _userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return NotFound("Пользователь не найден!");
+        if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+        
+        InviteDbProvider.RemoveAllOldInvitations();
+        var inviteRole = Roles.RolesPermissions.Find(f => f.Name == invite.Role);
+        if (inviteRole == null) return NotFound("Роль не найдена!");
+
+        var userRolePrm = Roles.RolesPermissions.Find(f => f.Name == user.Role);
+        if (userRolePrm == null) return NotFound("Роль пользователя не найдена!");
+
+        if (userRolePrm.Code < inviteRole.Code) return StatusCode(403, "Ваша роль не соответствует!");
+
+        if (InviteDbProvider.CheckInvite(invite.Email)) return BadRequest("Уже есть приглашение на этот email!");
+        if (await _userManager.FindByEmailAsync(invite.Email) != null) return BadRequest("Такой email уже используется!");
+
+        var id = InviteDbProvider.AddInvite(new InviteRegistration {Email = invite.Email, Role = invite.Role, OwnerId = invite.OwnerId});
+
+        if (id == null) return BadRequest("Ошибка добавления приглашения!");
+
+        var host = HttpContext.Request.Host;
+        var sch = HttpContext.Request.Scheme;
+        var callbackUrl = $"{sch}://{host}/Account/Register?code={id}";
+        var message = new StringBuilder();
+        message.AppendLine($"<div>Вас пригласили присоединиться с системе третий кран!</div><br />");
+        message.AppendLine("<div>Для регистрации перейдите по ");
+        try
+        {
+          await _emailSender.SendEmailAsync(invite.Email, "Приглашение от компании третий кран",
+                                            $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылке</a>.</div>");
+          return Ok();
+        }
+        catch (Exception ex)
+        {
+          InviteDbProvider.RemoveInvite(id);
+          return BadRequest(ex.Message);
+        }
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(ex.Message);
+      }
     }
   }
 }

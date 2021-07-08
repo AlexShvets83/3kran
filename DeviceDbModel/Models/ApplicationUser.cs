@@ -49,6 +49,10 @@ namespace DeviceDbModel.Models
 
     public string AddDealerName { get; set; }
 
+    public string Role { get; set; }
+
+    public bool CommerceVisible { get; set; }
+
     public Country Country { get; set; }
 
     public ApplicationUser Owner { get; set; }

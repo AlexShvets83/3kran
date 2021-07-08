@@ -1,17 +1,17 @@
 /* ==========================================================================
 Main page styles
 ========================================================================== */
-
+/*
 .hipster {
     display: inline-block;
     width: 347px;
     height: 497px;
     background: url('../../content/images/hipster.png') no-repeat center top;
     background-size: contain;
-}
+}*/
 
 /* wait autoprefixer update to allow simple generation of high pixel density media query */
-@media only screen and (-webkit-min-device-pixel-ratio: 2),
+/*@media only screen and (-webkit-min-device-pixel-ratio: 2),
     only screen and (-moz-min-device-pixel-ratio: 2),
     only screen and (-o-min-device-pixel-ratio: 2/1),
     only screen and (min-resolution: 192dpi),
@@ -20,15 +20,16 @@ Main page styles
         background: url('../../content/images/hipster2x.png') no-repeat center top;
         background-size: contain;
     }
-}
+}*/
 .welcome {
     padding-top: 20px;
-    min-height: calc(100vh - 219px);
+    height: 650px;
+    /*min-height: calc(100vh - 1px);*/
 }
 
 .welcome-form {
     background-color: rgba(255, 255, 255, 0.6);
-    width: 320px;
+    width: 400px; /*320*/
     height: auto;
     padding: 15px;
     margin: 0 auto; /* Центровка блока */

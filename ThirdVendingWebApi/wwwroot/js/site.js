@@ -3,6 +3,13 @@ var isStart = true;
 var tokenKey = "accessToken";
 var accountKey = "userAccount";
 
+function logout() {
+    sessionStorage.removeItem(tokenKey);
+    sessionStorage.removeItem(accountKey);
+    window.location.replace("/Account/Login");
+    //window.location.replace("/");
+}
+
 function GetURLParameter(sParam)
 {
     var sPageURL = window.location.search.substring(1);
@@ -253,6 +260,76 @@ function getCookie(cname) {
         }
     }
     return null;
+}
+
+var checkEmail = function(value) {
+    const get = $.get("/api/validation/email/" + value);
+    return get.promise();
+}
+
+var checkPhone = function(value) {
+    const phone = value.replace('+', '%2B');
+    const get = $.get("/api/validation?phone=" + phone);
+    return get.promise();
+}
+
+
+document.onkeydown = function (e) {
+    e = e || event;
+    if (e.keyCode === 20) {
+        window.capsLockEnabled = !window.capsLockEnabled;
+        $('#capsLock').toggle();
+    }
+};
+
+function check_capslock(e) { //check what key was pressed in the form
+    var s = String.fromCharCode(e.keyCode);
+    if (s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey) {
+        $('#capsLock').show();
+    }
+    else {
+        $('#capsLock').hide();
+    }
+}
+
+function check_capslock_form(where) {
+    if (!where) { where = $(document); }
+    where.find('input,select,div').each(function () {
+        if (this.type !== "hidden") {
+            $(this).keypress(check_capslock);
+        }
+    });
+}
+
+function getCurrencySign(device) {
+    switch (device.currency) {
+    case 'RUB':
+        return `&#x20BD;`;
+        return '₽';
+    case 'KZT':
+        return '&#x20B8;';
+        return '₸';
+    case 'AZN':
+        return '&#x20BC;';
+        return '₼';
+    case 'UZS':
+        return 'сўм';
+    case 'BYR':
+        return 'Br';
+    default:
+        return '';
+    }
+}
+
+function getNornRole(role) {
+    switch (role) {
+    case "technician": return "Техник";
+    case "owner": return "Владелец";
+    case "dealer_admin": return "Адм. дилера";
+    case "dealer": return "Дилер";
+    case "admin": return "Админ";
+    default: return "";
+    }
 }
 
 

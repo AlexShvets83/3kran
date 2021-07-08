@@ -103,7 +103,7 @@ namespace CommonVending
         //if (_mqttClient == null) await SubscriptionConnect();
 
         await mqttClient.PublishAsync(message, CancellationToken.None);
-        Console.WriteLine("Message sent!");
+        //Console.WriteLine("Message sent!");
       }
       catch (Exception ex)
       {
@@ -137,18 +137,20 @@ namespace CommonVending
         var device = DeviceDbProvider.GetDeviceByImei(imei);
         if (device == null)
         {
-          device = new Device
-          {
-            Id = null, Address = "", Currency = "RUB", Imei = imei,
-            Phone = "", TimeZone = 2,
+          return;
 
-            //OwnerId = ""
-          };
-          await DeviceDbProvider.AddOrEditDevice(device);
+          //device = new Device
+          //{
+          //  Id = null, Address = "", Currency = "RUB", Imei = imei,
+          //  Phone = "", TimeZone = 2,
+
+          //  //OwnerId = ""
+          //};
+          //await DeviceDbProvider.AddOrEditDevice(device);
         }
 
         device = DeviceDbProvider.GetDeviceByImei(imei);
-        var lastState = DeviceDbProvider.GetDeviceLastStatus(device.Id);
+        var lastState = StatusDbProvider.GetDeviceLastStatus(device.Id);
 
         //var lastAlert = DeviceDbProvider.GetDeviceLastAlert(device.Id);
 
@@ -163,10 +165,11 @@ namespace CommonVending
             var status = JsonConvert.DeserializeObject<DevStatus>(message);
             status.Id = lastState?.Id ?? 0;
             status.DeviceId = device.Id;
+
             //status.ReceivedDate = date;
             status.MessageDate = msgDate;
 
-            DeviceDbProvider.WriteDeviceLastStatus(status);
+            StatusDbProvider.WriteDeviceLastStatus(status);
 
             //var msgDate = status.MessageDate;
 
@@ -185,8 +188,7 @@ namespace CommonVending
                   var alert = new DevAlert
                   {
                     DeviceId = device.Id, //ReceivedDate = date, 
-                    MessageDate = lastState.MessageDate.AddMinutes(10), /*Timestamp = status.Timestamp,*/
-                    CodeType = -1, Message = "Пропала связь с автоматом"
+                    MessageDate = lastState.MessageDate.AddMinutes(10), /*Timestamp = status.Timestamp,*/ CodeType = -1, Message = "Пропала связь с автоматом"
                   };
                   AlertsDbProvider.InsertDeviceAlert(alert);
 
@@ -194,8 +196,7 @@ namespace CommonVending
                   alert = new DevAlert
                   {
                     DeviceId = device.Id, //ReceivedDate = date, 
-                    MessageDate = msgDate,/* Timestamp = status.Timestamp,*/
-                    CodeType = 1, Message = "Связь восстановилась"
+                    MessageDate = msgDate, /* Timestamp = status.Timestamp,*/ CodeType = 1, Message = "Связь восстановилась"
                   };
                   AlertsDbProvider.InsertDeviceAlert(alert);
                 }
@@ -203,8 +204,7 @@ namespace CommonVending
                 {
                   var alert = new DevAlert
                   {
-                    DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = status.Timestamp,*/
-                    CodeType = 1, Message = "Связь восстановилась"
+                    DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = status.Timestamp,*/ CodeType = 1, Message = "Связь восстановилась"
                   };
                   AlertsDbProvider.InsertDeviceAlert(alert);
                 }
@@ -213,7 +213,7 @@ namespace CommonVending
               //check sales
               if (lastState.TotalMoney == status.TotalMoney)
               {
-                var lastSale = DeviceDbProvider.GetLastSale(device.Id);
+                var lastSale = SalesDbProvider.GetLastSale(device.Id);
                 if (lastSale != null)
                 {
                   //not sales 2h
@@ -225,8 +225,7 @@ namespace CommonVending
                       //eror sales
                       var alert = new DevAlert
                       {
-                        DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = status.Timestamp,*/
-                        CodeType = 0, Message = "Нет продаж"
+                        DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = status.Timestamp,*/ CodeType = 0, Message = "Нет продаж"
                       };
                       AlertsDbProvider.InsertDeviceAlert(alert);
                     }
@@ -242,8 +241,7 @@ namespace CommonVending
               {
                 var alert = new DevAlert
                 {
-                  DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = status.Timestamp,*/
-                  CodeType = -2, Message = "Бак пуст"
+                  DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = status.Timestamp,*/ CodeType = -2, Message = "Бак пуст"
                 };
                 AlertsDbProvider.InsertDeviceAlert(alert);
               }
@@ -254,8 +252,7 @@ namespace CommonVending
               {
                 var alert = new DevAlert
                 {
-                  DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate,/* Timestamp = status.Timestamp,*/
-                  CodeType = 2, Message = "Бак заполняется"
+                  DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /* Timestamp = status.Timestamp,*/ CodeType = 2, Message = "Бак заполняется"
                 };
                 AlertsDbProvider.InsertDeviceAlert(alert);
               }
@@ -273,8 +270,8 @@ namespace CommonVending
             var newEncash = JsonConvert.DeserializeObject<MqttEncashModel>(message);
             var encash = new DevEncash
             {
-              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = newEncash.Timestamp,*/
-              AmountCoin = newEncash.AmountCoin, AmountBill = newEncash.AmountBill, Amount = newEncash.Amount, Coins = JsonConvert.SerializeObject(newEncash.Coins),
+              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = newEncash.Timestamp,*/ AmountCoin = newEncash.AmountCoin,
+              AmountBill = newEncash.AmountBill, Amount = newEncash.Amount, Coins = JsonConvert.SerializeObject(newEncash.Coins),
               Bills = JsonConvert.SerializeObject(newEncash.Bills)
             };
 
@@ -286,12 +283,12 @@ namespace CommonVending
             var newSale = JsonConvert.DeserializeObject<MqttSaleModel>(message);
             var sale = new DevSale
             {
-              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = newSale.Timestamp,*/
-              PaymentType = newSale.PaymentType, Quantity = newSale.Quantity, Price = newSale.Price, Amount = newSale.Amount,
-              Coins = JsonConvert.SerializeObject(newSale.Coins), Bills = JsonConvert.SerializeObject(newSale.Bills)
+              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, /*Timestamp = newSale.Timestamp,*/ PaymentType = newSale.PaymentType,
+              Quantity = newSale.Quantity, Price = newSale.Price, Amount = newSale.Amount, Coins = JsonConvert.SerializeObject(newSale.Coins),
+              Bills = JsonConvert.SerializeObject(newSale.Bills)
             };
 
-            DeviceDbProvider.InsertDeviceSale(sale);
+            SalesDbProvider.InsertDeviceSale(sale);
 
             var lastSaleAlert = AlertsDbProvider.GetLastSaleAlert(device.Id);
 
@@ -299,8 +296,7 @@ namespace CommonVending
             {
               var alert = new DevAlert
               {
-                DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = sale.MessageDate, /*Timestamp = newSale.Timestamp,*/
-                CodeType = 3, Message = "Продажи восстановились"
+                DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = sale.MessageDate, /*Timestamp = newSale.Timestamp,*/ CodeType = 3, Message = "Продажи восстановились"
               };
               AlertsDbProvider.InsertDeviceAlert(alert);
             }
@@ -308,11 +304,7 @@ namespace CommonVending
             break;
           case "info":
             var newInfo = JsonConvert.DeserializeObject<MqttInfoModel>(message);
-            var info = new DevInfo
-            {
-              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, Name = newInfo.Name,
-              Value = newInfo.Value
-            };
+            var info = new DevInfo {DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, Name = newInfo.Name, Value = newInfo.Value};
 
             var lastInfo = DeviceDbProvider.GetDevInfo(info.DeviceId, info.Name);
             info.Id = lastInfo?.Id > 0 ? lastInfo.Id : 0;
@@ -338,11 +330,11 @@ namespace CommonVending
             var sett = JsonConvert.DeserializeObject<MqttDeviceSettings>(message);
             sett.Timestamp = 0;
             var jsett = JsonConvert.SerializeObject(sett);
-            var md5 = Main.GetMd5ByCMOS(jsett);
+            var md5 = Main.GetMd5ByString(jsett);
             var settings = new DevSetting
             {
-              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, TopicType = tpcType,
-              Topic = tpc, Payload = message, Md5 = md5
+              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, TopicType = tpcType, Topic = tpc,
+              Payload = message, Md5 = md5
             };
             var lastSettings = DeviceDbProvider.GetLastSettings(device.Id, tpcType);
             if (lastSettings?.Md5 == settings.Md5) settings.Id = lastSettings.Id;
@@ -357,20 +349,38 @@ namespace CommonVending
             var settClr = JsonConvert.DeserializeObject<MqttCleanerSettings>(message);
             settClr.Timestamp = 0;
             var jsettClr = JsonConvert.SerializeObject(settClr);
-            var md5Clr = Main.GetMd5ByCMOS(jsettClr);
+            var md5Clr = Main.GetMd5ByString(jsettClr);
+            var lastCleanerSettings = DeviceDbProvider.GetLastSettings(device.Id, tpcCleanerType);
             var cleaner = new DevSetting
             {
-              DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, TopicType = tpcCleanerType,
+              Id = lastCleanerSettings?.Id ?? 0, DeviceId = device.Id, /*ReceivedDate = date,*/ MessageDate = msgDate, TopicType = tpcCleanerType,
               Topic = tpcCleaner, Payload = message, Md5 = md5Clr
             };
-            var lastCleanerSettings = DeviceDbProvider.GetLastSettings(device.Id, tpcCleanerType);
-            if (lastCleanerSettings?.Md5 == cleaner.Md5) cleaner.Id = lastCleanerSettings.Id;
+
+            //if (lastCleanerSettings?.Md5 == cleaner.Md5) cleaner.Id = lastCleanerSettings.Id;
 
             DeviceDbProvider.WriteDeviceSettings(cleaner);
             break;
         }
       }
-      catch (Exception ex) { Console.WriteLine(ex); }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        Console.WriteLine($"Topic - {topic} Message - {message}");
+        var error = new DevSetting
+        {
+          Id = 0, DeviceId = null, MessageDate = DateTime.UtcNow, TopicType = -1,
+          Topic = topic, Payload = message, Md5 = null
+        };
+        DeviceDbProvider.WriteDeviceSettings(error);
+      }
+      //finally
+      //{
+      //  if (topic.Contains("869640058515506"))
+      //  {
+      //    Console.WriteLine($"Topic - {topic} Message - {message}");
+      //  }
+      //}
     }
   }
 }

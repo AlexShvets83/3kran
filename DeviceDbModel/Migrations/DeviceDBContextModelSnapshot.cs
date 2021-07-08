@@ -16,7 +16,7 @@ namespace DeviceDbModel.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.5")
+                .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("DeviceDbModel.Models.ApplicationUser", b =>
@@ -40,6 +40,12 @@ namespace DeviceDbModel.Migrations
                     b.Property<string>("City")
                         .HasColumnType("text")
                         .HasColumnName("city");
+
+                    b.Property<bool>("CommerceVisible")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasColumnName("commerce_visible")
+                        .HasDefaultValueSql("true");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -136,6 +142,10 @@ namespace DeviceDbModel.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("text")
+                        .HasColumnName("role");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
@@ -327,6 +337,50 @@ namespace DeviceDbModel.Migrations
                         .HasDatabaseName("ix_device_encashes_message_date");
 
                     b.ToTable("device_encashes");
+                });
+
+            modelBuilder.Entity("DeviceDbModel.Models.DevErrorStatus", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("text")
+                        .HasColumnName("device_id");
+
+                    b.Property<DateTime>("MessageDate")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("message_date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<float?>("Temperature")
+                        .HasColumnType("real")
+                        .HasColumnName("temperature");
+
+                    b.Property<float>("TotalMoney")
+                        .HasColumnType("real")
+                        .HasColumnName("total_money");
+
+                    b.Property<float>("TotalSold")
+                        .HasColumnType("real")
+                        .HasColumnName("total_sold");
+
+                    b.HasKey("Id")
+                        .HasName("pk_device_error_status");
+
+                    b.HasIndex("DeviceId")
+                        .HasDatabaseName("ix_device_error_status_device_id");
+
+                    b.HasIndex("MessageDate")
+                        .HasDatabaseName("ix_device_error_status_message_date");
+
+                    b.ToTable("device_error_status");
                 });
 
             modelBuilder.Entity("DeviceDbModel.Models.DevInfo", b =>
@@ -576,19 +630,19 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("expiration_date");
 
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("text")
+                        .HasColumnName("owner_id");
+
                     b.Property<string>("Role")
                         .HasColumnType("text")
                         .HasColumnName("role");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text")
-                        .HasColumnName("user_id");
-
                     b.HasKey("Id")
                         .HasName("pk_invite_registrations");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_invite_registrations_user_id");
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_invite_registrations_owner_id");
 
                     b.ToTable("invite_registrations");
                 });
@@ -960,6 +1014,17 @@ namespace DeviceDbModel.Migrations
                     b.Navigation("Device");
                 });
 
+            modelBuilder.Entity("DeviceDbModel.Models.DevErrorStatus", b =>
+                {
+                    b.HasOne("DeviceDbModel.Models.Device", "Device")
+                        .WithMany("DevErrorStatuses")
+                        .HasForeignKey("DeviceId")
+                        .HasConstraintName("fk_device_error_status_devices_device_id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Device");
+                });
+
             modelBuilder.Entity("DeviceDbModel.Models.DevInfo", b =>
                 {
                     b.HasOne("DeviceDbModel.Models.Device", "Device")
@@ -1010,7 +1075,7 @@ namespace DeviceDbModel.Migrations
                         .WithMany("Devices")
                         .HasForeignKey("OwnerId")
                         .HasConstraintName("fk_devices_users_user_id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -1019,7 +1084,7 @@ namespace DeviceDbModel.Migrations
                 {
                     b.HasOne("DeviceDbModel.Models.ApplicationUser", "User")
                         .WithMany("InviteRegistrations")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("OwnerId")
                         .HasConstraintName("fk_invite_registrations_users_user_id")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -1123,6 +1188,8 @@ namespace DeviceDbModel.Migrations
                     b.Navigation("DevAlerts");
 
                     b.Navigation("DevEncashes");
+
+                    b.Navigation("DevErrorStatuses");
 
                     b.Navigation("DevInfos");
 

@@ -8,32 +8,31 @@
     $(function() {
         const request = $.getJSON('/api/account', null);
         request.then(function(data) {
-                sessionStorage.setItem(accountKey, JSON.stringify(data));
-                //const name = getUserName(data);
-                //const menu = document.getElementById("navbarDropdown");
-                //menu.style.visibility = "visible";
-                //menu.innerHTML = name;
-                window.location.replace("/Account/Settings");
+                var acc = JSON.stringify(data);
+                sessionStorage.setItem(accountKey, acc);
+
+                //if (!acc.role) window.location.replace("/");
+                switch (data.role) {
+                case "technician":
+                    window.location.replace("/Dashboard");
+                    break;
+                case "owner":
+                    window.location.replace("/Admin");
+                    break;
+                case "dealer_admin":
+                case "dealer":
+                case "admin":
+                case "super_admin":
+                    window.location.replace("/Admin");
+                    break;
+                default:
+                    //window.location.replace("/Account/Settings");
+                    break;
+                }
             },
             function() {
                 window.location.replace("/Account/Login");
             }
         );
-
-        //const accStr = sessionStorage.getItem(accountKey);
-        //if (accStr != null) {
-        //    const acc = JSON.parse(accStr);
-        //    const name = getUserName(acc);
-        //    const menu = document.getElementById("navbarDropdown");
-        //    menu.style.visibility = "visible";
-        //    menu.innerHTML = name;
-        //    window.location.replace("/Account/Settings");
-        //} else {
-        //    window.location.replace("/Account/Login");
-        //}
-
-
-        //document.getElementById("navbarDropdown").style.visibility = "visible";
-
     });
 </script>

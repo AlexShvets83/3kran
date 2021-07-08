@@ -1,11 +1,11 @@
 ﻿/* ==========================================================================
 Navbar
 ========================================================================== */
-.navbar-version {
+/*.navbar-version {
     font-size: 10px;
     color: #ccc;
-}
-
+}*/
+/*
 .jh-navbar {
     padding: 0.2em 1em;
 }
@@ -48,7 +48,7 @@ Navbar
 .jh-navbar .jh-navbar-toggler:hover {
     color: #fff;
 }
-
+*/
 @media screen and (min-width: 768px) {
     .jh-navbar-toggler {
         display: none;

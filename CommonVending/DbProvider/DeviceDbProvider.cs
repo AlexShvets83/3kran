@@ -17,57 +17,7 @@ namespace CommonVending.DbProvider
     static DeviceDbProvider() { DeviceDBContextFactory = new DeviceDBContextFactory(); }
 
     public static DeviceDBContextFactory DeviceDBContextFactory { get; }
-
-    public static bool CheckInviteCode(string code, string email)
-    {
-      try
-      {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
-        {
-          var count = context.InviteRegistrations.Count(w => (w.UserId == code) && (w.Email == email) && (w.ExpirationDate > DateTime.Now));
-          return count > 0;
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex);
-        return false;
-      }
-    }
-
-    public static InviteRegistration GetInvite(string ownerID, string email)
-    {
-      try
-      {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
-        {
-          var list = context.InviteRegistrations.Where(w => (w.UserId == ownerID) && (w.Email == email) && (w.ExpirationDate > DateTime.Now))
-            .OrderByDescending(o => o.ExpirationDate)
-            .ToList();
-          return list.Count > 0 ? list[0] : null;
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex);
-        return null;
-      }
-    }
-
-    public static void RemoveIvite(string id)
-    {
-      try
-      {
-        var invite = new InviteRegistration {Id = id};
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
-        {
-          context.InviteRegistrations.Remove(invite);
-          context.SaveChanges();
-        }
-      }
-      catch (Exception ex) { Console.WriteLine(ex); }
-    }
-
+    
     public static List<Country> GetCountries()
     {
       try
@@ -102,7 +52,7 @@ namespace CommonVending.DbProvider
       }
     }
 
-    public static List<DevView> GetAllDevices()
+    public static List<DevView> GetAllDevices(List<string> users = null, bool isCommerce = true)
     {
       try
       {
@@ -120,6 +70,22 @@ namespace CommonVending.DbProvider
                         TimeZone = device.TimeZone, Currency = device.Currency, Phone = device.Phone, OwnerName = person.LastName,
                         OwnerEmail = person.Email
                       };
+          if (users != null)
+          {
+            query = from device in context.Set<Device>()
+                    join person in context.Set<ApplicationUser>() on device.OwnerId equals person.Id into grouping
+                    //join p in context.Set<ApplicationUser>()
+                    //  on b.BlogId equals p.BlogId into grouping
+                    from person in grouping.DefaultIfEmpty()
+                    where users.Contains(device.OwnerId)
+                    orderby device.Id
+                    select new DevView
+                    {
+                      Id = device.Id, Imei = device.Imei, OwnerId = device.OwnerId, Address = device.Address,
+                      TimeZone = device.TimeZone, Currency = device.Currency, Phone = device.Phone, OwnerName = person.LastName,
+                      OwnerEmail = person.Email
+                    };
+          }
 
           var devList = query.AsEnumerable().ToList();
           foreach (var dev in devList)
@@ -133,7 +99,7 @@ namespace CommonVending.DbProvider
             if ((dev.LastStatus != null) && (dev.LastStatus.Status == 1)) { alerts.Add("TANK_EMPTY"); }
 
             var lastSale = context.DeviceSales.Where(w => w.DeviceId == dev.Id).OrderByDescending(o => o.MessageDate).Take(1).ToList();
-            dev.LastSale = lastSale.Count > 0 ? lastSale[0].GetNewObj<DevSaleView>() : null;
+            dev.LastSale = (lastSale.Count > 0) && isCommerce ? lastSale[0].GetNewObj<DevSaleView>() : null;
             if ((dev.LastSale == null) || (dev.LastSale.MessageDate.AddHours(2) < currDate)) { alerts.Add("NO_SALES"); }
 
             dev.Alerts = alerts.Count > 0 ? alerts.ToArray() : null;
@@ -212,6 +178,35 @@ namespace CommonVending.DbProvider
       }
     }
 
+    public static async Task SetDeviceOwner(string deviceId, string ownerId)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var updDevice = new Device
+          {
+            Id = deviceId, OwnerId = ownerId
+          };
+          //var updDevice = context.Devices.FirstOrDefault(w => w.Id == deviceId);
+          //if (updDevice != null)
+          //{
+            updDevice.OwnerId = ownerId;
+
+            //context.Entry(updDevice).State = EntityState.Modified;
+
+            context.Devices.Attach(updDevice).Property(x => x.OwnerId).IsModified = true;
+          //}
+          
+          await context.SaveChangesAsync();
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+      }
+    }
+
     public static void RemoveDevice(Device device)
     {
       try
@@ -246,24 +241,6 @@ namespace CommonVending.DbProvider
       //  }
       //}
       //catch (Exception ex) { Console.WriteLine(ex); }
-    }
-
-    public static DevStatus GetDeviceLastStatus(string devId)
-    {
-      try
-      {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
-        {
-          //var record = context.DeviceLastStatus.Where(w => (w.DeviceId == devId) && (w.MessageDate == context.DeviceLastStatus.Where(m => m.DeviceId == devId).Max(m => m.MessageDate))).ToList();
-          var record = context.DeviceLastStatus.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
-          return record.Count == 0 ? null : record[0];
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex);
-        return null;
-      }
     }
 
     public static DevSale GetDeviceLastSale(string devId)
@@ -317,23 +294,6 @@ namespace CommonVending.DbProvider
       }
     }
 
-    public static DevSale GetLastSale(string devId)
-    {
-      try
-      {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
-        {
-          var record = context.DeviceSales.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
-          return record.Count == 0 ? null : record[0];
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex);
-        return null;
-      }
-    }
-
     public static DevSetting GetLastSettings(string devId, int topicType)
     {
       try
@@ -349,21 +309,6 @@ namespace CommonVending.DbProvider
         Console.WriteLine(ex);
         return null;
       }
-    }
-
-    public static void WriteDeviceLastStatus(DevStatus record)
-    {
-      try
-      {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
-        {
-          if (record.Id != 0) { context.DeviceLastStatus.Update(record); }
-          else { context.DeviceLastStatus.Add(record); }
-
-          context.SaveChanges();
-        }
-      }
-      catch (Exception ex) { Console.WriteLine(ex); }
     }
 
     public static void WriteDeviceLastInfo(DevInfo record)
@@ -390,19 +335,6 @@ namespace CommonVending.DbProvider
           if (record.Id != 0) { context.DeviceSettings.Update(record); }
           else { context.DeviceSettings.Add(record); }
 
-          context.SaveChanges();
-        }
-      }
-      catch (Exception ex) { Console.WriteLine(ex); }
-    }
-
-    public static void InsertDeviceSale(DevSale record)
-    {
-      try
-      {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
-        {
-          context.DeviceSales.Add(record);
           context.SaveChanges();
         }
       }

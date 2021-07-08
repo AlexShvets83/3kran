@@ -16,90 +16,90 @@ namespace CommonVending
   //todo CLEAN UP
   public static class Main
   {
-    public static void ClearTableFromDuplicates(DataTable table, string columnName)
-    {
-      var hTable = new Hashtable();
-      var duplicateList = new ArrayList();
+    //public static void ClearTableFromDuplicates(DataTable table, string columnName)
+    //{
+    //  var hTable = new Hashtable();
+    //  var duplicateList = new ArrayList();
 
-      foreach (DataRow row in table.Rows)
-      {
-        if (hTable.Contains(row[columnName])) duplicateList.Add(row);
-        else hTable.Add(row[columnName], string.Empty);
-      }
+    //  foreach (DataRow row in table.Rows)
+    //  {
+    //    if (hTable.Contains(row[columnName])) duplicateList.Add(row);
+    //    else hTable.Add(row[columnName], string.Empty);
+    //  }
 
-      foreach (DataRow dRow in duplicateList)
-      {
-        table.Rows.Remove(dRow);
-      }
-    }
+    //  foreach (DataRow dRow in duplicateList)
+    //  {
+    //    table.Rows.Remove(dRow);
+    //  }
+    //}
 
-    public static void ClearColumnTable(DataTable table, List<string> errorsCode = null, bool isUp = true, bool isDelDur = true)
-    {
-      if ((table == null) || (table.Rows.Count == 0)) return;
+    //public static void ClearColumnTable(DataTable table, List<string> errorsCode = null, bool isUp = true, bool isDelDur = true)
+    //{
+    //  if ((table == null) || (table.Rows.Count == 0)) return;
 
-      var indexList = new List<DataColumn>();
-      foreach (DataColumn column in table.Columns)
-      {
-        var isNull = true;
-        if ((errorsCode != null) && errorsCode.Contains(column.ColumnName))
-        {
-          foreach (DataRow row in table.Rows)
-          {
-            if (!string.IsNullOrEmpty(row[column.ColumnName].ToString()))
-            {
-              if (int.TryParse(row[column.ColumnName].ToString(), out var code))
-              {
-                if (code != 0)
-                {
-                  isNull = false;
-                  break;
-                }
-              }
-              else
-              {
-                isNull = false;
-                break;
-              }
-            }
-          }
-        }
-        else
-        {
-          foreach (DataRow row in table.Rows)
-          {
-            if (!string.IsNullOrEmpty(row[column.ColumnName].ToString()))
-            {
-              isNull = false;
-              break;
-            }
-          }
-        }
+    //  var indexList = new List<DataColumn>();
+    //  foreach (DataColumn column in table.Columns)
+    //  {
+    //    var isNull = true;
+    //    if ((errorsCode != null) && errorsCode.Contains(column.ColumnName))
+    //    {
+    //      foreach (DataRow row in table.Rows)
+    //      {
+    //        if (!string.IsNullOrEmpty(row[column.ColumnName].ToString()))
+    //        {
+    //          if (int.TryParse(row[column.ColumnName].ToString(), out var code))
+    //          {
+    //            if (code != 0)
+    //            {
+    //              isNull = false;
+    //              break;
+    //            }
+    //          }
+    //          else
+    //          {
+    //            isNull = false;
+    //            break;
+    //          }
+    //        }
+    //      }
+    //    }
+    //    else
+    //    {
+    //      foreach (DataRow row in table.Rows)
+    //      {
+    //        if (!string.IsNullOrEmpty(row[column.ColumnName].ToString()))
+    //        {
+    //          isNull = false;
+    //          break;
+    //        }
+    //      }
+    //    }
 
-        if (isNull) indexList.Add(column);
-      }
+    //    if (isNull) indexList.Add(column);
+    //  }
 
-      foreach (var column in indexList)
-      {
-        if (table.Columns.Contains(column.ColumnName)) table.Columns.Remove(column);
+    //  foreach (var column in indexList)
+    //  {
+    //    if (table.Columns.Contains(column.ColumnName)) table.Columns.Remove(column);
 
-        if (isDelDur)
-        {
-          if ((errorsCode != null) && errorsCode.Contains(column.ColumnName))
-          {
-            if (int.TryParse(column.ColumnName, out var errDur))
-            {
-              var errorDurId = isUp ? errDur + 1 : errDur - 1;
-              if (table.Columns.Contains(errorDurId.ToString()))
-              {
-                table.Columns.Remove(errorDurId.ToString());
-              }
-            }
-          }
-        }
-      }
-    }
+    //    if (isDelDur)
+    //    {
+    //      if ((errorsCode != null) && errorsCode.Contains(column.ColumnName))
+    //      {
+    //        if (int.TryParse(column.ColumnName, out var errDur))
+    //        {
+    //          var errorDurId = isUp ? errDur + 1 : errDur - 1;
+    //          if (table.Columns.Contains(errorDurId.ToString()))
+    //          {
+    //            table.Columns.Remove(errorDurId.ToString());
+    //          }
+    //        }
+    //      }
+    //    }
+    //  }
+    //}
 
-    public static string EjectExceptionMessage(Exception exception) { return ProcessExceptionMessage(exception); }
+    //public static string EjectExceptionMessage(Exception exception) { return ProcessExceptionMessage(exception); }
 
     private static string ProcessExceptionMessage(Exception exception)
     {
@@ -308,7 +308,7 @@ namespace CommonVending
       return newObj;
     }
 
-    public static string GetMd5ByCMOS(string input)
+    public static string GetMd5ByString(string input)
     {
       if (string.IsNullOrEmpty(input)) return null;
       using (var md5Hash = MD5.Create())

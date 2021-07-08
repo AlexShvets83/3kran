@@ -4,21 +4,21 @@ namespace DeviceDbModel
 {
   public static class Roles
   {
-    public const string SuperAdmin = "super_admin";
-    public const string Admin = "admin";
-    public const string Dealer = "dealer ";
-    public const string DealerAdmin = "dealer_admin";
-    public const string Owner = "owner";
     public const string Technician = "technician";
+    public const string Owner = "owner";
+    public const string DealerAdmin = "dealer_admin";
+    public const string Dealer = "dealer";
+    public const string Admin = "admin";
+    public const string SuperAdmin = "super_admin";
 
     public static List<RolePrm> RolesPermissions = new()
     {
-      new RolePrm {Name = SuperAdmin, Code = 0},
-      new RolePrm {Name = Admin, Code = 1},
-      new RolePrm {Name = Dealer, Code = 2},
+      new RolePrm {Name = Technician, Code = 1},
+      new RolePrm {Name = Owner, Code = 2},
       new RolePrm {Name = DealerAdmin, Code = 3},
-      new RolePrm {Name = Owner, Code = 4},
-      new RolePrm {Name = Technician, Code = 5}
+      new RolePrm {Name = Dealer, Code = 4},
+      new RolePrm {Name = Admin, Code = 5},
+      new RolePrm {Name = SuperAdmin, Code = 6}
     };
 
     //public const string User = "ROLE_USER";

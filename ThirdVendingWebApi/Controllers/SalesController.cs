@@ -1,15 +1,15 @@
-﻿using CommonVending;
-using CommonVending.DbProvider;
-using CommonVending.Model;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CommonVending.DbProvider;
 using CommonVending.MqttModels;
 using DeviceDbModel.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DeviceDbModel;
+using Microsoft.AspNetCore.Identity;
 using ThirdVendingWebApi.Models;
 using ThirdVendingWebApi.Models.Device;
 
@@ -19,11 +19,22 @@ namespace ThirdVendingWebApi.Controllers
   [ApiController]
   public class SalesController : ControllerBase
   {
-    [HttpGet("info")]
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    //[Authorize]
+    public SalesController(UserManager<ApplicationUser> userManager)
+    {
+      _userManager = userManager;
+    }
+
+    [HttpGet("info")]
+    [Authorize]
     public async Task<IActionResult> Get(string deviceId, DateTime? from, DateTime? to)
     {
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
+      if ((user.Role == Roles.Technician) && !user.CommerceVisible) return new ObjectResult(null);
       //todo check role and permitions
       return await Task.Factory.StartNew(() =>
       {
@@ -65,6 +76,11 @@ namespace ThirdVendingWebApi.Controllers
     {
       try
       {
+        var user = await _userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return NotFound("Пользователь не найден!");
+        if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
+        if ((user.Role == Roles.Technician) && !user.CommerceVisible) return new ObjectResult(null);
         //todo check role and permitions
         var device = DeviceDbProvider.GetDeviceById(id);
         if (device == null) return NotFound("Автомат не найден!");

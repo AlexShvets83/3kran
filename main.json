@@ -13,6 +13,6 @@
     "JwtIssuer": "ThirdVendingAuthServer",
     "JwtAudience": "http://3kran.ru/",
     "JwtKey": "_9chCek!L{\n.y6ZQ)&6X@P?25?>H2Kb",
-    "JwtExpireMinutes": "5"
+    "JwtExpireMinutes": "600"
   }
 }

@@ -40,15 +40,13 @@
               Account controller
             </summary>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.AccountController.#ctor(Microsoft.AspNetCore.Identity.UserManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.UI.Services.IEmailSender,Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole},Microsoft.Extensions.Configuration.IConfiguration)">
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.#ctor(Microsoft.AspNetCore.Identity.UserManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.UI.Services.IEmailSender)">
             <summary>
               Constructor
             </summary>
             <param name = "userManager"></param>
             <param name = "signInManager"></param>
             <param name = "emailSender"></param>
-            <param name = "roleManager"></param>
-            <param name = "configuration"></param>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.AccountController.Authenticate(ThirdVendingWebApi.Models.Person)">
             <summary>
@@ -65,7 +63,7 @@
             <response code = "401">Unauthorized - If bad JSON Web Token (JWT)</response>
             <response code = "403">Forbidden - If your role hasn't permission</response>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Post(ThirdVendingWebApi.Models.UserAccountEdit)">
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Post(ThirdVendingWebApi.Models.Users.UserAccountAdd)">
             <summary>
               Обновление изменение профиля пользователя
             </summary>
@@ -77,7 +75,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Register(ThirdVendingWebApi.Models.UserAccountRegister)">
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Register(ThirdVendingWebApi.Models.Users.UserAccountRegister)">
             <summary>
               Регистрация нового пользователя
             </summary>
@@ -92,24 +90,16 @@
         <member name="M:ThirdVendingWebApi.Controllers.AccountController.ResetPasswordFinish(ThirdVendingWebApi.Models.ChangePasswordModel)">
             api/account/reset-password/finish
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Put(System.Int32,System.String)">
+        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Put(ThirdVendingWebApi.Models.Users.UserAccountEdit)">
             <summary>
-            Обновление изменение профиля пользователя
+              Обновление изменение профиля пользователя
             </summary>
-            <param name="id"></param>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:ThirdVendingWebApi.Controllers.AccountController.Delete(System.Int32)">
-            <summary>
-            Удалить автомат
-            </summary>
-            <param name="id"></param>
+            <param name = "userEdit"></param>
             <returns></returns>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.AccountController.GetCountries">
             <summary>
-            Получить список стран
+              Получить список стран
             </summary>
             <returns></returns>
         </member>
@@ -117,7 +107,7 @@
             <summary>
             </summary>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.DevicesController.#ctor(Microsoft.AspNetCore.Identity.UserManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{DeviceDbModel.Models.ApplicationUser})">
+        <member name="M:ThirdVendingWebApi.Controllers.DevicesController.#ctor(Microsoft.AspNetCore.Identity.UserManager{DeviceDbModel.Models.ApplicationUser})">
             <summary>
             </summary>
             <param name = "userManager"></param>
@@ -146,22 +136,40 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:ThirdVendingWebApi.Controllers.UsersController.Put(ThirdVendingWebApi.Models.UserAccountAdminEdit)">
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.Put(ThirdVendingWebApi.Models.Users.UserAccountAdminEdit)">
             <summary>
-            
             </summary>
-            <param name="user"></param>
+            <param name = "user"></param>
             <returns></returns>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetRoles">
             <summary>
-            Get allowed roles
+              Get allowed roles
             </summary>
             <returns></returns>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetDealers(System.Int32)">
             <summary>
-            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetDealersAuth">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetOwners">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetAllOwners">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ThirdVendingWebApi.Controllers.UsersController.GetAllDealers">
+            <summary>
             </summary>
             <returns></returns>
         </member>
@@ -305,6 +313,21 @@
             0 - ок, 1 - бак пуст
             </summary>
         </member>
+        <member name="P:ThirdVendingWebApi.Models.InviteData.Email">
+            <summary>
+              Email, электронная почта
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.InviteData.OwnerEmail">
+            <summary>
+              Email владельца
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.InviteData.CountryId">
+            <summary>
+            Идентификатор страны
+            </summary>
+        </member>
         <member name="T:ThirdVendingWebApi.Models.Person">
             <summary>
               Credentials 
@@ -320,354 +343,449 @@
               Password
             </summary>
         </member>
-        <member name="T:ThirdVendingWebApi.Models.UserAccount">
+        <member name="T:ThirdVendingWebApi.Models.Users.UserAccount">
             <summary>
               Учетная запись пользователя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Id">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.Id">
             <summary>
               Ид пользователя из базы данных
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.UserName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.UserName">
             <summary>
               Логин или имя пользователя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.FirstName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.FirstName">
             <summary>
               Имя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.LastName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.LastName">
             <summary>
               Фамилия
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Email">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.Email">
             <summary>
               Email, электронная почта
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.ImageUrl">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.ImageUrl">
             <summary>
               Ссылка на изображение
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Activated">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.Activated">
             <summary>
               Активирован ли пользователь
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.LangKey">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.LangKey">
             <summary>
               Язык
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.CreatedBy">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.CreatedBy">
             <summary>
               Кем создан
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.CreatedDate">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.CreatedDate">
             <summary>
               Когда создан
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.LastModifiedBy">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.LastModifiedBy">
             <summary>
               Кем последний раз изменен
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.LastModifiedDate">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.LastModifiedDate">
             <summary>
               Когда последний раз изменен
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Authorities">
-            <summary>
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Organization">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.Organization">
             <summary>
               Организация
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.PhoneNumber">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.PhoneNumber">
             <summary>
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.City">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.City">
             <summary>
               Город
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.InfoEmails">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.InfoEmails">
             <summary>
               From DB
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.InfoEmailsArray">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.InfoEmailsArray">
             <summary>
               Массив имейлов для рассылки писем с авариями и событиями
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.UserAlerts">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.UserAlerts">
             <summary>
               From DB
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Alerts">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.Alerts">
             <summary>
               Массив аварий и событий
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Patronymic">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.Patronymic">
             <summary>
               Отчество
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccount.Role">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.Role">
             <summary>
               Роль
             </summary>
         </member>
-        <member name="T:ThirdVendingWebApi.Models.UserAccountAdminEdit">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.OwnerId">
             <summary>
+              Идентификатор владельца
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Id">
-            <summary>
-              Ид пользователя из базы данных
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.UserName">
-            <summary>
-              Логин или имя пользователя
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.FirstName">
-            <summary>
-              Имя
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LastName">
-            <summary>
-              Фамилия
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Email">
-            <summary>
-              Email, электронная почта
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.ImageUrl">
-            <summary>
-              Ссылка на изображение
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Activated">
-            <summary>
-              Активирован ли пользователь
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LangKey">
-            <summary>
-              Язык
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.CreatedBy">
-            <summary>
-              Кем создан
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.CreatedDate">
-            <summary>
-              Когда создан
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LastModifiedBy">
-            <summary>
-              Кем последний раз изменен
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.LastModifiedDate">
-            <summary>
-              Когда последний раз изменен
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Authorities">
-            <summary>
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Organization">
-            <summary>
-              Организация
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.PhoneNumber">
-            <summary>
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.City">
-            <summary>
-              Город
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.InfoEmails">
-            <summary>
-              Массив имейлов для рассылки писем с авариями и событиями
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Alerts">
-            <summary>
-              Массив аварий и событий
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Patronymic">
-            <summary>
-              Отчество
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountAdminEdit.Password">
-            <summary>
-            Пароль
-            </summary>
-        </member>
-        <member name="T:ThirdVendingWebApi.Models.UserAccountEdit">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccount.CommerceVisible">
             <summary>
             
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.UserName">
+        <member name="T:ThirdVendingWebApi.Models.Users.UserAccountAdd">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.UserName">
             <summary>
               Логин или имя пользователя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.Email">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.Email">
             <summary>
               Email, электронная почта
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.PhoneNumber">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.PhoneNumber">
             <summary>
               Телефон
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.FirstName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.FirstName">
             <summary>
               Имя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.LastName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.LastName">
             <summary>
               Фамилия
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.Patronymic">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.Patronymic">
             <summary>
               Отчество
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.Organization">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.Organization">
             <summary>
               Организация
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.City">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.City">
             <summary>
               Город
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.ImageUrl">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.ImageUrl">
             <summary>
               Ссылка на изображение
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.LangKey">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.LangKey">
             <summary>
               Язык
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.InfoEmails">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.InfoEmails">
             <summary>
               Массив имейлов для рассылки писем с авариями и событиями
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountEdit.Alerts">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdd.Alerts">
             <summary>
             Массив аварий и событий
             </summary>
         </member>
-        <member name="T:ThirdVendingWebApi.Models.UserAccountRegister">
+        <member name="T:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit">
             <summary>
-            
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.UserName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Id">
+            <summary>
+              Ид пользователя из базы данных
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.UserName">
             <summary>
               Логин или имя пользователя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.Email">
-            <summary>
-              Email, электронная почта
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.PhoneNumber">
-            <summary>
-              Телефон
-            </summary>
-        </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.FirstName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.FirstName">
             <summary>
               Имя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.LastName">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.LastName">
             <summary>
               Фамилия
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.Patronymic">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Email">
             <summary>
-              Отчество
+              Email, электронная почта
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.Organization">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.ImageUrl">
             <summary>
-              Организация
+              Ссылка на изображение
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.City">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Activated">
             <summary>
-              Город
+              Активирован ли пользователь
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.LangKey">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.LangKey">
             <summary>
               Язык
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.Password">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.CreatedBy">
+            <summary>
+              Кем создан
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.CreatedDate">
+            <summary>
+              Когда создан
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.LastModifiedBy">
+            <summary>
+              Кем последний раз изменен
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.LastModifiedDate">
+            <summary>
+              Когда последний раз изменен
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Authorities">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Organization">
+            <summary>
+              Организация
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.PhoneNumber">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.City">
+            <summary>
+              Город
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.InfoEmails">
+            <summary>
+              Массив имейлов для рассылки писем с авариями и событиями
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Alerts">
+            <summary>
+              Массив аварий и событий
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Patronymic">
+            <summary>
+              Отчество
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.Password">
+            <summary>
+            Пароль
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.OwnerId">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountAdminEdit.CommerceVisible">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountEdit.FirstName">
+            <summary>
+              Имя
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountEdit.LastName">
+            <summary>
+              Фамилия
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountEdit.Patronymic">
+            <summary>
+              Отчество
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountEdit.Organization">
+            <summary>
+              Организация
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountEdit.City">
+            <summary>
+              Город
+            </summary>
+        </member>
+        <member name="T:ThirdVendingWebApi.Models.Users.UserAccountRegister">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.UserName">
+            <summary>
+              Логин или имя пользователя
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.Email">
+            <summary>
+              Email, электронная почта
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.PhoneNumber">
+            <summary>
+              Телефон
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.FirstName">
+            <summary>
+              Имя
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.LastName">
+            <summary>
+              Фамилия
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.Patronymic">
+            <summary>
+              Отчество
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.Organization">
+            <summary>
+              Организация
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.City">
+            <summary>
+              Город
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.LangKey">
+            <summary>
+              Язык
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.Password">
             <summary>
             Пароль пользователя
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.DealerEmail">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.DealerEmail">
             <summary>
             
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.CountryId">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.CountryId">
             <summary>
             
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.UserAccountRegister.InviteCode">
+        <member name="P:ThirdVendingWebApi.Models.Users.UserAccountRegister.InviteCode">
             <summary>
             
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserCredentials.Email">
+            <summary>
+              Email, электронная почта
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserCredentials.PhoneNumber">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserCredentials.CurrentPassword">
+            <summary>
+              Текущий пароль
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserCredentials.NewPassword">
+            <summary>
+              Новый пароль
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.Id">
+            <summary>
+              Ид пользователя из базы данных
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.FirstName">
+            <summary>
+              Имя
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.LastName">
+            <summary>
+              Фамилия
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.Patronymic">
+            <summary>
+              Отчество
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.Email">
+            <summary>
+              Email, электронная почта
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.Organization">
+            <summary>
+              Организация
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.City">
+            <summary>
+              Город
             </summary>
         </member>
     </members>

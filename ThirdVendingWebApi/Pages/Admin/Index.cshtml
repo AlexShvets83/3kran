@@ -1,32 +1,20 @@
 ﻿@page
 @model ThirdVendingWebApi.Pages.Admin.IndexModel
 @{
+  ViewData["Title"] = "Кабинет администрирования";
 }
 
 <style>
-    #tbUsers .dx-toolbar .dx-texteditor {
+    .dx-toolbar .dx-texteditor {
         width: 100% !important;
     }
 
-    #tbUsers .dx-toolbar .dx-toolbar-after {
+    .dx-toolbar .dx-toolbar-after {
         padding-left: 0;
         width: 100% !important;
     }
 
-    #tbUsers .dx-datagrid-search-panel {
-        margin-left: 0;
-    }
-
-    #tbDevices .dx-toolbar .dx-texteditor {
-        width: 100% !important;
-    }
-
-    #tbDevices .dx-toolbar .dx-toolbar-after {
-        padding-left: 0;
-        width: 100% !important;
-    }
-
-    #tbDevices .dx-datagrid-search-panel {
+    .dx-datagrid-search-panel {
         margin-left: 0;
     }
 
@@ -50,18 +38,77 @@
         padding-right: 0;
         /*vertical-align: bottom !important;*/
         vertical-align: middle !important;
-        color: white !important;
+        color: white; /* !important;*/
         width: 24px !important;
         height: 24px !important;
     }
 </style>
+
+<!-- Модальное окно подтверждения удаления пользователя -->
+<div class="modal" tabindex="-1" role="dialog" id="deletePopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-remove text-danger"></i>&nbsp;&nbsp;Внимание!</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="deleteUserId" style="display: none" value=""></div>
+                <div class="alert alert-danger" id="deleteError" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div></div>
+                <div id="deleteCaption" style="text-align: center"></div>
+                <hr />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="chk1" data-toggle="toggle">
+                    <label class="form-check-label" for="chk1">
+                        Вы уверены что хотите удалить этого пользователя?
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" id="deleteBtn" class="btn btn-danger fa fa-remove" disabled onclick="deleteUser()"> Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования пользователя -->
+<div class="modal" tabindex="-1" role="dialog" id="userPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-user text-warning"></i>&nbsp;&nbsp;Профиль пользователя</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="userError" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div id="userForm"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" class="btn btn-primary fa fa-save" onclick="saveUser()"> Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Модальное окно показа полного списка аварий и событий -->
 <div class="modal" tabindex="-1" role="dialog" id="alertsPopup">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="popupTitle"><i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии за период</h4>
+                <h5 class="modal-title" id="popupTitle"><i class="fa fa-exclamation-triangle text-warning"></i>&nbsp;&nbsp;Аварии за период</h5>
 
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -72,67 +119,126 @@
                 <div class="form-group">
                     <input type="text" class="form-control" id="dateRangePicker">
                 </div>
-
-                @*<div id="dateRangePicker"></div>*@
                 <small class="form-text text-muted">
                     Задайте календарный диапазон
                 </small>
-
                 <div id="gridAlerts"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="openDownloadFileDialog()">
-                    <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Экспорт
-                </button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clear()">
-                    <i class="fa fa-times"></i>&nbsp;&nbsp;Закрыть
-                </button>
+                <button type="button" class="btn btn-primary fa fa-file-excel-o" onclick="openDownloadFileDialog()"> Экспорт</button>
+                <button type="button" class="btn btn-secondary fa fa-times" data-dismiss="modal"> Закрыть</button>
+
+                @*<button type="button" class="btn btn-primary" onclick="openDownloadFileDialog()">
+                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;&nbsp;Экспорт
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clear()">
+                        <i class="fa fa-times"></i>&nbsp;&nbsp;Закрыть
+                    </button>*@
             </div>
 
         </div>
     </div>
 </div>
 
+<!-- Модальное окно технических настроек автомата -->
+<div class="modal" tabindex="-1" role="dialog" id="popupDevSettings">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-wrench text-secondary"></i>&nbsp;&nbsp;Технические настройки автомата</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="deviceSettingsForm"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно профиля автомата -->
+<div class="modal" tabindex="-1" role="dialog" id="popupDevice">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="headerAddDevice"><i class="fa fa-list-ul text-secondary"></i>&nbsp;&nbsp;Добавить (зарегистрировать) автомат</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="popupDevId" style="display: none" value=""></div>
+                <div class="alert alert-danger" id="errors" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <strong>Errors</strong>
+                </div>
+                <div id="deviceForm"></div>
+            </div>
+            <div class="modal-footer">
+                <span id="devMetricsAdd">
+
+                </span>
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" id="btnAddDevice" class="btn btn-primary fa fa-plus-square" onclick="editDevice()"> Добавить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно назначения владельца автомата -->
+<div class="modal" tabindex="-1" role="dialog" id="popupDeviceOwner">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span class="fa fa-user text-info pr-2"></span>&nbsp;&nbsp;Назначение владельца автомата</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="ownerDevId" style="display: none" value=""></div>
+
+                <div class="alert alert-danger" id="errorOwnerDialog" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;
+                    <strong>Errors</strong>
+                </div>
+                <div id="determinationDeviceOwnerTitle"></div>
+
+                <div id="tblOwners"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" class="btn btn-primary fa fa-save" onclick="setOwner()"> Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row admin-dashboard">
     <!-- Левая колонка -------------------------------------------------------------->
-    <section class="col-12 col-lg-6 col-xl-6 col-md-auto left" style="height: 650px">
-        <h4 class="mb-3"><i class="fa fa-users mr-2 text-warning"></i>&nbsp;&nbsp;Пользователи</h4>
-
-        <!-- Форма поиска пользователя -->
-        @*<form>
-                <div class="input-group">
-                    <input name="userQuery" type="text" class="form-control" placeholder="Поиск пользователя" [(ngModel)]="userQuery" (change)="loadAllUsers()">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" (click)="loadAllUsers()">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-                <small class="form-text text-muted mb-2">
-                    Ведите Email, фамилию, организацию или населённый пункт.
-                </small>
-            </form>*@
+    <section class="col-12 col-sm-12 col-md-auto col-lg-6 col-xl-6 left" style="height: 770px">
+        <h4 class="mb-3"><i class="fa fa-users mr-2 text-warning"></i>Пользователи</h4>
         <div id="tbUsers"></div>
+
+        <button onclick="updateUsersList()" data-toggle="tooltip" data-placement="top" title="Обновить список пользователей"
+                class="btn btn-info btn-sm mb-3">
+            <i class="fa fa-refresh"></i>&nbsp;&nbsp;Обновить
+        </button>
     </section>
 
     <!-- Средняя колонка -------------------------------------------------------------------------->
-    <section class="col-12 col-lg-6 col-xl-6 col-md-auto right" style="height: 650px">
+    <section class="col-12 col-sm-12 col-md-auto col-lg-6 col-xl-6 right" style="height: 870px">
         <h4 class="mb-3"><i class="fa fa-map-marker mr-2 text-warning" aria-hidden="true"></i>Автоматы</h4>
-        <!--Форма поиска автомата-->
-        @*<form>
-                <div class="input-group">
-                    <input name="deviceQuery" type="text" class="form-control" placeholder="Поиск автомата" [(ngModel)]="deviceQuery" (change)="loadAllDevices()">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" (click)="loadAllDevices()">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-                <small class="form-text text-muted mb-2">
-                    Введите ID или адрес автомата.
-                </small>
-            </form>*@
         <div id="tbDevices"></div>
+
+        <button onclick="updateDevicesList()" data-toggle="tooltip" data-placement="top" title="Обновить список автоматов"
+                class="btn btn-info btn-sm mb-3">
+            <i class="fa fa-refresh"></i>&nbsp;&nbsp;Обновить
+        </button>
     </section>
 
 </div>
@@ -141,36 +247,368 @@
     var device;
     const accStr = sessionStorage.getItem(accountKey);
     if (!accStr) {
-        window.location.replace("/");
+        window.location.replace("/Account/Login");
+    }
+    var acc = JSON.parse(accStr);
+    var role = acc.role;
+    if (role.toLowerCase().indexOf("tech") >= 0) window.location.replace("/Dashboard");
+
+    $('#chk1').change(function () {
+        document.getElementById("deleteBtn").disabled = !$(this).prop('checked');
+    });
+
+    function deleteUser() {
+        const id = document.getElementById("deleteUserId").value;
+        var usrError = document.getElementById("deleteError");
+        usrError.style.display = 'none';
+        $.deleteObj(`/api/users/${id}`).then(function() {
+                $('#deletePopup').modal('hide');
+                updateUsersList();
+            },
+            function(res) {
+                if (res.readyState === 4 && res.status === 200) {
+                    $('#deletePopup').modal('hide');
+                    updateUsersList();
+                } else {
+                    const message = res.responseText ? res.responseText : `Error${res.status}`;
+
+                    usrError.innerHTML = `<i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;${message}`;
+                    usrError.style.display = 'block';
+                }
+            });
+    }
+
+    function saveUser() {
+        const form = $("#userForm").dxForm("instance");
+        const valid = form.validate();
+        var usrError = document.getElementById("userError");
+        usrError.style.display = 'none';
+        if (!valid || !valid.isValid) return;
+
+        const data = form.option('formData');
+
+        $.putJSON("/api/users/", data, null)
+            .then(function () {
+                $('#userPopup').modal('hide');
+                updateUsersList();
+            },
+                function (res) {
+                    if (res.readyState === 4 && res.status === 200) {
+                        $('#userPopup').modal('hide');
+                        updateUsersList();
+                    } else {
+                        const message = res.responseText ? res.responseText : `Error${res.status}`;
+
+                        usrError.innerHTML = `<i class="fa fa-warning" aria-hidden="true"></i>&nbsp;&nbsp;${message}`;
+                        usrError.style.display = 'block';
+
+                        //DevExpress.ui.notify(message,);
+                        //DevExpress.ui.notify({ message: message }, "error", 5000);
+                    }
+                });
+    }
+
+    function openUserPopup(user) {
+        var own = false;
+        var tch = false;
+        if (user.role.toLowerCase().indexOf("owner") >= 0) own = true;
+        if (user.role.toLowerCase().indexOf("tech") >= 0) tch = true;
+        var crEmail = user.email;
+        var crPhone = user.phone;
+     
+        const form = $("#userForm").dxForm({
+            formData: user,
+            readOnly: false,
+            showColonAfterLabel: true,
+            labelLocation: "left",
+            items: [
+                {
+                    dataField: "lastName",
+                    label: {
+                        text: "Фамилия"
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите фамилию."
+                        },
+                        {
+                            type: "stringLength",
+                            min: 3,
+                            message: "Фамилия должна быть не менее 3 символов."
+                        }
+                    ]
+                },
+                {
+                    dataField: "firstName",
+                    label: {
+                        text: "Имя"
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите имя."
+                        },
+                        {
+                            type: "stringLength",
+                            min: 3,
+                            message: "Имя должно быть не менее 3 символов."
+                        }
+                    ]
+                },
+                {
+                    dataField: "patronymic",
+                    label: {
+                        text: "Отчество"
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите отчество."
+                        },
+                        {
+                            type: "stringLength",
+                            min: 3,
+                            message: "Отчество должно быть не менее 3 символов."
+                        }
+                    ]
+                },
+                {
+                    dataField: "email",
+                    label: {
+                        text: "Email",
+                        visible: true
+                    },
+                    validationRules: [{
+                        type: "required",
+                        message: "Введите email."
+                    }, {
+                        type: "email",
+                        message: "Неверный email."
+                    }, {
+                        type: "async",
+                        message: "Email уже зарегистрирован.",
+                        validationCallback: function (params) {
+                            if (params.value === crEmail) {
+                                var d = $.Deferred();
+                                setTimeout(function () {
+                                    d.resolve(true);
+                                }, 1);
+                                return d.promise();
+                            }
+
+                            return checkEmail(params.value);
+                        }
+                    }]
+                },
+                {
+                    dataField: "phone",
+                    label: {
+                        text: "Номер моб. телефона:",
+                        visible: true
+                    },
+                    editorOptions: {
+                        placeholder: "+7 XXX-XXX-XX-XX"
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите телефон."
+                        },
+                        {
+                            type: "pattern",
+                            pattern: /^\+?[0-9-()]+$/,
+                            message: "Телефон должен иметь правильный формат."
+                        },
+                        {
+                            type: "async",
+                            message: "Телефон уже зарегистрирован.",
+                            validationCallback: function (params) {
+                                if (params.value === crPhone) {
+                                    var d = $.Deferred();
+                                    setTimeout(function () {
+                                        d.resolve(true);
+                                    }, 1);
+                                    return d.promise();
+                                }
+                                return checkPhone(params.value);
+                            }
+                        }]
+                },
+                {
+                    dataField: "organization",
+                    label: {
+                        text: "Наименование организации:"
+                    }
+                },
+                {
+                    dataField: "city",
+                    label: {
+                        text: "Город (населенный пункт):"
+                    },
+                    validationRules: [
+                        {
+                            type: "required",
+                            message: "Введите населенный пункт."
+                        }
+                    ]
+                },
+                {
+                    dataField: "ownerId",
+                    editorType: "dxSelectBox",
+                    visible: own,
+                    label: {
+                        text: "Дилер"
+                    },
+                    editorOptions: {
+                        //dataSource: timeZones,
+                        valueExpr: "id",
+                        displayExpr: "name"
+                        //value: 2
+                    }
+                },
+                {
+                    dataField: "password",
+                    dataType: "string",
+                    label: {
+                        text: "Новый пароль"
+                    },
+                    editorOptions: {
+                        name: "password",
+                        mode: "password",
+                        placeholder: "Введите новый пароль",
+                        buttons: [
+                            {
+                                name: "password",
+                                location: "after",
+                                options: {
+                                    icon: '../images/eye.png',
+                                    type: "default",
+                                    onClick: function () {
+                                        const passwordEditor = form.getEditor("password");
+                                        passwordEditor.option("mode",
+                                            passwordEditor.option("mode") === "text" ? "password" : "text");
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    validationRules: [{
+                        type: "custom",
+                        validationCallback: function (e) {
+                            if (!e.value) return true;
+
+                            const pws = $.trim(e.value);
+                            const withSpace = e.value.length;
+                            const pwsLg = pws.length;
+                            if (withSpace !== pwsLg) return false;
+                            if (withSpace < 4 || withSpace > 50) return false;
+                            return true;
+                        },
+                        message: "Пароль должен быть от 4 до 50 символов."
+                    }]
+                },
+                {
+                    dataField: "confirmPassword",
+                    dataType: "string",
+                    label: {
+                        text: "Подтверждение пароля"
+                    },
+                    editorOptions: {
+                        name: "confirmPassword",
+                        mode: "password",
+                        placeholder: "Пароль ещё раз",
+                        buttons: [
+                            {
+                                name: "confirmPassword",
+                                location: "after",
+                                options: {
+                                    icon: '../images/eye.png',
+                                    type: "default",
+                                    onClick: function () {
+                                        const passwordEditor = form.getEditor("confirmPassword");
+                                        passwordEditor.option("mode",
+                                            passwordEditor.option("mode") === "text" ? "password" : "text");
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    validationRules: [
+                        {
+                            type: "compare",
+                            message: "'Новый пароль' и 'Подтверждение пароля' не совпадают.",
+                            comparisonTarget: function () {
+                                const password = form.getEditor("password");//$("#password").dxTextBox("instance");
+                                if (password) {
+                                    return password.option("value");
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    dataField: "commerceVisible",
+                    editorType: "dxCheckBox",
+                    visible: tch,
+                    label: {
+                        text: "Доступ к коммерческой информации"
+                    }
+                }
+            ]
+        }).dxForm("instance");
+
+        $.getJSON(`/api/users/getUserById/${user.id}`, null)
+            .then(function (data) {
+                user = data;
+                form.option("formData", data);
+            }
+            );
+
+        $.getJSON("/api/users/getDealers", null)
+            .then(function (data) {
+                const editor = form.getEditor("ownerId");
+                editor.option("dataSource", data);
+                editor.option("value", user.ownerId);
+            }
+            );
+    }
+
+    function editDevice() {
+        postDevice().then(function (data) {
+            if (data === true) updateDevicesList();
+        });
     }
 
     function updateDevicesList() {
-        $.getJSON("/api/devices", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
-            .then(function (data) { // добавляем обработчик при удачном выполнении запроса
+        $.getJSON("/api/devices", null)
+            .then(function (data) {
                 $("#tbDevices").dxDataGrid('instance').option('dataSource', data);
-            });
+            },
+                function (res) {
+                    if (res.status === 401 || res.status === 403) logout();
+                });
     }
 
     function updateUsersList() {
-        $.getJSON("/api/users/", null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
-            .then(function (data) { // добавляем обработчик при удачном выполнении запроса
+        $.getJSON("/api/users/", null)
+            .then(function (data) {
                 $("#tbUsers").dxDataGrid('instance').option('dataSource', data);
-            });
+            },
+                function (res) {
+                    if (res.status === 401 || res.status === 403) logout();
+                });
     }
 
     function setActive(value) {
-        var dataGrid = $("#tbUsers").dxDataGrid("instance");
-        var rowKey = dataGrid.option("focusedRowKey");
-        var data = { activated: value };
-        $.putJSON("/api/users/setActive/" + rowKey, value, null) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
-            .then(function () { // добавляем обработчик при удачном выполнении запроса
-                    //$('#popupContainer').modal('hide');
-                    updateUsersList();
-                    //$("#tbUsers").dxDataGrid('instance').option('dataSource', data);
-                },
+        const dataGrid = $("#tbUsers").dxDataGrid("instance");
+        const rowKey = dataGrid.option("focusedRowKey");
+        $.putJSON("/api/users/setActive/" + rowKey, value, null)
+            .then(function () {
+                updateUsersList();
+            },
                 function (res) {
                     if (res.readyState === 4 && res.status === 200) {
-                        //$('#popupContainer').modal('hide');
                         updateUsersList();
                     } else {
                         const message = res.responseText ? res.responseText : `Error${res.status}`;
@@ -182,137 +620,242 @@
                 });
     }
 
-    $(function () {
-        $("#tbUsers").dxDataGrid({
+    function ownerPopupOpen(dev) {
+        document.getElementById("determinationDeviceOwnerTitle").innerText = null;
+        document.getElementById("ownerDevId").value = null;
+
+        $("#tblOwners").dxDataGrid({
             focusedRowEnabled: true,
             showColumnLines: true,
             showRowLines: true,
             keyExpr: "id",
             columnAutoWidth: true,
-            columnFixing: { enabled: true },
+            columnFixing: { enabled: false },
             cellHintEnabled: true,
             paging: { pageSize: 10 },
             pager: {
-                //showPageSizeSelector: true,
-                //allowedPageSizes: [10, 20, 30, 50, 100],
-                showInfo: true
+                showInfo: true,
+                infoText: 'Страница {0} из {1} ({2} владельцев)'
+            },
+            showBorders: true,
+            wordWrapEnabled: false,
+            selection: { mode: 'none' },
+            loadPanel: { enabled: true },
+            onFocusedRowChanging: function (e) {
+                var rowsCount = e.component.getVisibleRows().length;
+                const pageCount = e.component.pageCount();
+                const pageIndex = e.component.pageIndex();
+                const key = e.event && e.event.key;
+
+                if (key && e.prevRowIndex === e.newRowIndex) {
+                    if (e.newRowIndex === rowsCount - 1 && pageIndex < pageCount - 1) {
+                        e.component.pageIndex(pageIndex + 1).done(function () {
+                            e.component.option("focusedRowIndex", 0);
+                        });
+                    } else if (e.newRowIndex === 0 && pageIndex > 0) {
+                        e.component.pageIndex(pageIndex - 1).done(function () {
+                            e.component.option("focusedRowIndex", rowsCount - 1);
+                        });
+                    }
+                }
+            },
+            onFocusedRowChanged: function (e) {
+                const user = e.row && e.row.data;
+                if (user) {
+                    document.getElementById("determinationDeviceOwnerTitle").innerText =
+                        `Владелец - (${user.lastName} - ${user.email})`;
+                    document.getElementById("ownerDevId").value = user.id;
+                } else {
+                    document.getElementById("ownerDevId").value = null;
+                }
+            },
+            searchPanel: {
+                visible: true,
+                placeholder: "Поиск пользователя"
+            },
+            columns: [
+                {
+                    dataField: "email",
+                    visible: false
+                },
+                {
+                    dataField: "firstName",
+                    visible: false
+                },
+                {
+                    dataField: "patronymic",
+                    visible: false
+                },
+                {
+                    dataField: "organization",
+                    visible: false
+                },
+                {
+                    dataField: "lastName",
+                    allowSorting: true,
+                    caption: "Фамилия/email",
+                    headerCellTemplate: function (header, info) {
+                        setHeader(header, info);
+                    },
+                    cellTemplate: function (element, info) {
+                        element.append('<div>' + info.value + '</div>');
+                        element.append('<div>' + info.data.email + '</div>'); //.css("class","fa fa-exclamation-triangle text-danger");
+                    }
+                },
+                {
+                    allowSorting: true,
+                    dataField: "city",
+                    caption: "Город",
+                    cssClass: "vert-align",
+                    headerCellTemplate: function (header, info) {
+                        setHeader(header, info);
+                    }
+                }
+            ]
+        });
+
+        updateOwnersList(dev.ownerId);
+    }
+
+    function updateOwnersList(ownerId) {
+        var dataGrid = $("#tblOwners").dxDataGrid('instance');
+        if (!dataGrid) return;
+
+        $.getJSON("/api/users/getOwners", null)
+            .then(function (data) {
+                dataGrid.option('dataSource', data);
+                if (ownerId) dataGrid.option("focusedRowKey", ownerId);
+                else {
+                    dataGrid.option("focusedRowKey", null);
+                }
+            },
+                function (res) {
+                    if (res.status === 401 || res.status === 403) logout();
+                });
+    }
+
+    function setOwner() {
+        const ownerId = document.getElementById("ownerDevId").value;
+        document.getElementById("errors").style.display = "none";
+
+        const request = $.putJSON(`/api/device/setOwner/${device.id}`, ownerId, null);
+        request.then(function () {
+            $('#popupDeviceOwner').modal('hide');
+            updateDevicesList();
+        },
+            function (res) {
+                if (res.readyState === 4 && res.status === 200) {
+                    $('#popupDeviceOwner').modal('hide');
+                    updateDevicesList();
+                } else {
+                    const message = res.responseText ? res.responseText : `Error${res.status}`;
+                    document.getElementById("errorOwnerDialog").innerHTML = message;
+                    document.getElementById("errorOwnerDialog").style.display = "block";
+                }
+            });
+    }
+
+    $(function () {
+        var wdz = 32;
+        if (role.toLowerCase().indexOf("super") >= 0 || role.toLowerCase() === "admin") wdz = 60;
+        $("#tbUsers").dxDataGrid({
+            editing: {
+                allowUpdating: false,
+                allowAdding: false,
+                allowDeleting: false
+            },
+            focusedRowEnabled: true,
+            showColumnLines: true,
+            showRowLines: true,
+            keyExpr: "id",
+            columnAutoWidth: true,
+            columnFixing: { enabled: false },
+            cellHintEnabled: true,
+            paging: { pageSize: 10 },
+            pager: {
+                infoText: 'Страница {0} из {1} ({2} пользователей)',
+                showInfo: true,
+                visible: "always"
             },
             headerFilter: { visible: true },
-            //filterRow: {
-            //    visible: true,
-            //    applyFilter: "auto"
-            //},
-            //headerFilter: { visible: true },
             showBorders: true,
             wordWrapEnabled: false,
             selection: { mode: 'single' },
-            //scrolling: {mode: "virtual"},
-            //height: 800,
+            height: 670,
             hoverStateEnabled: true,
             loadPanel: { enabled: true },
-
             searchPanel: {
                 visible: true,
                 highlightCaseSensitive: true,
-                searchVisibleColumnsOnly: true,
                 placeholder: "Ведите Email, фамилию, организацию или населенный пункт",
                 width: '100%'
             },
-            editing: { allowUpdating: true },
-            onSelectionChanged: function (e) {
-                var device = e.selectedRowsData[0];
+            onFocusedRowChanging: function (e) {
+                var rowsCount = e.component.getVisibleRows().length;
+                const pageCount = e.component.pageCount();
+                const pageIndex = e.component.pageIndex();
+                const key = e.event && e.event.key;
+
+                if (key && e.prevRowIndex === e.newRowIndex) {
+                    if (e.newRowIndex === rowsCount - 1 && pageIndex < pageCount - 1) {
+                        e.component.pageIndex(pageIndex + 1).done(function () {
+                            e.component.option("focusedRowIndex", 0);
+                        });
+                    } else if (e.newRowIndex === 0 && pageIndex > 0) {
+                        e.component.pageIndex(pageIndex - 1).done(function () {
+                            e.component.option("focusedRowIndex", rowsCount - 1);
+                        });
+                    }
+                }
             },
-            onContentReady: function (e) {
-                e.component.columnOption("command:edit", "visibleIndex", -1); // if you want fixedPosition: left, uncomment this code
+            onFocusedRowChanged: function (e) {
+                const user = e.row && e.row.data;
+                $("#tbDevices").dxDataGrid("instance").searchByText(user.id);;
             },
-            onCellPrepared: function (options) {
-                var fieldData = options.value,
-                    fieldHtml = "";
-                //if(fieldData && fieldData.value) {
-                //    if(fieldData.diff) {
-                //        options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
-                //        fieldHtml += "<div class='current-value'>" +
-                //            DevExpress.localization.formatNumber(fieldData.value, {type: "currency", currency: "USD", precision: 2 }) +
-                //            "</div> <div class='diff'>" +
-                //            Math.abs(fieldData.diff).toFixed(2) +
-                //            "  </div>";
-                //    } else {
-                //        fieldHtml = fieldData.value;
-                //    }
-                //    options.cellElement.html(fieldHtml);
-                //}
-            },
-            //onCellPrepared: function(options) {
-            //    const fieldData = options.value;
-            //    var fieldHtml = "";
-            //    const column = options.column;
-            //    if (options.rowType === "data" && column.dataField === "alerts") {
-            //        fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
-            //        options.cellElement.html(fieldHtml);
-            //    }
-            //    if (fieldData && fieldData.value) {
-            //        if (fieldData.diff) {
-            //            options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
-            //            fieldHtml += "<div class='current-value'>" +
-            //                DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
-            //                "</div> <div class='diff'>" +
-            //                Math.abs(fieldData.diff).toFixed(2) +
-            //                "  </div>";
-            //        } else {
-            //            fieldHtml = fieldData.value;
-            //        }
-            //        options.cellElement.html(fieldHtml);
-            //    }
-            //},
             columns: [
                 {
-                    width: 60,
+                    width: wdz,
                     fixed: false,
-                    //visibleIndex: -1,
                     allowSorting: true,
                     type: "buttons",
                     alignment: "center",
                     cssClass: "vert-btn-align",
+                    caption: "",
                     buttons: [
                         {
                             hint: "Изменить данные пользователя",
-                            cssClass: "btn btn-info btn-sm btn-font fa fa-user",
+                            cssClass: "btn btn-info btn-sm btn-font text-white fa fa-user",
                             //icon: "fa fa-user",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                const user = e.row.data;
+                                $('#userPopup').modal('toggle');
+                                openUserPopup(user);
                             }
                         },
                         {
                             hint: "Удалить",
+                            visible: function () {
+                                if (role.toLowerCase().indexOf("super") >= 0 || role.toLowerCase() === "admin") return true;
+                                return false;
+                            },
                             //icon: "fa fa-remove",
-                            cssClass: "btn btn-danger btn-sm btn-font fa fa-remove",//fa fa-window-close text-danger",
+                            cssClass: "btn btn-danger btn-sm btn-font text-white fa fa-remove", //fa fa-window-close text-danger",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                const user = e.row.data;
+                                var messageHtml = "<div>Вы действительно хотите удалить</div>" +
+                                    `<div>пользователя "${user.lastName} ${user.firstName}" из системы?</div>`;
+                                document.getElementById("deleteCaption").innerHTML = messageHtml;
+                                document.getElementById("deleteUserId").value = user.id;
+                                var usrError = document.getElementById("deleteError");
+                                $('#chk1').prop('checked', false);
+                                
+                                usrError.style.display = 'none';
+                                usrError.innerText = null;
+                                $('#deletePopup').modal('toggle');
                             }
-                        },
-                        //{
-                        //    hint: "Удалить",
-                        //    //icon: "fa fa-gear",
-                        //    cssClass: "btn btn-danger btn-sm text-white fa fa-window-close",//fa fa-window-close text-danger",
-                        //    onClick: function (e) {
-                        //        const row = e.row.data;
-                        //    }
-                        //},
-                        //{
-                        //    hint: function (data) {
-                        //        return "Активировать";
-                        //    },
-                        //    //icon: "fa fa-pencil",
-                        //    cssClass: function (data) {
-                        //        return "btn btn-danger btn-sm text-white fa fa-lock";
-                        //    },
-                        //    onClick: function (e) {
-                        //        const row = e.row.data;
-                        //    }
-                        //}
+                        }
                     ]
                 },
-                ,
                 {
                     width: 32,
                     dataField: "activated",
@@ -321,33 +864,22 @@
                     cssClass: "vert-btn-align",
                     caption: "",
                     cellTemplate: function (element, info) {
-                        var user = info.data;
+                        const user = info.data;
                         var dx;
                         switch (user.activated) {
-                        case true:
-                            dx = '<a href="#" class="btn btn-success btn-sm btn-font fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
-                            element.append(dx);
-                            break;
-                        case false:
-                            dx = '<a href="#" class="btn btn-danger btn-sm btn-font fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
-                            element.append(dx);
-                            break;
-                        default:
-                            dx = '<a href="#" class="btn btn-warning btn-sm btn-font fa fa-warning" onclick="setActive(true)" title="Зарегистрировать"></a>';
-                            element.append(dx);
-                            break;
+                            case true:
+                                dx = '<a href="#" class="btn btn-success btn-sm btn-font fa fa-unlock" onclick="setActive(false)" data-toggle="tooltip" title="Деактивировать"></a>';
+                                element.append(dx);
+                                break;
+                            case false:
+                                dx = '<a href="#" class="btn btn-danger btn-sm btn-font fa fa-lock" onclick="setActive(true)" data-toggle="tooltip" title="Активировать"></a>';
+                                element.append(dx);
+                                break;
+                            default:
+                                dx = '<a href="#" class="btn btn-warning btn-sm btn-font fa fa-warning" onclick="setActive(true)" data-toggle="tooltip" title="Зарегистрировать"></a>';
+                                element.append(dx);
+                                break;
                         }
-                        //if (user.activated) {
-                        //    //var dx = '<a href="#" style="width: 32px" class="dx-link btn btn-success btn-sm text-white fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
-                        //    var dx = '<a href="#" class="btn btn-success btn-sm btn-font fa fa-unlock" onclick="setActive(false)" title="Деактивировать"></a>';
-                        //    element.append(dx);
-                        //    //element.append('<button type="button" class="btn btn-success btn-sm" onclick="setActive(false)" title="Деактивировать"><i class="fa fa-unlock"></i></button>');
-                        //} else {
-                        //    //var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';var dx1 = '<a href="#" style="width: 32px" class="dx-link btn btn-danger btn-sm text-white fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
-                        //    dx1 = '<a href="#" class="btn btn-danger btn-sm btn-font fa fa-lock" onclick="setActive(true)" title="Активировать"></a>';
-                        //    element.append(dx1);
-                        //    //element.append('<button type="button" class="btn btn-danger btn-sm" onclick="setActive(true)" title="Активировать"><i class="fa fa-lock"></i></button>');
-                        //}
                     },
                     headerFilter: {
                         dataSource: [
@@ -366,7 +898,7 @@
                                 }
                             },
                             {
-                                text: "Пополнение карты",
+                                text: "Новые",
                                 value: ["activated", "=", null],
                                 template: function () {
                                     //"btn btn-warning btn-sm text-dark fa fa-warning""
@@ -381,10 +913,7 @@
                     allowSorting: true,
                     caption: "Фамилия/email",
                     headerCellTemplate: function (header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                        setHeader(header, info);
                     },
                     cellTemplate: function (element, info) {
                         element.append('<div>' + info.value + '</div>');
@@ -398,10 +927,7 @@
                     cssClass: "vert-align",
                     dataType: "string",
                     headerCellTemplate: function (header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                        setHeader(header, info);
                     }
                 },
                 {
@@ -411,49 +937,61 @@
                     cssClass: "vert-align",
                     dataType: "string",
                     headerCellTemplate: function (header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                        setHeader(header, info);
                     }
                 },
                 {
                     allowSorting: true,
                     dataField: "role",
-                    caption: "Роль/статус",
+                    caption: "Роль",
+                    //caption: "Роль/Email владельца",
+                    cssClass: "vert-align",
                     dataType: "string",
                     headerCellTemplate: function (header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                        setHeader(header, info);
                     },
                     cellTemplate: function (element, info) {
-                        element.append(`<div>${info.value}</div>`);
-                        element.append(`<div>${info.data.activated}</div>`);
+                        element.append(`<div>${getNornRole(info.value)}</div>`);
+                        if (info.data.ownerEmeil) {
+                            element.append(`<div>${info.data.ownerEmeil}</div>`);
+                        }
+                    },
+                    headerFilter: {
+                        dataSource: [
+                            {
+                                text: "Техник",
+                                value: ["role", "=", "technician"]
+                            },
+                            {
+                                text: "Владелец",
+                                value: ["role", "=", "owner"]
+                            },
+                            {
+                                text: "Адм. дилера",
+                                value: ["role", "=", "dealer_admin"]
+                            },
+                            {
+                                text: "Дилер",
+                                value: ["role", "=", "dealer"]
+                            },
+                            {
+                                text: "Админ",
+                                value: ["role", "=", "admin"]
+                            }
+                        ]
                     }
                 },
-                //{
-                //    allowSorting: true,
-                //    dataField: "owner",
-                //    caption: "Владелец",
-                //    //width: '110px',
-                //    headerCellTemplate: function (header, info) {
-                //        $('<b style="color: black">')
-                //            .html(info.column.caption)
-                //            .css('font-size', '14px')
-                //            .appendTo(header);
-                //    },
-                //    cellTemplate: function (element, info) {
-                //        if (!info.text)
-                //            element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
-                //        // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
-                //    }
-                //}
+                {
+                    dataField: "email",
+                    visible: false
+                },
+                {
+                    dataField: "lastName",
+                    visible: false
+                }
             ]
         });
         updateUsersList();
-
 
 
         //=========================================================
@@ -462,62 +1000,48 @@
             showRowLines: true,
             keyExpr: "id",
             columnAutoWidth: true,
-            columnFixing: { enabled: true },
+            columnFixing: { enabled: false },
             cellHintEnabled: true,
             paging: { pageSize: 10 },
             pager: {
-                //showPageSizeSelector: true,
-                //allowedPageSizes: [10, 20, 30, 50, 100],
                 showInfo: true,
-                infoText: 'Страница {0} из {1} ({2} автоматов)'
+                infoText: 'Страница {0} из {1} ({2} автоматов)',
+                visible: "always"
             },
-            //filterRow: {
-            //    visible: true,
-            //    applyFilter: "auto"
-            //},
             headerFilter: { visible: true },
             showBorders: true,
             wordWrapEnabled: false,
-            selection: { mode: 'single' },
-            //scrolling: {mode: "virtual"},
-            //height: 800,
+            selection: { mode: 'none' },
+            //selection: { mode: 'single' },
+            height: 670,
             hoverStateEnabled: true,
             loadPanel: { enabled: true },
-
             searchPanel: {
                 visible: true,
                 highlightCaseSensitive: true,
-                //searchVisibleColumnsOnly: true,
-                placeholder: "Введите ID или адрес автомата.",
-                //width: '100%'
+                placeholder: "Введите ID или адрес автомата."
             },
-            onSelectionChanged: function (e) {
-                var device = e.selectedRowsData[0];
-            },
-            onContentReady: function (e) {
-                e.component.columnOption("command:edit", "visibleIndex", -1); // if you want fixedPosition: left, uncomment this code
-            },
-            //onCellPrepared: function(options) {
-            //    const fieldData = options.value;
-            //    var fieldHtml = "";
-            //    const column = options.column;
-            //    if (options.rowType === "data" && column.dataField === "alerts") {
-            //        fieldHtml = '<i class="fa fa-exclamation-triangle text-danger"></i> Нет связи';
-            //        options.cellElement.html(fieldHtml);
-            //    }
-            //    if (fieldData && fieldData.value) {
-            //        if (fieldData.diff) {
-            //            options.cellElement.addClass((fieldData.diff > 0) ? "inc" : "dec");
-            //            fieldHtml += "<div class='current-value'>" +
-            //                DevExpress.localization.formatNumber(fieldData.value, { type: "currency", currency: "USD", precision: 2 }) +
-            //                "</div> <div class='diff'>" +
-            //                Math.abs(fieldData.diff).toFixed(2) +
-            //                "  </div>";
-            //        } else {
-            //            fieldHtml = fieldData.value;
+            //focusedRowEnabled: true,
+            //onFocusedRowChanging: function (e) {
+            //    var rowsCount = e.component.getVisibleRows().length;
+            //    const pageCount = e.component.pageCount();
+            //    const pageIndex = e.component.pageIndex();
+            //    const key = e.event && e.event.key;
+
+            //    if (key && e.prevRowIndex === e.newRowIndex) {
+            //        if (e.newRowIndex === rowsCount - 1 && pageIndex < pageCount - 1) {
+            //            e.component.pageIndex(pageIndex + 1).done(function () {
+            //                e.component.option("focusedRowIndex", 0);
+            //            });
+            //        } else if (e.newRowIndex === 0 && pageIndex > 0) {
+            //            e.component.pageIndex(pageIndex - 1).done(function () {
+            //                e.component.option("focusedRowIndex", rowsCount - 1);
+            //            });
             //        }
-            //        options.cellElement.html(fieldHtml);
             //    }
+            //},
+            //onFocusedRowChanged: function (e) {
+            //    device = e.row && e.row.data;
             //},
             columns: [
                 {
@@ -525,50 +1049,49 @@
                     visible: false
                 },
                 {
-                    //caption: "Удалить",
-                    //width: 30,
-                    //minWidth: 30,
-                    //headerCellTemplate: function (header, info) {
-                    //    $('<b style="color: black">')
-                    //        .html(info.column.caption)
-                    //        .css('font-size', '14px')
-                    //        .appendTo(header);
-                    //},
+                    dataField: "ownerEmail",
+                    visible: false
+                },
+                {
                     fixed: false,
-                    //visibleIndex: -1,
-                    /*         allowSorting: true,*/
-                    width: 210,
+                    width: 170,
                     type: "buttons",
                     cssClass: "vert-btn-align",
                     buttons: [
                         {
                             hint: "Сменить/назначить владельца",
                             //icon: "fa fa-user",
-                            cssClass: "btn btn-danger btn-sm text-white fa fa-user",
+                            cssClass: "btn btn-danger btn-sm btn-font text-white fa fa-user",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                device = e.row.data;
+                                $('#popupDeviceOwner').modal('toggle');
+                                ownerPopupOpen(device);
                             }
                         },
                         {
                             hint: "Просмотр и редактирование данных автомата",
                             //icon: "fa fa-pencil",
-                            cssClass: "btn btn-primary btn-sm text-white fa fa-pencil",
+                            cssClass: "btn btn-primary btn-sm btn-font text-white fa fa-pencil",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                device = e.row.data;
+                                $('#popupDevice').modal('toggle');
+                                addDevice(device, 'devMetricsAdd');
                             }
                         },
                         {
                             hint: "Технические настройки автомата",
                             //icon: "fa fa-gear",
-                            cssClass: "btn btn-primary btn-sm text-white fa fa-gear",
+                            cssClass: "btn btn-primary btn-sm btn-font text-white fa fa-gear",
                             onClick: function (e) {
-                                const row = e.row.data;
+                                device = e.row.data;
+                                $('#popupDevSettings').modal('toggle');
+                                devSettings(device);
                             }
                         },
                         {
                             hint: "Список продаж",
                             //icon: "fa fa-shopping-cart",
-                            cssClass: "btn btn-success btn-sm text-white fa fa-shopping-cart",
+                            cssClass: "btn btn-success btn-sm btn-font text-white fa fa-shopping-cart",
                             onClick: function (e) {
                                 device = e.row.data;
                                 popupSales();
@@ -577,7 +1100,7 @@
                         {
                             hint: "Список инкассаций",
                             //icon: "fa fa-truck",
-                            cssClass: "btn btn-secondary btn-sm text-light fa fa-truck",
+                            cssClass: "btn btn-secondary btn-sm btn-font text-light fa fa-truck",
                             onClick: function (e) {
                                 device = e.row.data;
                                 popupEncash();
@@ -586,7 +1109,7 @@
                         {
                             hint: "Список аварий",
                             //icon: "fa fa-warning",
-                            cssClass: "btn btn-warning btn-sm text-dark fa fa-warning",
+                            cssClass: "btn btn-warning btn-sm btn-font text-dark fa fa-warning",
                             onClick: function (e) {
                                 device = e.row.data;
                                 popupAlerts();
@@ -598,45 +1121,58 @@
                     dataField: "imei",
                     allowSorting: true,
                     caption: "ID автомата",
+                    cssClass: "vert-align",
                     headerCellTemplate: function (header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                        setHeader(header, info);
                     },
-                    //cellTemplate: function(element, info) {
-                    //    //if (!info.text)
-                    //    //    element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
-                    //    // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
-                    //}
+                    cellTemplate: function (element, info) {
+                        const dev = info.data;
+                        var html = '<span class="text-nowrap d-flex">';
+                        element.append('<div>' + dev.imei + '</div>');
+
+                        var fieldHtml = '<span class="text-success flex-grow-1">В работе</span>&nbsp;'; //'<span class="text-nowrap d-flex"><i class="text-success"> В работе</i>';
+                        if (dev.alerts && (jQuery.inArray("NO_SALES", dev.alerts) !== -1)) fieldHtml = '<span class="text-warning flex-grow-1">Нет продаж</span>';
+
+                        if (!dev.lastStatus || (dev.alerts && (jQuery.inArray("NO_LINK", dev.alerts) !== -1))) fieldHtml = '<span class="text-danger flex-grow-1">Нет связи</span>';
+
+                        if (dev.alerts && (jQuery.inArray("TANK_EMPTY", dev.alerts) !== -1)) fieldHtml = '<span class="text-danger flex-grow-1">Бак пуст</span>';
+
+                        html += fieldHtml;
+                        //element.append(fieldHtml);
+                        if (dev.lastStatus) {
+                            var sum = `${dev.lastStatus.totalMoney} ${getCurrencySign(dev)}`;;
+                            var sumHtml = `<span class="badge-success pl-1 pr-1 flex-grow-0">${sum}</span>`;
+                            //element.append(sumHtml);
+                            html += sumHtml;
+                        }
+                        html += '</span>';
+                        element.append(html);
+                        //element.append('<div>' + info.value + '</div>');
+                        //element.append('<div>' + info.data.ownerEmail + '</div>');
+                    }
                 },
                 {
                     allowSorting: true,
                     dataField: "address",
                     caption: "Адрес",
+                    cssClass: "vert-align",
                     dataType: "string",
                     headerCellTemplate: function (header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                        setHeader(header, info);
                     }
                 },
                 {
                     allowSorting: true,
-                    dataField: "owner",
+                    dataField: "ownerName",
                     caption: "Владелец",
+                    cssClass: "vert-align",
                     //width: '110px',
                     headerCellTemplate: function (header, info) {
-                        $('<b style="color: black">')
-                            .html(info.column.caption)
-                            .css('font-size', '14px')
-                            .appendTo(header);
+                        setHeader(header, info);
                     },
                     cellTemplate: function (element, info) {
-                        if (!info.text)
-                            element.append('<div>' + "Error" + '</div>').css("fa fa - exclamation - triangle text - danger");
-                        // .css("color", "blue").css("class", "fa fa - exclamation - triangle text - danger");
+                        if (info.value) element.append('<div>' + info.value + '</div>');
+                        if (info.data.ownerEmail) element.append('<div>' + info.data.ownerEmail + '</div>');
                     }
                 }
             ]
@@ -646,5 +1182,4 @@
         datePickerInite();
 
     });
-
 </script>

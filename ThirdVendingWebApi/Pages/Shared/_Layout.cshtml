@@ -9,11 +9,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ThirdVendingWebApi</title>
+    <title>@ViewData["Title"] - Система мониторинга торговых автоматов “Третий кран”</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-social/bootstrap-social.min.css" />
     <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    
     <link rel="stylesheet" href="~/css/site.min.css" />
     <link rel="stylesheet" href="~/css/navbar.min.css" />
     <link rel="stylesheet" href="~/css/global.min.css" />
@@ -24,11 +25,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     @*<script src="~/lib/popperjs/core/dist/umd/popper.min.js"></script>*@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.min.js" asp-append-version="true"></script>
 
     <script src="~/js/popups.min.js"></script>
 
-
+    <script src="~/js/invite.min.js"></script>
+  
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.common.css" />
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.light.css" />
     <script src="~/lib/devextreme/dist/js/dx.all.js"></script>
@@ -51,9 +53,10 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-primary">  @*style="height: 50px;">*@
+        <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+            @*style="height: 50px;">*@
 
-            <a class="navbar-brand logo float-left text-light" href="/Index">@*routerLink="/" (click)="collapseNavbar()">*@
+            <a class="navbar-brand logo float-left text-light" href="/">
                 <span class="logo-img"></span>
                 &nbsp;&nbsp;&nbsp;«Третий кран»<span class="slogan_cut"> – математика чистой воды</span>
             </a>
@@ -67,24 +70,27 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
-                    
+
                     @*<li class="nav-item text-light">
-                        <a class="nav-link text-light" asp-area="" asp-page="/Log">Log</a>
-                    </li>*@
-                    
+                            <a class="nav-link text-light" asp-area="" asp-page="/Log">Log</a>
+                        </li>*@
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-light fa fa-user-circle-o" style="display: none" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             @*<span>
-                                <i class="fa fa-user-circle-o" aria-hidden="true">Dropdown</i>
-                            </span>*@
+                                    <i class="fa fa-user-circle-o" aria-hidden="true">Dropdown</i>
+                                </span>*@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" asp-area="" asp-page="/Dashboard/Index">Кабинет техника</a>
-                            <a class="dropdown-item" asp-area="" asp-page="/Admin/Index">Кабинет администратора</a>
+                            <a id="profile" class="dropdown-item fa fa-sign-in" asp-area="" asp-page="/Account/Settings"> Профиль</a>
+                            <a id="tech" style="display: none" class="dropdown-item fa fa-bar-chart" asp-area="" asp-page="/Dashboard/Index"> Кабинет техника</a>
+                            <a id="admin" style="display: none" class="dropdown-item fa fa-users" asp-area="" asp-page="/Admin/Index"> Кабинет администратора</a>
+
+                            <a id="invite" style="display: none" class="dropdown-item fa fa-vcard" onclick="openInvitePopup()" data-toggle="modal" data-target="#invitePopup"> Рассылка приглашений</a>
                             @*<a class="dropdown-item" asp-area="" asp-page="/Account/Login">Login</a>*@
                             @*<a class="dropdown-item" href="/">Home</a>*@
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+                            <a class="dropdown-item fa fa-sign-out" href="#" onclick="logout()">Выйти</a>
                         </div>
                     </li>
                     @*<li class="nav-item">
@@ -107,7 +113,7 @@
     <footer class="footer txt0">
         <div class="container-fluid txt0">
             <p class="text-center txt0">
-                <a class="txt0" href="http://3voda.ru" target="top" title="Перейти на сайт компании">© ООО «Торговый дом «Третий кран», 2021-@DateTime.Now.Year</a>
+                <a class="txt0" href="http://3voda.ru" target="top" title="Перейти на сайт компании">© ООО «Торговый дом «Третий кран», 2018-@DateTime.Now.Year</a>
                 <br />
                 Техподдержка: <b>+7-992-231-30-03</b> (Viber, WhatsApp)
             </p>
@@ -137,27 +143,128 @@
 </body>
 </html>
 
+<!-- Модальное окно приглашения пользователя -->
+<div class="modal" tabindex="-1" role="dialog" id="invitePopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-vcard text-warning"></i>&nbsp;&nbsp;Приглашение пользователя</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="inviteError" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div id="inviteForm"></div>
+                <div id="loadpanel"></div>
+                @*<div class="loadpanel"></div>*@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" class="btn btn-primary fa fa-share-square-o " onclick="sendInvite()"> Пригласить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    $(function() {
+    var roles = [
+        {
+            name: "technician",
+            view: "Техник"
+        },
+        {
+            name: "owner",
+            view: "Владелец"
+        },
+        {
+            name: "dealer_admin",
+            view: "Администратор дилера"
+        },
+        {
+            name: "dealer",
+            view: "Дилер"
+        },
+        {
+            name: "admin",
+            view: "Администратор"
+        }
+    ];
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    $(function () {
         const menu = document.getElementById("navbarDropdown");
-        //$('#navbarDropdown').toggle();
-        const accStr = sessionStorage.getItem(accountKey);
-        if (accStr) {
-            const acc = JSON.parse(accStr);
-            const name = ` ${getUserName(acc)}`;
+        const request = $.getJSON('/api/account', null);
+        request.done(function (user) {
+            const strData = JSON.stringify(user);
+            sessionStorage.setItem(accountKey, strData);
+            const name = ` ${getUserName(user)}`;
             menu.style.display = "block";
             //$('#navbarDropdown').show();
             menu.innerHTML = ` ${name}`;
-        } else {
-            menu.style.display = "block";
-            //$('#navbarDropdown').hide();
-            menu.innerHTML = " Инкогнито";
-        }
-    });
+            var techD = document.getElementById("tech");
+            var adminD = document.getElementById("admin");
+            var inv = document.getElementById("invite");
+            if (!user.role) window.location.replace("/");
+            switch (user.role) {
+            case "technician":
+                techD.style.display = "block";
+                adminD.style.display = "none";
+                inv.style.display = "none";
+                roles = null;
+                break;
+            case "owner":
+                techD.style.display = "block";
+                adminD.style.display = "block";
+                adminD.innerText = " Кабинет владельца";
 
-    function logout() {
-        sessionStorage.removeItem(tokenKey);
-        sessionStorage.removeItem(accountKey);
-        window.location.replace("/");
-    }
+                inv.style.display = "block";
+                roles.splice(-1, 1);
+                roles.splice(-1, 1);
+                roles.splice(-1, 1);
+                roles.splice(-1, 1);
+                break;
+            case "dealer_admin":
+                adminD.innerText = " Кабинет админа дилера";
+                techD.style.display = "none";
+                adminD.style.display = "block";
+
+                inv.style.display = "block";
+                roles.splice(-1, 1);
+                roles.splice(-1, 1);
+                break;
+            case "dealer":
+                adminD.innerText = " Кабинет дилера";
+                techD.style.display = "none";
+                adminD.style.display = "block";
+
+                roles.splice(-1, 1);
+                roles.splice(-1, 1);
+                break;
+            case "admin":
+                adminD.innerText = " Кабинет админа";
+                techD.style.display = "none";
+                adminD.style.display = "block";
+                inv.style.display = "block";
+                break;
+            case "super_admin":
+                adminD.innerText = " Кабинет супер-админа";
+                techD.style.display = "none";
+                adminD.style.display = "block";
+                inv.style.display = "block";
+                break;
+            }
+        });
+        //$('#navbarDropdown').toggle();
+        //const accStr = sessionStorage.getItem(accountKey);
+        //if (accStr) {
+        //    const acc = JSON.parse(accStr);
+
+        //}
+    });
+    
 </script>

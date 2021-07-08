@@ -1,13 +1,14 @@
-﻿using CommonVending;
-using CommonVending.DbProvider;
-using CommonVending.Model;
+﻿using CommonVending.DbProvider;
+using CommonVending.MqttModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using CommonVending.MqttModels;
-using Newtonsoft.Json;
+using DeviceDbModel;
+using DeviceDbModel.Models;
+using Microsoft.AspNetCore.Identity;
 using ThirdVendingWebApi.Models.Device;
 
 namespace ThirdVendingWebApi.Controllers
@@ -16,11 +17,24 @@ namespace ThirdVendingWebApi.Controllers
   [ApiController]
   public class EncashController : ControllerBase
   {
-    [HttpGet]
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    //[Authorize]
+    public EncashController(UserManager<ApplicationUser> userManager)
+    {
+      _userManager = userManager;
+    }
+
+    [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Get(string deviceId, DateTime? from, DateTime? to)
     {
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
+      if ((user.Role == Roles.Technician) && !user.CommerceVisible) return new ObjectResult(null);
+
+      //todo check role and permitions
       return await Task.Factory.StartNew(() =>
       {
         var encashes = (from != null) && (to != null)

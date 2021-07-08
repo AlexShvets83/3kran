@@ -214,6 +214,7 @@ namespace ThirdVendingWebApi
       app.UseAuthentication();
       app.UseAuthorization();
       app.UseDefaultFiles();
+
       //app.UseStaticFiles();
 
       const int cachePeriod = 24 * 60 * 60; // seconds

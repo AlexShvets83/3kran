@@ -2,7 +2,9 @@
     padding-top: 20px;
     background: #fff;
     /*min-height: 100vh !important;*/
-    min-height: calc(100vh) !important;
+    /*min-height: calc(100vh) !important;*/
+    /*height: 900px !important;*/
+    /*min-height: calc(100vh + 650px) !important;*/
     /*min-height: calc(100vh - 250px);*/
     /*min-height: calc(100vh - 170px);*/
 }

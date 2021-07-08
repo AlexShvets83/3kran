@@ -1,7 +1,7 @@
 ﻿@page
 @model ThirdVendingWebApi.Pages.Account.RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Регистрация";
 }
 
 @*<h1>@ViewData["Title"]</h1>*@
@@ -26,7 +26,7 @@
 </aside>
 
 
-<article class="col-12 col-lg-6 order-lg-2">
+<article class="col-12 col-lg-6 order-lg-2" style="min-height: 100vh !important;">
     <h3 class="text-center pb-3">Заявка на регистрацию</h3>
 
     <form id="formWidget">
@@ -109,7 +109,7 @@
             @*<div id="check" name="confirmPassword"></div>*@
         </div>
     </form>
-    <div id="summary"></div>
+    @*<div id="summary"></div>*@
 
     @*<div id="sendButton"></div>*@
 
@@ -119,7 +119,7 @@
 </article>
 
 <!-- Правая колонка -->
-<aside class="col-12 col-lg-3 order-lg-3 right">
+<aside class="col-12 col-lg-3 order-lg-3 right" style="height: 300px">
     <div>
         <p>Уже зарегистрированы? Авторизуйтесь.</p>
         <a href="#" onclick="openLogin()" class="btn btn-warning btn-block" role="link"><i class="bi-box-arrow-in-right"></i>&nbsp;&nbsp;Войти в систему</a><br/>
@@ -145,81 +145,48 @@
 @*<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false&libraries=places&language=ru-RU"></script>*@
 
 <script>
+    var inviteCode = GetURLParameter('code');
+    var isInvite;
     $(document).ready(
         function () {
-            //var autocomplete1 = new google.maps.places.Autocomplete($("#address")[0], {});
-
-            //google.maps.event.addListener(autocomplete1, 'place_changed', function() {
-            //    var place = autocomplete1.getPlace();
-            //    console.log(place.address_components);
-            //});
-
-            //document.getElementsByTagName("html")[0].style.visibility = "visible";
-            check_capslock_form($('#formWidget')); //applies the capslock check to all input tags
+            check_capslock_form($('#formWidget'));
         }
     );
 
-    document.onkeydown = function (e) {
-        e = e || event;
-        if (e.keyCode === 20) {
-            window.capsLockEnabled = !window.capsLockEnabled;
-            $('#capsLock').toggle();
-        }
-    };
-
-    function check_capslock(e) { //check what key was pressed in the form
-        var s = String.fromCharCode(e.keyCode);
-        if (s.toUpperCase() === s && s.toLowerCase() !== s && !e.shiftKey) {
-            $('#capsLock').show();
-        }
-        else {
-            $('#capsLock').hide();
-        }
-    }
-
-    function check_capslock_form(where) {
-        if (!where) { where = $(document); }
-        where.find('input,select,div').each(function () {
-            if (this.type !== "hidden") {
-                $(this).keypress(check_capslock);
-            }
-        });
-    }
-    var formData = {
-        username: "",
-        password: ""
-    };
-
-    var checkEmail = function(value) {
-        const get = $.get("/api/validation/email/" + value);
-        return get.promise();
-    }
-
-    var checkPhone = function(value) {
-        const phone = value.replace('+', '%2B');
-        const get = $.get("/api/validation?phone=" + phone);
-        return get.promise();
-    }
-
     function getCountries() {
-        $.get("/api/countries") // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
-            .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+        $.get("/api/countries")
+            .then(function(data) {
                 $("#country").dxSelectBox('instance').option('dataSource', data);
                 return data;
             });
     }
-
-    var dealer;
-
+    
     $(function() {
+        isInvite = inviteCode ? true : false;
+
+        //todo check invite and get
+        //owner email
+        //user email
+
+        //var email = GetURLParameter('email');
+        //var role = GetURLParameter('role');
+
+
+
+
+
+
+
         $("#country").dxSelectBox({
             dataSource: getCountries(),
             displayExpr: "name",
+            disabled: isInvite,
             valueExpr: "id",
             placeholder: "Выберите страну",
             onValueChanged: function(data) {
-                $.get("/api/users/getDealers/" + data.value) // пытаемся загрузить данные с сервера с помощью HTTP запроса методом GET
-                    .then(function(data) { // добавляем обработчик при удачном выполнении запроса
+                if (isInvite) return;
+                $.get("/api/users/getDealers/" + data.value)
+                    .then(function(data) {
                         $("#dealer").dxSelectBox('instance').option('dataSource', data);
                     });
             }
@@ -235,10 +202,8 @@
         $("#dealer").dxSelectBox({
             displayExpr: "name",
             valueExpr: "email",
+            disabled: isInvite,
             placeholder: "Выберите дилера"
-            //onValueChanged: function(data) {
-            //    //$(".current-value > span").text(data.value);
-            //}
         }).dxValidator({
             validationRules: [
                 {
@@ -302,6 +267,7 @@
         });
         
         $("#email").dxTextBox({
+                disabled: isInvite,
                 placeholder: "Email"
             })
             .dxValidator({
@@ -429,23 +395,28 @@
             }]
         });
 
-        $("#summary").dxValidationSummary({ });
-
-        var inviteCode = GetURLParameter('code');
-        var isInvite = inviteCode ? true : false;
-        
-        //todo check invite and get
-        //counryID
-        //owner email
-        //user email
-
-        //var email = GetURLParameter('email');
-        //var role = GetURLParameter('role');
 
         if (isInvite) {
+            $.get(`/api/account/invite/${inviteCode}/`)
+                .then(function(data) {
+                    //todo get data
+                    var ownerEmail = data.ownerEmail;
+
+                    var scrOwn = [
+                        {
+                            name: ownerEmail,
+                            email: ownerEmail
+                        }
+                    ];
+
+                    $("#country").dxSelectBox("instance").option("value", data.countryId);
+                    var dlc = $("#dealer").dxSelectBox("instance");
+                    dlc.option("dataSource", scrOwn);
+                    dlc.option("value", ownerEmail);
+                    $("#email").dxTextBox("instance").option("value", data.email);
+                });
 
         }
-
 
     });
 
@@ -478,7 +449,7 @@
             & $("#confirmPassword").dxValidator("instance").validate().isValid
             & $("#check").dxValidator("instance").validate().isValid;
        
-        var summ = $("#summary").dxValidationSummary("instance");
+        //var summ = $("#summary").dxValidationSummary("instance");
         if (!valid) return;
         
         var email = $("#email").dxTextBox("instance").option('value');
@@ -497,23 +468,35 @@
             city: $("#city").dxTextBox("instance").option('value'),
             organization: $("#organization").dxTextBox("instance").option('value'),
             password: $("#password").dxTextBox("instance").option('value'),
+            inviteCode: inviteCode
         };
-
         var message = [];
-        message.push('<div>Ваша заявка на подключение к системе мониторинга «Третий кран» была принята.</div>');
-        message.push('<div>Запомните и запишите ваш логин и пароль в надежном месте.</div>');
-        message.push('<div>Для активации аккаунта напишите вашему персональному менеджеру ваш логин.</div>');
-        message.push('<div>В течение суток ваш аккаунт будет активирован.</div>');
+
+        if (isInvite) {
+            message.push('Вы успешно были зарегистрированы в системе</div>');
+        } else {
+            message.push('<div>Ваша заявка на подключение к системе мониторинга «Третий кран» была принята.</div>');
+            message.push('<div>Запомните и запишите ваш логин и пароль в надежном месте.</div>');
+            message.push('<div>Для активации аккаунта напишите вашему персональному менеджеру ваш логин.</div>');
+            message.push('<div>В течение суток ваш аккаунт будет активирован.</div>');
+        }
+
         var request = $.postJSON('/api/Register', formData, null);
 
         request.then(function() {
-            DevExpress.ui.dialog.alert(message.join(""), "Ok");
+                DevExpress.ui.dialog.alert(message.join(""), "").done(function() {
+                    window.location.replace("/Account/Login");
+                });
             },
             function(data) {
-                if (data.readyState === 4 && data.status === 200) DevExpress.ui.dialog.alert(message.join(""), "Ok");
+                if (data.readyState === 4 && data.status === 200) {
+                    DevExpress.ui.dialog.alert(message.join(""), "").done(function() {
+                        window.location.replace("/Account/Login");
+                    });
+                    //window.location.replace("/Account/Login");
+                }
                 else {
                     DevExpress.ui.dialog.alert(data.responseText, "Ошибка");
-
                 }
             });
         //request.done(function(msg) {
@@ -533,13 +516,9 @@
         DevExpress.ui.dialog.alert(message, "Ok" + data);
     }
     function openLogin() {
-        window.location.replace("/");
+        window.location.replace("/Account/Login");
     }
 </script>
-
-@*@section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-}*@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>

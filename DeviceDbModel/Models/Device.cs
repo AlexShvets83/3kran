@@ -8,6 +8,7 @@ namespace DeviceDbModel.Models
     {
       UserDevicePermissions = new HashSet<UserDevicePermission>();
       DevStatuses = new HashSet<DevStatus>();
+      DevErrorStatuses = new HashSet<DevErrorStatus>();
       DevSales = new HashSet<DevSale>();
       DevEncashes = new HashSet<DevEncash>();
       DevAlerts = new HashSet<DevAlert>();
@@ -34,6 +35,8 @@ namespace DeviceDbModel.Models
     public ICollection<UserDevicePermission> UserDevicePermissions { get; set; }
 
     public ICollection<DevStatus> DevStatuses { get; set; }
+
+    public ICollection<DevErrorStatus> DevErrorStatuses { get; set; }
 
     public ICollection<DevSale> DevSales { get; set; }
 
