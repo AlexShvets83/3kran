@@ -8,7 +8,27 @@ for details on configuring this project to bundle and minify static web assets. 
     margin-top: 0;
     margin-bottom: 1rem;
 }
- 
+
+.dx-command-edit .dx-button .dx-link {
+    text-decoration: none !important;
+    font-size: 18px;
+    margin: 0 3px;
+}
+
+.btn-font {
+    /*vertical-align: middle !important;
+        padding: 0 !important;
+        font-size: 14px !important;*/
+    /*      padding: 0 !important;*/
+    padding-left: 0;
+    padding-right: 0;
+    /*vertical-align: bottom !important;*/
+    vertical-align: middle !important;
+    color: white; /* !important;*/
+    width: 24px !important;
+    height: 24px !important;
+    text-decoration: none !important;
+}
 /*a.navbar-brand {
   white-space: normal;
   text-align: center;

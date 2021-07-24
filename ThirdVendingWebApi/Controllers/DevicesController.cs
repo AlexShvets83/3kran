@@ -137,7 +137,19 @@ namespace ThirdVendingWebApi.Controllers
         Phone = dev.Phone, TimeZone = dev.TimeZone, OwnerId = ovnerID
       };
 
-      if (await DeviceDbProvider.AddOrEditDevice(device)) return Ok();
+      if (await DeviceDbProvider.AddOrEditDevice(device))
+      {
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          Imei = device.Imei,
+          UserId = user.Id,
+          Email = user.Email,
+          Phone = user.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {user} добавил автомат [{device.Imei}] - [{device.Address}]"
+        });
+        return Ok();
+      }
 
       return BadRequest();
     }
@@ -146,9 +158,9 @@ namespace ThirdVendingWebApi.Controllers
     [Authorize]
     public async Task<IActionResult> Edit(string id, [FromBody] DeviceAddModel dev)
     {
-      //var user = await _userManager.GetUserAsync(HttpContext.User);
-      //if (user == null) return NotFound("Пользователь не найден!");
-      //if (!user.Activated) return NotFound("Пользователь деактивирован!");
+      var user = await _userManager.GetUserAsync(HttpContext.User);
+      if (user == null) return NotFound("Пользователь не найден!");
+      if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
       //var userRoles = await _userManager.GetRolesAsync(user);
 
@@ -167,7 +179,19 @@ namespace ThirdVendingWebApi.Controllers
       //  Phone = dev.Phone, TimeZone = dev.TimeZone//, OwnerId = ownerId
       //};
 
-      if (await DeviceDbProvider.AddOrEditDevice(device)) return Ok();
+      if (await DeviceDbProvider.AddOrEditDevice(device))
+      {
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          Imei = device.Imei,
+          UserId = user.Id,
+          Email = user.Email,
+          Phone = user.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {user} изменил данные автомата [{device.Imei}] - [{device.Address}]"
+        });
+        return Ok();
+      }
 
       return BadRequest();
     }
@@ -206,6 +230,16 @@ namespace ThirdVendingWebApi.Controllers
       //}
 
       DeviceDbProvider.RemoveDevice(device);
+
+      await UserDbProvider.AddLog(new LogUsr
+      {
+        Imei = device.Imei,
+        UserId = user.Id,
+        Email = user.Email,
+        Phone = user.PhoneNumber,
+        LogDate = DateTime.Now,
+        Message = $"Пользователь {user} удалил автомат [{device.Imei}] - [{device.Address}]"
+      });
       return Ok();
     }
 
@@ -230,9 +264,9 @@ namespace ThirdVendingWebApi.Controllers
     {
       try
       {
-        //var user = await _userManager.GetUserAsync(HttpContext.User);
-        //if (user == null) return NotFound("Пользователь не найден!");
-        //if (!user.Activated) return StatusCode(403, "Пользователь деактивирован!");
+        var user = await _userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return NotFound("Пользователь не найден!");
+        if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
         if (payLoad == null) return BadRequest("PayLoad is null!");
 
         object value = null;
@@ -278,6 +312,15 @@ namespace ThirdVendingWebApi.Controllers
 
         var topic = $"3voda/device/{imei}/settings/todevice";
         await DeviceMqtt.SubscriptionHandler(topic, JsonConvert.SerializeObject(value, new JsonSerializerSettings {Formatting = Formatting.None}));
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          Imei = imei,
+          UserId = user.Id,
+          Email = user.Email,
+          Phone = user.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {user} изменил настройки автомата [{imei}] [{payLoad.Name} = {payLoad.Value}]"
+        });
         return Ok();
       }
       catch (Exception ex)
@@ -342,6 +385,10 @@ namespace ThirdVendingWebApi.Controllers
     {
       try
       {
+        var admin = await _userManager.GetUserAsync(HttpContext.User);
+        if (admin == null) return NotFound("Пользователь не найден!");
+        if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
         var user = await _userManager.FindByIdAsync(ownerId);
         if (user == null) return NotFound("Пользователь не найден!");
         if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
@@ -351,6 +398,17 @@ namespace ThirdVendingWebApi.Controllers
         if (user.Role != Roles.Owner) return NotFound("Пользователь не является владельцем!");
 
         await DeviceDbProvider.SetDeviceOwner(id, ownerId);
+        var device = DeviceDbProvider.GetDeviceById(id);
+
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          Imei = device.Imei,
+          UserId = admin.Id,
+          Email = admin.Email,
+          Phone = admin.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {admin} назначил владельца {user} автомату [{device.Imei}]"
+        });
         return Ok();
       }
       catch (Exception ex)

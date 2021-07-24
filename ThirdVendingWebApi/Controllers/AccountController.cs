@@ -193,6 +193,14 @@ namespace ThirdVendingWebApi.Controllers
 
       userApp.UserAlerts = nesAlerts;
       await _userManager.UpdateAsync(userApp);
+      await UserDbProvider.AddLog(new LogUsr
+      {
+        UserId = userApp.Id,
+        Email = userApp.Email,
+        Phone = userApp.PhoneNumber,
+        LogDate = DateTime.Now,
+        Message = $"Пользователь {userApp} обновил свои данные"
+      });
     }
 
     /// <summary>
@@ -213,6 +221,15 @@ namespace ThirdVendingWebApi.Controllers
         if (result.Succeeded)
         {
           await _userManager.ChangePasswordAsync(user, pws.CurrentPassword, pws.NewPassword);
+
+          await UserDbProvider.AddLog(new LogUsr
+          {
+            UserId = user.Id,
+            Email = user.Email,
+            Phone = user.PhoneNumber,
+            LogDate = DateTime.Now,
+            Message = $"Пользователь {user} изменил свой пароль"
+          });
           return Ok();
         }
 
@@ -243,7 +260,18 @@ namespace ThirdVendingWebApi.Controllers
         if (result.Succeeded)
         {
           var pRes = await _userManager.ChangePasswordAsync(user, userEdit.CurrentPassword, userEdit.NewPassword);
-          if (pRes.Succeeded) return Ok();
+          if (pRes.Succeeded)
+          {
+            await UserDbProvider.AddLog(new LogUsr
+            {
+              UserId = user.Id,
+              Email = user.Email,
+              Phone = user.PhoneNumber,
+              LogDate = DateTime.Now,
+              Message = $"Пользователь {user} изменил свой пароль"
+            });
+            return Ok();
+          }
 
           return BadRequest("Пароль не был изменен!");
         }
@@ -251,6 +279,14 @@ namespace ThirdVendingWebApi.Controllers
         return BadRequest("Пароль не соответствует шаблону!");
       }
 
+      await UserDbProvider.AddLog(new LogUsr
+      {
+        UserId = user.Id,
+        Email = user.Email,
+        Phone = user.PhoneNumber,
+        LogDate = DateTime.Now,
+        Message = $"Пользователь {user} изменил свои учетные данные"
+      });
       return Ok();
     }
 
@@ -332,6 +368,14 @@ namespace ThirdVendingWebApi.Controllers
         {
           //delete invite
           if (invite != null) InviteDbProvider.RemoveInvite(invite.Id);
+          await UserDbProvider.AddLog(new LogUsr
+          {
+            UserId = userApp.Id,
+            Email = userApp.Email,
+            Phone = userApp.PhoneNumber,
+            LogDate = DateTime.Now,
+            Message = $"Пользователь {userApp} зарегистрирован"
+          });
           return Ok();
         }
 
@@ -384,6 +428,16 @@ namespace ThirdVendingWebApi.Controllers
         //var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
         var callbackUrl = $"{sch}://{host}/Account/ResetPsw?key={ecode}";
         await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.</div>");
+
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          UserId = user.Id,
+          Email = user.Email,
+          Phone = user.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {user} подал заявку на сброс пароля"
+        });
+
         return Ok();
       }
       catch (Exception ex)
@@ -415,6 +469,16 @@ namespace ThirdVendingWebApi.Controllers
       {
         user.PasswordHash = passwordHasher.HashPassword(user, model.NewPassword);
         await _userManager.UpdateAsync(user);
+
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          UserId = user.Id,
+          Email = user.Email,
+          Phone = user.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {user} изменил свой пароль через сброс"
+        });
+
         return Ok();
       }
 
@@ -448,7 +512,18 @@ namespace ThirdVendingWebApi.Controllers
       user.City = userEdit.City;
 
       var result = await _userManager.UpdateAsync(user);
-      if (result.Succeeded) return Ok();
+      if (result.Succeeded)
+      {
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          UserId = user.Id,
+          Email = user.Email,
+          Phone = user.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {user} изменил свои данные"
+        });
+        return Ok();
+      }
 
       return BadRequest("Профиль не был изменен!");
     }
@@ -553,6 +628,15 @@ namespace ThirdVendingWebApi.Controllers
         {
           await _emailSender.SendEmailAsync(invite.Email, "Приглашение от компании третий кран",
                                             $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылке</a>.</div>");
+
+          await UserDbProvider.AddLog(new LogUsr
+          {
+            UserId = user.Id,
+            Email = user.Email,
+            Phone = user.PhoneNumber,
+            LogDate = DateTime.Now,
+            Message = $"Пользователь {user} отослал приглашение [{invite.Email}] на роль [{invite.Role}]"
+          });
           return Ok();
         }
         catch (Exception ex)

@@ -56,7 +56,9 @@ namespace DeviceDbModel
     public DbSet<DevInfo> DeviceInfos { get; set; }
 
     public DbSet<DevSetting> DeviceSettings { get; set; }
-    
+
+    public DbSet<LogUsr> UserLog { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -153,6 +155,11 @@ namespace DeviceDbModel
         //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevSettings).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
+      });
+
+      modelBuilder.Entity<LogUsr>(entity =>
+      {
+        entity.HasIndex(e => e.LogDate);
       });
 
       OnModelCreatingPartial(modelBuilder);

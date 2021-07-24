@@ -125,6 +125,14 @@
             <param name = "id"></param>
             <returns></returns>
         </member>
+        <member name="M:ThirdVendingWebApi.Controllers.EmailController.#ctor(Microsoft.AspNetCore.Identity.UserManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{DeviceDbModel.Models.ApplicationUser},Microsoft.AspNetCore.Identity.UI.Services.IEmailSender)">
+            <summary>
+              Constructor
+            </summary>
+            <param name = "userManager"></param>
+            <param name = "signInManager"></param>
+            <param name = "emailSender"></param>
+        </member>
         <member name="T:ThirdVendingWebApi.Controllers.ManagementController">
             <summary>
             

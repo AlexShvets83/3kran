@@ -1293,3 +1293,73 @@ function getInfos(id, componentId) {
                  devM.innerHTML = metrics.join("");
              });
 }
+
+function userLogCreate() {
+    $.getJSON('/api/log/getLog', null)
+        .then(function (data) {
+            $("#userLogTable").dxDataGrid({
+                dataSource: data,
+            showColumnLines: true,
+            //focusedRowEnabled: true,
+            showRowLines: true,
+            keyExpr: "id",
+            columnAutoWidth: true,
+            columnFixing: { enabled: false },
+            cellHintEnabled: true,
+            paging: { pageSize: 10 },
+            pager: {
+                showInfo: true,
+                infoText: 'Страница {0} из {1} ({2} действий)'
+            },
+            showBorders: true,
+            wordWrapEnabled: false,
+            selection: { mode: 'none' },
+                //width: 500,
+            //height: 521,
+            hoverStateEnabled: true,
+            loadPanel: { enabled: false },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+                placeholder: "Начните вводить email, моб. телефон или IMEI...",
+                width: '100%'
+            },
+            columns: [
+                {
+                    dataField: "email",
+                    visible: false
+                },
+                {
+                    dataField: "phone",
+                    visible: false
+                },
+                {
+                    dataField: "imei",
+                    visible: false
+                },
+                {
+                    width: 130,
+                    dataField: "logDate",
+                    allowSorting: false,
+                    caption: "Дата",
+                    dataType: "date",
+                    //format: {type: "shortDateShortTime"},
+                    format: "dd.MM.yyyy HH:mm",
+                    headerCellTemplate: function(header, info) {
+                        setHeader(header, info);
+                    }
+                },
+                {
+                    allowSorting: false,
+                    dataField: "message",
+                    caption: "Действие",
+                    dataType: "string",
+                    headerCellTemplate: function(header, info) {
+                        setHeader(header, info);
+                    }
+                }
+            ]
+        });
+
+        });
+}

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DeviceDbModel.Models
 {
@@ -64,5 +65,11 @@ namespace DeviceDbModel.Models
     public ICollection<UserDevicePermission> UserDevicePermissions { get; set; }
 
     public ICollection<InviteRegistration> InviteRegistrations { get; set; }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+      return $"[{Email}] {FirstName} {Patronymic} {LastName}";
+    }
   }
 }

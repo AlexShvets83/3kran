@@ -57,6 +57,14 @@ namespace ThirdVendingWebApi.Controllers
             foreach (var dl in dls) { users.Remove(dl); }
 
             break;
+          case Roles.Technician:
+            //users = new List<ApplicationUser>();
+            if (!string.IsNullOrEmpty(admin.OwnerId))
+            {
+              users.Add(await _userManager.FindByIdAsync(admin.OwnerId));
+            }
+
+            break;
         }
 
         //var users = _userManager.Users.OrderBy(s => s.Id).ToList();
@@ -209,6 +217,15 @@ namespace ThirdVendingWebApi.Controllers
         if (usr == null) return NotFound();
 
         var retUser = usr.GetNewObj<UserAccount>();
+
+        await UserDbProvider.AddLog(new LogUsr
+        {
+          UserId = admin.Id,
+          Email = admin.Email,
+          Phone = admin.PhoneNumber,
+          LogDate = DateTime.Now,
+          Message = $"Пользователь {admin} обновил данные пользователя {retUser}"
+        });
 
         //var retUserRoles = await _userManager.GetRolesAsync(usr);
         //retUser.Role = retUserRoles.Count > 0 ? retUserRoles[0] : null;
@@ -490,7 +507,20 @@ namespace ThirdVendingWebApi.Controllers
         //}
 
         var result = await _userManager.UpdateAsync(userApp);
-        if (result.Succeeded) return Ok();
+        if (result.Succeeded)
+        {
+          var wd = activated ? "активировал" : "деактивировал";
+          await UserDbProvider.AddLog(new LogUsr
+          {
+            UserId = admin.Id,
+            Email = admin.Email,
+            Phone = admin.PhoneNumber,
+            LogDate = DateTime.Now,
+            Message = $"Пользователь {admin} {wd} {userApp}"
+          });
+
+          return Ok();
+        }
 
         var errors = new StringBuilder();
         foreach (var error in result.Errors) { errors.AppendLine($"Code - {error.Code} Description - {error.Description}"); }
@@ -550,7 +580,18 @@ namespace ThirdVendingWebApi.Controllers
 
         //todo check children
         var result = await _userManager.DeleteAsync(userApp);
-        if (result.Succeeded) return Ok();
+        if (result.Succeeded)
+        {
+          await UserDbProvider.AddLog(new LogUsr
+          {
+            UserId = admin.Id,
+            Email = admin.Email,
+            Phone = admin.PhoneNumber,
+            LogDate = DateTime.Now,
+            Message = $"Пользователь {admin} удалил пользователя {userApp}"
+          });
+          return Ok();
+        }
 
         var errors = new StringBuilder();
         foreach (var error in result.Errors) { errors.AppendLine($"Code - {error.Code} Description - {error.Description}"); }

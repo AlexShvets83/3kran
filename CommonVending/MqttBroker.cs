@@ -97,17 +97,17 @@ namespace CommonVending
 
       //Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
 
-      if (c.Username != "3voda")
-      {
-        c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
-        return;
-      }
+      //if (c.Username != "3voda")
+      //{
+      //  c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+      //  return;
+      //}
 
-      if (c.Password != "Leimnoj8Knod")
-      {
-        c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
-        return;
-      }
+      //if (c.Password != "Leimnoj8Knod")
+      //{
+      //  c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+      //  return;
+      //}
 
       Console.WriteLine($"New connection: {c.ClientId}");
       c.ReasonCode = MqttConnectReasonCode.Success;

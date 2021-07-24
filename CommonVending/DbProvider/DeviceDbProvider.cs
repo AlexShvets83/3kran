@@ -188,22 +188,18 @@ namespace CommonVending.DbProvider
           {
             Id = deviceId, OwnerId = ownerId
           };
-          //var updDevice = context.Devices.FirstOrDefault(w => w.Id == deviceId);
-          //if (updDevice != null)
-          //{
-            updDevice.OwnerId = ownerId;
-
-            //context.Entry(updDevice).State = EntityState.Modified;
-
-            context.Devices.Attach(updDevice).Property(x => x.OwnerId).IsModified = true;
-          //}
-          
+          updDevice.OwnerId = ownerId;
+          context.Devices.Attach(updDevice).Property(x => x.OwnerId).IsModified = true;
           await context.SaveChangesAsync();
+
+          //var list = context.Devices.Where(w => w.Id == deviceId).ToList();
+          //return list.Count == 1 ? list[0] : null;
         }
       }
       catch (Exception ex)
       {
         Console.WriteLine(ex);
+        //return null;
       }
     }
 

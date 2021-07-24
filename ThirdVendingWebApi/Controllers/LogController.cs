@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Text;
+using CommonVending.DbProvider;
+using DeviceDbModel.Models;
 using ThirdVendingWebApi.Tools;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ThirdVendingWebApi.Controllers
 {
@@ -23,6 +24,12 @@ namespace ThirdVendingWebApi.Controllers
 
       //var newList = list.Reverse();
       return db.ToString();
+    }
+
+    [HttpGet("getLog")]
+    public List<LogUsr> GetUsersLog()
+    {
+      return UserDbProvider.GetUserLog();
     }
   }
 }
