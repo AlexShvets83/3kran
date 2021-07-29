@@ -47,9 +47,14 @@ namespace ThirdVendingWebApi
     public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
       .ConfigureWebHostDefaults(webBuilder =>
       {
-#if RELEASE
-          webBuilder.UseKestrel();
-#endif
+//#if RELEASE
+        //webBuilder.UseKestrel();
+//#endif
+
+        webBuilder.ConfigureKestrel((context, options) =>
+        {
+          options.Limits.MaxRequestBodySize = int.MaxValue;
+        });
         webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
         webBuilder.UseIISIntegration();
         webBuilder.UseStartup<Startup>();

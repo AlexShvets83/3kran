@@ -161,6 +161,9 @@ namespace ThirdVendingWebApi.Controllers
         if (admin == null) return NotFound("Пользователь не найден!");
         if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
+        //if (user.Role == Roles.SuperAdmin) return StatusCode(403, "Запрещено менять активность у супер-админа!");
+        if ((user.UserName == "admin3kran") || (user.UserName == "Developer") || (user.UserName == "BOSS")) return StatusCode(403, "Запрещено менять данные у супер-админа!");
+        
         //check superadmin role
         //todo check role
         //var adminRoles = await _userManager.GetRolesAsync(admin);
@@ -174,10 +177,14 @@ namespace ThirdVendingWebApi.Controllers
         userApp.LastName = user.LastName;
         userApp.Patronymic = user.Patronymic;
 
-        //todo check email
+        //check email
+        if (!UserDbProvider.CheckUserByEmail(user.Id, user.Email)) return BadRequest("A user with this email is already registered!");
+        
         userApp.Email = user.Email;
 
-        //todo check number
+        //check number
+        if (!UserDbProvider.CheckUserByPhone(user.Id, user.PhoneNumber)) return BadRequest("A user with this phone number is already registered!");
+        
         userApp.PhoneNumber = user.PhoneNumber;
 
         userApp.Organization = user.Organization;
@@ -189,8 +196,8 @@ namespace ThirdVendingWebApi.Controllers
         if (userApp.Role == Roles.Owner) { userApp.OwnerId = user.OwnerId; }
 
         //if ((userApp.UserName != "admin@mail.com") && (admin.NormalizedEmail != user.Email.ToUpper()))
-        if (userApp.UserName != "admin@mail.com")
-        {
+        //if (userApp.UserName != "admin@mail.com")
+        //{
           //userApp.Activated = user.Activated;
           ////var userRoles = await _userManager.GetRolesAsync(userApp);
           //var roles = user.Authorities;
@@ -198,10 +205,9 @@ namespace ThirdVendingWebApi.Controllers
           //var removedRoles = userRoles.Except(roles);
           //await _userManager.AddToRolesAsync(userApp, addedRoles);
           //await _userManager.RemoveFromRolesAsync(userApp, removedRoles);
-        }
+        //}
 
-        //todo if super admin change password
-        if (!string.IsNullOrEmpty(user.Password) && (user.Password.Length > 3) && (user.UserName != "admin@mail.com"))
+        if (!string.IsNullOrEmpty(user.Password) && (user.Password.Length > 3))
         {
           var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
           var passwordHasher = HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;
@@ -487,25 +493,7 @@ namespace ThirdVendingWebApi.Controllers
 
         if (admin.Id == userApp.Id) return StatusCode(403, "Запрещено менять свою активность!");
 
-        //var userRoles = await _userManager.GetRolesAsync(userApp);
-        //if (userRoles.Contains(Roles.SuperAdmin))
-        //  return StatusCode(403, "Запрещено менять активность у супер-админа!"); //return Forbid("Запрещено менять активность у супер-админа!");
-
         userApp.Activated = activated;
-
-        ////todo if super admin change password
-        //if (!string.IsNullOrEmpty(user.Password) && (user.Password.Length > 3) && (user.UserName != "admin@mail.com"))
-        //{
-        //  var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
-        //  var passwordHasher = HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;
-
-        //  var result = await passwordValidator.ValidateAsync(_userManager, userApp, user.Password);
-        //  if (result.Succeeded)
-        //  {
-        //    userApp.PasswordHash = passwordHasher.HashPassword(userApp, user.Password);
-        //  }
-        //}
-
         var result = await _userManager.UpdateAsync(userApp);
         if (result.Succeeded)
         {
@@ -559,8 +547,8 @@ namespace ThirdVendingWebApi.Controllers
 
         if (admin.Id == userApp.Id) return StatusCode(403, "Запрещено удалять себя!");
 
+        //check children
         var descendants = UserDbProvider.GetUserDescendants(userApp.Id);
-        
         if (descendants.Count > 1)
         {
           var strBld = new StringBuilder();
@@ -578,7 +566,6 @@ namespace ThirdVendingWebApi.Controllers
         //if (!userRoles.Contains(Roles.SuperAdmin))
         //  return StatusCode(403, "Запрещено удалять!"); //return Forbid("Запрещено менять активность у супер-админа!");
 
-        //todo check children
         var result = await _userManager.DeleteAsync(userApp);
         if (result.Succeeded)
         {

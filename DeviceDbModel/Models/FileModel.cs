@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace ThirdVendingWebApi.Models
+namespace DeviceDbModel.Models
 {
   public class FileModel
   {
     public string Id { get; set; }
 
-    public long Timestamp { get; set; }
+    public DateTime FileDate { get; set; }
 
     public string Path { get; set; }
 
@@ -20,10 +16,8 @@ namespace ThirdVendingWebApi.Models
 
     public long Size { get; set; }
 
-    public string Mime { get; set; }
-
-    public string Md5 { get; set; }
-
+    public string FileType { get; set; }
+    
     public bool Visible { get; set; }
   }
 }

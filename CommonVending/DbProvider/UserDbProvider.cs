@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+// ReSharper disable SpecifyStringComparison
+
 namespace CommonVending.DbProvider
 {
   public static class UserDbProvider
@@ -110,6 +112,40 @@ WITH RECURSIVE t AS
       {
         Console.WriteLine(ex);
         return null;
+      }
+    }
+
+    public static bool CheckUserByEmail(string id, string email)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var cmdList = context.Users.Where(w => (w.Id != id) && (w.Email.ToUpper() == email.ToUpper())).ToList();
+          return cmdList.Count == 0;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return false;
+      }
+    }
+
+    public static bool CheckUserByPhone(string id, string phone)
+    {
+      try
+      {
+        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        {
+          var cmdList = context.Users.Where(w => (w.Id != id) && (w.PhoneNumber.ToUpper() == phone.ToUpper())).ToList();
+          return cmdList.Count == 0;
+        }
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex);
+        return false;
       }
     }
     

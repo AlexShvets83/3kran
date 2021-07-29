@@ -29,6 +29,7 @@
 
     <script src="~/js/popups.min.js"></script>
     <script src="~/js/emailSender.js"></script>
+    <script src="~/js/fileLoad.js"></script>
     <script src="~/js/invite.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.common.css" />
@@ -50,6 +51,10 @@
     @*<script src="~/lib/jquery-dateformat/dist/dateFormat.min.js"></script>*@
     <script src="~/lib/jquery-dateformat/dist/jquery-dateformat.min.js"></script>
 
+    <script src="~/lib/blueimp-file-upload/js/vendor/jquery.ui.widget.js"></script>
+    <script src="~/lib/blueimp-file-upload/js/jquery.iframe-transport.js"></script>
+    <script src="~/lib/blueimp-file-upload/js/jquery.fileupload.js"></script>
+
 </head>
 <body>
     <header>
@@ -70,19 +75,16 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
-
-                    @*<li class="nav-item text-light">
-                            <a class="nav-link text-light" asp-area="" asp-page="/Log">Log</a>
-                        </li>*@
+                    <li class="nav-item" data-toggle="tooltip" data-placement="top" title="Рассылка сообщений">
+                        <a id="email" style="display: none" class="nav-link text-light fa fa-envelope" onclick="initEmailSender()" data-toggle="modal" data-target="#emailSend"> Рассылка</a>
+                    </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-light fa fa-user-circle-o" style="display: none" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            @*<span>
-                                    <i class="fa fa-user-circle-o" aria-hidden="true">Dropdown</i>
-                                </span>*@
-                        </a>
+                        <a class="nav-link dropdown-toggle text-light fa fa-user-circle-o" style="display: none" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <a id="profile" class="dropdown-item fa fa-sign-in" asp-area="" asp-page="/Account/Settings"> Профиль</a>
+                            <a id="notification" class="dropdown-item fa fa-envelope disabled" onclick="" data-toggle="modal" data-target="#"> Управление оповещениями</a>
+
                             <a id="tech" style="display: none" class="dropdown-item fa fa-bar-chart" asp-area="" asp-page="/Dashboard/Index"> Кабинет техника</a>
                             <a id="admin" style="display: none" class="dropdown-item fa fa-users" asp-area="" asp-page="/Admin/Index"> Кабинет администратора</a>
 
@@ -90,7 +92,13 @@
 
                             <a id="log" style="display: none" class="dropdown-item fa fa-calendar" onclick="userLogCreate()" data-toggle="modal" data-target="#userLog"> Журнал действий</a>
 
-                            <a id="email" style="display: block" class="dropdown-item fa fa-envelope" onclick="initEmailSender()" data-toggle="modal" data-target="#emailSend"> Рассылка сообщений</a>
+
+                            <a id="workDB" style="display: none" class="dropdown-item fa fa-database disabled" onclick="" data-toggle="modal" data-target="#"> Работа с БД</a>
+
+                            <a id="settings" style="display: none" class="dropdown-item fa fa-cog disabled" onclick="" data-toggle="modal" data-target="#"> Настройки</a>
+
+
+                            <a id="file" class="dropdown-item fa fa-download" onclick="initFilePanel()" data-toggle="modal" data-target="#fileLoad"> Загрузки</a>
                             @*<a class="dropdown-item" asp-area="" asp-page="/Account/Login">Login</a>*@
                             @*<a class="dropdown-item" href="/">Home</a>*@
                             <div class="dropdown-divider"></div>
@@ -232,8 +240,8 @@
                 </section>
             </div>
             <!--<div class="modal-footer row">-->
-                @*<button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>*@
-                <!--<section class="col-12 col-lg-6 col-xl-4 left">
+            @*<button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>*@
+            <!--<section class="col-12 col-lg-6 col-xl-4 left">
                     <button type="button" class="btn btn-block btn-success fa fa-envelope"> Отправить сообщение</button>
                 </section>
 
@@ -249,6 +257,104 @@
     </div>
 </div>
 
+<!-- Модальное окно файлов -->
+<div class="modal" tabindex="-1" role="dialog" id="fileLoad">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-download text-warning"></i> Загрузки</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="fileLoadTable"></div>
+                <input id="fileUploadWidget" type="file" name="files[]" multiple
+                       data-url="/api/files"
+                       data-sequential-uploads="true"
+                       data-form-data='{"script": "true"}'>
+                <div id="progress">
+                    <div class="bar" style="width: 0;"></div>
+                </div>
+                <div id="div_files"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                @*<button type="button" class="btn btn-primary fa fa-share-square-o " onclick=""> Пригласить</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления файла -->
+<div class="modal" tabindex="-1" role="dialog" id="deleteFilePopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-remove text-danger"></i>&nbsp;&nbsp;Внимание!</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="deleteFileId" style="display: none" value=""></div>
+                <div class="alert alert-danger" id="deleteFileError" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div></div>
+                <div id="deleteFileCaption" style="text-align: center"></div>
+                <hr />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="chkFile" data-toggle="toggle">
+                    <label class="form-check-label" for="chkFile">
+                        Вы уверены что хотите удалить этот файл?
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" id="deleteFileBtn" class="btn btn-danger fa fa-remove" disabled onclick="deleteFile()"> Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования файла -->
+<div class="modal" tabindex="-1" role="dialog" id="editFilePopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактирование файла</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="editFileId" style="display: none" value=""></div>
+                <div class="alert alert-danger" id="editFileError" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div><b>Описание:</b></div>
+                <input id="fileDsc" style="width:100%"/>
+                @*<div id="editFileCaption" style="text-align: center"></div>
+                <hr />*@
+                @*<div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="chkFile" data-toggle="toggle">
+                    <label class="form-check-label" for="chkFile">
+                        Вы уверены что хотите удалить этот файл?
+                    </label>
+                </div>*@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" id="editFileBtn" class="btn btn-primary fa fa-save" onclick="editFile()"> Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     #userLogTable .dx-toolbar .dx-texteditor {
@@ -267,6 +373,16 @@
     .modal-lg {
         width: 80% !important;
         max-width: 80% !important;
+    }
+
+    .modal-mg {
+        width: 50% !important;
+        max-width: 50% !important;
+    }
+
+    .bar {
+        height: 18px;
+        background: green;
     }
 </style>
 
@@ -310,7 +426,10 @@
             var adminD = document.getElementById("admin");
             var inv = document.getElementById("invite");
             var log = document.getElementById("log");
-            //var email = document.getElementById("email");
+            var email = document.getElementById("email");
+            var workDb = document.getElementById("workDB");
+            var settings = document.getElementById("settings");
+            email.style.display = "block";
             if (!user.role) window.location.replace("/");
             switch (user.role) {
                 case "technician":
@@ -358,6 +477,8 @@
                     adminD.style.display = "block";
                     inv.style.display = "block";
                     log.style.display = "block";
+                    workDb.style.display = "block";
+                    settings.style.display = "block";
                     break;
                 case "super_admin":
                     adminD.innerText = " Кабинет супер-админа";
@@ -365,6 +486,8 @@
                     adminD.style.display = "block";
                     inv.style.display = "block";
                     log.style.display = "block";
+                    workDb.style.display = "block";
+                    settings.style.display = "block";
                     break;
             }
         });

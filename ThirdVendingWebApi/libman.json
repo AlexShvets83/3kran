@@ -137,6 +137,11 @@
       "provider": "unpkg",
       "library": "babel-polyfill@6.26.0",
       "destination": "wwwroot/lib/babel-polyfill/"
+    },
+    {
+      "provider": "unpkg",
+      "library": "blueimp-file-upload@10.31.0",
+      "destination": "wwwroot/lib/blueimp-file-upload/"
     }
   ]
 }

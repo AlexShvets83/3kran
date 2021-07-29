@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using ThirdVendingWebApi.Services;
 
@@ -37,7 +38,7 @@ namespace ThirdVendingWebApi
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddCors();
-
+      
       //services.AddControllers().AddNewtonsoftJson(options =>
       //{
       //  options.SerializerSettings.ContractResolver = new DefaultContractResolver
@@ -187,6 +188,13 @@ namespace ThirdVendingWebApi
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
         if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
+      });
+      
+      services.Configure<FormOptions>(o =>
+      {
+        o.ValueLengthLimit = int.MaxValue;
+        o.MultipartBodyLengthLimit = long.MaxValue;
+        o.MemoryBufferThreshold = int.MaxValue;
       });
     }
 

@@ -59,6 +59,8 @@ namespace DeviceDbModel
 
     public DbSet<LogUsr> UserLog { get; set; }
 
+    public DbSet<FileModel> Files { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -123,7 +125,6 @@ namespace DeviceDbModel
       modelBuilder.Entity<DevEncash>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevEncashes).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -131,7 +132,6 @@ namespace DeviceDbModel
       modelBuilder.Entity<DevAlert>(entity =>
       {
         entity.HasIndex(e => e.DeviceId);
-        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevAlerts).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -140,8 +140,6 @@ namespace DeviceDbModel
       {
         entity.HasIndex(e => new {e.DeviceId, e.Name}).IsUnique();
         entity.HasIndex(e => e.DeviceId);
-
-        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevInfos).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -151,8 +149,6 @@ namespace DeviceDbModel
         entity.HasIndex(e => new {e.DeviceId, e.MessageDate, e.Md5}).IsUnique();
         entity.HasIndex(e => e.DeviceId);
         entity.HasIndex(e => e.TopicType);
-
-        //entity.HasIndex(e => e.ReceivedDate);
         entity.HasIndex(e => e.MessageDate);
         entity.HasOne(d => d.Device).WithMany(p => p.DevSettings).HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade);
       });
@@ -160,6 +156,11 @@ namespace DeviceDbModel
       modelBuilder.Entity<LogUsr>(entity =>
       {
         entity.HasIndex(e => e.LogDate);
+      });
+
+      modelBuilder.Entity<FileModel>(entity =>
+      {
+        entity.HasIndex(e => e.Visible);
       });
 
       OnModelCreatingPartial(modelBuilder);

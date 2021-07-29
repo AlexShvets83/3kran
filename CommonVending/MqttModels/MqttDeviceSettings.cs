@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CommonVending.MqttModels
+﻿namespace CommonVending.MqttModels
 {
   public class MqttDeviceSettings
   {
@@ -26,6 +20,7 @@ namespace CommonVending.MqttModels
     "language":1,
     "display":0}
      */
+
     /// <summary>
     /// Дата формирования сообщения
     /// </summary>
