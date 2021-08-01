@@ -13,5 +13,14 @@ namespace DeviceDbModel.DataDb
       new Country {Id = 4, Name = "Узбекистан", Alpha2Code = "UZ", Alpha3Code = "UZB", Code = 860},
       new Country {Id = 5, Name = "Белоруссия", Alpha2Code = "BY", Alpha3Code = "BLR", Code = 112}
     };
+
+    public static readonly List<AppSettings> AppSettingsDic = new()
+    {
+      new AppSettings
+      {
+        Id = 1, UserLogDepth = 30, SupportBoard1 = true, SupportBoard2 = true, 
+        SupportBoard3 = true, FileMaxUploadLenght = 300, UsersMaxDownloads = 5
+      }
+    };
   }
 }

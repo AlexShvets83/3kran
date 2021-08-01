@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using CommonVending.DbProvider;
 
 namespace ThirdVendingWebApi
 {
@@ -38,6 +39,9 @@ namespace ThirdVendingWebApi
           logger.LogError(ex, "An error occurred while seeding the database.");
         }
       }
+
+      var settings = AppSettingsDbProvider.GetAppSettings();
+      ApplicationSettings.Set(settings);
 
       //var initDev = new InitDevice();
 

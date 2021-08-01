@@ -7,6 +7,12 @@
     const acc = JSON.parse(accStr);
     const role = acc.role;
 
+    //get approve size
+    $.getJSON("/api/appSettings", null)
+    .then(function (data) {
+        sizeLimit = data.fileMaxUploadLenght * 1024 * 1024;
+    });
+
     $("#chkFile").change(function () {
         document.getElementById("deleteFileBtn").disabled = !$(this).prop("checked");
     });
@@ -147,7 +153,7 @@
                 allowSorting: true,
                 alignment: "center",
                 cssClass: "vert-btn-align",
-                caption: "",
+                caption: null,
                 visible: admin,
                 cellTemplate: function (element, info) {
                     const file = info.data;
@@ -197,7 +203,7 @@
                 //if(data.originalFiles[0]['type'].length && !acceptFileTypes.test(data.originalFiles[0]['type'])) {
                 //    uploadErrors.push('Not an accepted file type');
                 //}
-                //todo get approve size
+                
                 const fileSize = data.originalFiles[0]["size"];
                 if (fileSize && fileSize > sizeLimit) {
                     uploadErrors.push("Filesize is too big");

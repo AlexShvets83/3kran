@@ -61,6 +61,8 @@ namespace DeviceDbModel
 
     public DbSet<FileModel> Files { get; set; }
 
+    public DbSet<AppSettings> AppSettings { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -161,6 +163,11 @@ namespace DeviceDbModel
       modelBuilder.Entity<FileModel>(entity =>
       {
         entity.HasIndex(e => e.Visible);
+      });
+
+      modelBuilder.Entity<AppSettings>(entity =>
+      {
+        entity.HasData(DatabaseDictionaries.AppSettingsDic);
       });
 
       OnModelCreatingPartial(modelBuilder);

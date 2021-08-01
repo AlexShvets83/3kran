@@ -58,5 +58,23 @@
     "inputFiles": [
       "wwwroot/js/invite.js"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/js/fileLoad.min.js",
+    "inputFiles": [
+      "wwwroot/js/fileLoad.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/emailSender.min.js",
+    "inputFiles": [
+      "wwwroot/js/emailSender.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/appSettings.min.js",
+    "inputFiles": [
+      "wwwroot/js/appSettings.js"
+    ]
   }
 ]

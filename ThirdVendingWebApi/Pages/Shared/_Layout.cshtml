@@ -22,15 +22,19 @@
     <link rel="stylesheet" href="~/css/dashboard.min.css" />
     <link rel="stylesheet" href="~/css/admin.min.css" />
 
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     @*<script src="~/lib/popperjs/core/dist/umd/popper.min.js"></script>*@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.min.js" asp-append-version="true"></script>
 
-    <script src="~/js/popups.min.js"></script>
-    <script src="~/js/emailSender.js"></script>
-    <script src="~/js/fileLoad.js"></script>
+    
+    <script src="~/js/appSettings.min.js"></script>
+    <script src="~/js/emailSender.min.js"></script>
+    <script src="~/js/fileLoad.min.js"></script>
+
     <script src="~/js/invite.min.js"></script>
+    <script src="~/js/popups.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.common.css" />
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.light.css" />
@@ -95,7 +99,7 @@
 
                             <a id="workDB" style="display: none" class="dropdown-item fa fa-database disabled" onclick="" data-toggle="modal" data-target="#"> Работа с БД</a>
 
-                            <a id="settings" style="display: none" class="dropdown-item fa fa-cog disabled" onclick="" data-toggle="modal" data-target="#"> Настройки</a>
+                            <a id="settings" style="display: none" class="dropdown-item fa fa-cog" onclick="initAppSettings()" data-toggle="modal" data-target="#appSetingsPopup"> Настройки</a>
 
 
                             <a id="file" class="dropdown-item fa fa-download" onclick="initFilePanel()" data-toggle="modal" data-target="#fileLoad"> Загрузки</a>
@@ -338,15 +342,7 @@
                     <i class="fa fa-warning" aria-hidden="true"></i>
                 </div>
                 <div><b>Описание:</b></div>
-                <input id="fileDsc" style="width:100%"/>
-                @*<div id="editFileCaption" style="text-align: center"></div>
-                <hr />*@
-                @*<div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="chkFile" data-toggle="toggle">
-                    <label class="form-check-label" for="chkFile">
-                        Вы уверены что хотите удалить этот файл?
-                    </label>
-                </div>*@
+                <input id="fileDsc" style="width:100%" />
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
@@ -355,6 +351,32 @@
         </div>
     </div>
 </div>
+
+<!-- Модальное окно настроек приложения -->
+<div class="modal" tabindex="-1" role="dialog" id="appSetingsPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-cogs text-warning"></i>&nbsp;&nbsp;Настройки сервера</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="appSettingsFormErrors" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div id="appSettingsForm"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" class="btn btn-primary fa fa-save " onclick="sendAppSettings()"> Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <style>
     #userLogTable .dx-toolbar .dx-texteditor {
