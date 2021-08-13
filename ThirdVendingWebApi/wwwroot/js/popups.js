@@ -171,7 +171,7 @@ function datePickerInite() {
         if (~header.indexOf("Аварии")) {
             getAlertsByPeriod(picker.startDate, picker.endDate);
         }
-        });
+    });
 }
 
 function popupSales() {

@@ -26,7 +26,8 @@ namespace ThirdVendingWebApi.Controllers
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Пользователь не найден!");
       if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
-      if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено изменять файлы!");
+      //if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено изменять файлы!");
+      if (admin.Role != Roles.SuperAdmin) return StatusCode(403, "Вам запрещено изменять настройки!");
 
       var settings = AppSettingsDbProvider.GetAppSettings();
       ApplicationSettings.Set(settings);
@@ -40,7 +41,8 @@ namespace ThirdVendingWebApi.Controllers
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Пользователь не найден!");
       if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
-      if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено изменять файлы!");
+      //if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено изменять файлы!");
+      if (admin.Role != Roles.SuperAdmin) return StatusCode(403, "Вам запрещено изменять настройки!");
 
       await AppSettingsDbProvider.SetAppSettings(data);
       ApplicationSettings.Set(data);

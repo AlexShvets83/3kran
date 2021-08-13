@@ -3,7 +3,6 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +12,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-social/bootstrap-social.min.css" />
-    <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css">
 
     <link rel="stylesheet" href="~/css/site.min.css" />
     <link rel="stylesheet" href="~/css/navbar.min.css" />
@@ -28,13 +27,16 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.min.js" asp-append-version="true"></script>
 
-    
+
     <script src="~/js/appSettings.min.js"></script>
     <script src="~/js/emailSender.min.js"></script>
     <script src="~/js/fileLoad.min.js"></script>
-
     <script src="~/js/invite.min.js"></script>
     <script src="~/js/popups.min.js"></script>
+
+    <script src="~/js/dbWork.js"></script>
+    <script src="~/js/alerts.js"></script>
+
 
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.common.css" />
     <link rel="stylesheet" type="text/css" href="~/lib/devextreme/dist/css/dx.light.css" />
@@ -87,7 +89,7 @@
                         <a class="nav-link dropdown-toggle text-light fa fa-user-circle-o" style="display: none" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <a id="profile" class="dropdown-item fa fa-sign-in" asp-area="" asp-page="/Account/Settings"> Профиль</a>
-                            <a id="notification" class="dropdown-item fa fa-envelope disabled" onclick="" data-toggle="modal" data-target="#"> Управление оповещениями</a>
+                            <a id="notification" class="dropdown-item fa fa-envelope" onclick="alertsInit()" data-toggle="modal" data-target="#manageAlertsPopup"> Управление оповещениями</a>
 
                             <a id="tech" style="display: none" class="dropdown-item fa fa-bar-chart" asp-area="" asp-page="/Dashboard/Index"> Кабинет техника</a>
                             <a id="admin" style="display: none" class="dropdown-item fa fa-users" asp-area="" asp-page="/Admin/Index"> Кабинет администратора</a>
@@ -97,7 +99,7 @@
                             <a id="log" style="display: none" class="dropdown-item fa fa-calendar" onclick="userLogCreate()" data-toggle="modal" data-target="#userLog"> Журнал действий</a>
 
 
-                            <a id="workDB" style="display: none" class="dropdown-item fa fa-database disabled" onclick="" data-toggle="modal" data-target="#"> Работа с БД</a>
+                            <a id="workDB" style="display: none" class="dropdown-item fa fa-database" onclick="dbWorkInit()" data-toggle="modal" data-target="#dbPopup"> Работа с БД</a>
 
                             <a id="settings" style="display: none" class="dropdown-item fa fa-cog" onclick="initAppSettings()" data-toggle="modal" data-target="#appSetingsPopup"> Настройки</a>
 
@@ -176,7 +178,6 @@
                 </div>
                 <div id="inviteForm"></div>
                 <div id="loadpanel"></div>
-                @*<div class="loadpanel"></div>*@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
@@ -199,7 +200,6 @@
             </div>
             <div class="modal-body">
                 <div id="userLogTable"></div>
-                @*<div class="loadpanel"></div>*@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
@@ -227,8 +227,6 @@
                     <div style="padding-bottom: 30px">
                         <div id="mailBody"></div>
                     </div>
-                    @*<div id="mailTheme" style="padding-bottom: 18px"></div>*@
-                    @*<div id="mailBody"></div>*@
                     <button id="mailSendBtn" type="button" onclick="sendMail()" disabled class="btn btn-block btn-success fa fa-envelope"> Отправить сообщение</button>
                 </section>
 
@@ -243,20 +241,6 @@
                     <button type="button" class="btn btn-block btn-secondary fa fa-ban" onclick="clearMailAll()" data-dismiss="modal"> Отмена</button>
                 </section>
             </div>
-            <!--<div class="modal-footer row">-->
-            @*<button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>*@
-            <!--<section class="col-12 col-lg-6 col-xl-4 left">
-                    <button type="button" class="btn btn-block btn-success fa fa-envelope"> Отправить сообщение</button>
-                </section>
-
-                <section class="col-12 col-lg-6 col-xl-4">
-                    <button id="mailClearBtn" type="button" class="btn btn-block btn-primary fa fa-times-circle"> Очистить список</button>
-                </section>
-
-                <section class="col-12 col-lg-6 col-xl-4 right">
-                    <button type="button" class="btn btn-block btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
-                </section>
-            </div>-->
         </div>
     </div>
 </div>
@@ -285,7 +269,6 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
-                @*<button type="button" class="btn btn-primary fa fa-share-square-o " onclick=""> Пригласить</button>*@
             </div>
         </div>
     </div>
@@ -307,7 +290,6 @@
                 <div class="alert alert-danger" id="deleteFileError" role="alert" style="display: none">
                     <i class="fa fa-warning" aria-hidden="true"></i>
                 </div>
-                <div></div>
                 <div id="deleteFileCaption" style="text-align: center"></div>
                 <hr />
                 <div class="form-check">
@@ -377,6 +359,147 @@
     </div>
 </div>
 
+<!-- Модальное окно работы с базой данных -->
+<div class="modal" tabindex="-1" role="dialog" id="dbPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-database text-warning"></i>&nbsp;&nbsp;Работа с базой данных</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="dbErrors" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div id="dbRecoveryList"></div>
+                <hr />
+                <div class="row">
+                    <section class="col-6 left" style="min-width: 150px">
+                        <div style="padding-bottom: 20px">
+                            <button style="width: 150px" type="button" class="btn btn-primary fa fa-upload" onclick="initDbRestore()" data-toggle="modal" data-target="#restoreDbPopup"> Восстановить</button>
+                        </div>
+                        <button style="width: 150px" type="button" class="btn btn-warning fa fa-eraser" onclick="initDbClear()" data-toggle="modal" data-target="#clearDbPopup"> Очистить</button>
+                    </section>
+                    <section class="col-6 right" style="min-width: 150px">
+                        <div style="padding-bottom: 20px !important">
+                            <button type="button" class="btn btn-success fa fa-download dbBtnR" onclick="dbBackup()"> Создать копию</button>
+                        </div>
+                        <div style="padding-top: 30px !important">
+                            <button type="button" class="btn btn-secondary fa fa-ban dbBtnR" data-dismiss="modal"> Отмена</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения восстановления БД -->
+<div class="modal" tabindex="-1" role="dialog" id="restoreDbPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-remove text-danger"></i>&nbsp;&nbsp;Внимание!</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="restoreDbError" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div id="restoreFileCaption" style="text-align: center"></div>
+                <hr />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="chkRestore" data-toggle="toggle">
+                    <label class="form-check-label" for="chkRestore">
+                        Продолжить?
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" id="restoreDbBtn" class="btn btn-danger fa fa-upload" disabled onclick="dbRestore()"> Восстановить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно работы очистки данных из базы -->
+<div class="modal" tabindex="-1" role="dialog" id="clearDbPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-eraser text-warning"></i>&nbsp;&nbsp;Удалить старые данные из базы</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="clearDbErrors" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="clearDbDatapicker" style="display: none">
+                </div>
+                <hr />
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="chkClear" data-toggle="toggle">
+                    <label class="form-check-label" for="chkClear">
+                        Вы уверены что хотите удалить эти данные?
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" id="clearDbBtn" class="btn btn-danger fa fa-remove" disabled onclick="dbClear()"> Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно управлением оповещений  -->
+<div class="modal" tabindex="-1" role="dialog" id="manageAlertsPopup">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa fa-envelope text-warning"></i>&nbsp;&nbsp;Управление оповещениями</h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success" id="manageAlertsSuccess" style="display: none">
+                    <i class="fa fa-check"></i>&nbsp;&nbsp;<strong>Настройки оповещений успешно сохранены.</strong>
+                </div>
+                <div class="alert alert-danger" id="manageAlertsError" role="alert" style="display: none">
+                    <i class="fa fa-warning" aria-hidden="true"></i>
+                </div>
+
+                <p class="">Введите или измените список дополнительных адресов электронной почты для рассылки ваших оповещений. Затем выберите ситуации (события), при которых они должны отправляться получателям. </p>
+                <h5 class="mb-3">Получатели оповещений</h5>
+                <div id="emailTable"></div>
+                <br />
+                <div></div>
+                <label for="emailsAdd"><i class="fa fa-users text-success" aria-hidden="true"></i>&nbsp;&nbsp;Введите адрес:</label>
+                <div id="emailsAdd"></div>
+
+                <h5 class="my-3">События для оповещений</h5>
+                <div id="alertsCheckTbl"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary fa fa-ban" data-dismiss="modal"> Отмена</button>
+                <button type="button" class="btn btn-primary fa fa-save" onclick="alertSave()"> Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     #userLogTable .dx-toolbar .dx-texteditor {
@@ -405,6 +528,11 @@
     .bar {
         height: 18px;
         background: green;
+    }
+
+    .dbBtnR {
+        width: 150px !important;
+        float: right !important;
     }
 </style>
 
@@ -451,6 +579,7 @@
             var email = document.getElementById("email");
             var workDb = document.getElementById("workDB");
             var settings = document.getElementById("settings");
+            var notification = document.getElementById("notification");
             email.style.display = "block";
             if (!user.role) window.location.replace("/");
             switch (user.role) {
@@ -459,6 +588,9 @@
                     adminD.style.display = "none";
                     inv.style.display = "none";
                     log.style.display = "none";
+                    workDb.style.display = "none";
+                    settings.style.display = "none";
+                    notification.style.display = "block";
                     roles = null;
                     break;
                 case "owner":
@@ -467,6 +599,9 @@
                     adminD.style.display = "block";
                     inv.style.display = "block";
                     log.style.display = "none";
+                    workDb.style.display = "none";
+                    settings.style.display = "none";
+                    notification.style.display = "block";
 
                     roles.splice(-1, 1);
                     roles.splice(-1, 1);
@@ -479,6 +614,9 @@
                     adminD.style.display = "block";
                     inv.style.display = "block";
                     log.style.display = "none";
+                    workDb.style.display = "none";
+                    settings.style.display = "none";
+                    notification.style.display = "none";
 
                     roles.splice(-1, 1);
                     roles.splice(-1, 1);
@@ -489,6 +627,9 @@
                     adminD.style.display = "block";
                     inv.style.display = "block";
                     log.style.display = "none";
+                    workDb.style.display = "none";
+                    settings.style.display = "none";
+                    notification.style.display = "none";
 
                     roles.splice(-1, 1);
                     roles.splice(-1, 1);
@@ -499,8 +640,9 @@
                     adminD.style.display = "block";
                     inv.style.display = "block";
                     log.style.display = "block";
-                    workDb.style.display = "block";
-                    settings.style.display = "block";
+                    workDb.style.display = "none";
+                    settings.style.display = "none";
+                    notification.style.display = "none";
                     break;
                 case "super_admin":
                     adminD.innerText = " Кабинет супер-админа";
@@ -510,6 +652,7 @@
                     log.style.display = "block";
                     workDb.style.display = "block";
                     settings.style.display = "block";
+                    notification.style.display = "none";
                     break;
             }
         });

@@ -28,9 +28,9 @@ namespace ThirdVendingWebApi.Controllers
       _emailSender = emailSender;
     }
 
-    [HttpPost("sentMail")]
+    [HttpPost("sendMail")]
     [Authorize]
-    public async Task<IActionResult> SentMail([FromBody] EmailSendModel model)
+    public async Task<IActionResult> SendMail([FromBody] EmailSendModel model)
     {
       try
       {

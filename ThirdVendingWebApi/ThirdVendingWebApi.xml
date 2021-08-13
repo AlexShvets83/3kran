@@ -760,6 +760,16 @@
               Новый пароль
             </summary>
         </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserInfoAlert.InfoEmails">
+            <summary>
+              Массив имейлов для рассылки писем с авариями и событиями
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Users.UserInfoAlert.UserAlerts">
+            <summary>
+              To DB
+            </summary>
+        </member>
         <member name="P:ThirdVendingWebApi.Models.Users.UserOwnerSetModel.Id">
             <summary>
               Ид пользователя из базы данных

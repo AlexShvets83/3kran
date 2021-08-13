@@ -329,7 +329,7 @@ function sendMail() {
     });
 
     const emailModel = { emailTheme: theme, emailBody: body, addressees: emails };
-    $.postJSON(`/api/Email/sentMail`, emailModel, null).then(function() {
+    $.postJSON(`/api/Email/sendMail`, emailModel, null).then(function() {
         clearMailAll();
         $('#emailSend').modal('hide');
         return;

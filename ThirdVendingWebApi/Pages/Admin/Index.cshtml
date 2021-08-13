@@ -833,6 +833,7 @@
                                 document.getElementById("deleteCaption").innerHTML = messageHtml;
                                 document.getElementById("deleteUserId").value = user.id;
                                 var usrError = document.getElementById("deleteError");
+                                $('#deleteBtn').prop('disabled', true);
                                 $('#chk1').prop('checked', false);
                                 
                                 usrError.style.display = 'none';

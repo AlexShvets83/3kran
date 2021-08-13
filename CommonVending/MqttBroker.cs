@@ -90,26 +90,26 @@ namespace CommonVending
     {
       if (c == null) return;
 
-      //if (c.ClientId.Contains("869640058515506"))
-      //{
-      //  Console.WriteLine($"New connection: {c.ClientId}");
-      //}
+      if (c.ClientId.Contains("869640058515506"))
+      {
+        Console.WriteLine($"New connection: {c.ClientId}");
+      }
 
       //Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
 
-      //if (c.Username != "3voda")
-      //{
-      //  c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
-      //  return;
-      //}
+      if (c.Username != "3voda")
+      {
+        c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+        return;
+      }
 
-      //if (c.Password != "Leimnoj8Knod")
-      //{
-      //  c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
-      //  return;
-      //}
+      if (c.Password != "Leimnoj8Knod")
+      {
+        c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+        return;
+      }
 
-      Console.WriteLine($"New connection: {c.ClientId}");
+      //Console.WriteLine($"New connection: {c.ClientId}");
       c.ReasonCode = MqttConnectReasonCode.Success;
     }
 
@@ -123,11 +123,11 @@ namespace CommonVending
     //  return true;
     //}
 
-    /// <summary>
-    ///   Logs the message from the MQTT subscription interceptor context.
-    /// </summary>
-    /// <param name = "context">The MQTT subscription interceptor context.</param>
-    /// <param name = "successful">A <see cref = "bool" /> value indicating whether the subscription was successful or not.</param>
+    ///// <summary>
+    /////   Logs the message from the MQTT subscription interceptor context.
+    ///// </summary>
+    ///// <param name = "context">The MQTT subscription interceptor context.</param>
+    ///// <param name = "successful">A <see cref = "bool" /> value indicating whether the subscription was successful or not.</param>
     //private static async Task LogSubscription(MqttSubscriptionInterceptorContext context, bool successful)
     //{
     //  if (context == null) { return; }
@@ -151,7 +151,7 @@ namespace CommonVending
 
       await DeviceMqtt.MessageHandler(context.ApplicationMessage?.Topic, payload);
 
-      Console.WriteLine("Topic = {0}, Payload = {1}", context.ApplicationMessage?.Topic, payload);
+      //Console.WriteLine("Topic = {0}, Payload = {1}", context.ApplicationMessage?.Topic, payload);
 
       //Console.WriteLine("Message: ClientId = {0}, Topic = {1}, Payload = {2}, QoS = {3}, Retain-Flag = {4}", context.ClientId, context.ApplicationMessage?.Topic, payload,
       //context.ApplicationMessage?.QualityOfServiceLevel, context.ApplicationMessage?.Retain);

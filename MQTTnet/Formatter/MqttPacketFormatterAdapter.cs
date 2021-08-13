@@ -128,16 +128,8 @@ namespace MQTTnet.Formatter
                 throw new MqttProtocolViolationException("CONNECT packet must have at least 7 bytes.");
             }
 
-            //if (receivedMqttPacket.BodyReader.Length < 3)
-            //{
-            //  // 2 byte protocol name length
-            //  // at least 4 byte protocol name
-            //  // 1 byte protocol level
-            //  throw new MqttProtocolViolationException("CONNECT packet must have at least 3 bytes.");
-            //}
-
             var protocolName = receivedMqttPacket.BodyReader.ReadStringWithLengthPrefix();
-            var protocolLevel = receivedMqttPacket.BodyReader.ReadByte();
+            var protocolLevel = receivedMqttPacket.BodyReader.ReadByte() & 0x7;
 
             if (protocolName == "MQTT")
             {

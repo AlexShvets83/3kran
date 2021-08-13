@@ -195,10 +195,7 @@ namespace ThirdVendingWebApi.Controllers
       await _userManager.UpdateAsync(userApp);
       await UserDbProvider.AddLog(new LogUsr
       {
-        UserId = userApp.Id,
-        Email = userApp.Email,
-        Phone = userApp.PhoneNumber,
-        LogDate = DateTime.Now,
+        UserId = userApp.Id, Email = userApp.Email, Phone = userApp.PhoneNumber, LogDate = DateTime.Now,
         Message = $"Пользователь {userApp} обновил свои данные"
       });
     }
@@ -224,10 +221,7 @@ namespace ThirdVendingWebApi.Controllers
 
           await UserDbProvider.AddLog(new LogUsr
           {
-            UserId = user.Id,
-            Email = user.Email,
-            Phone = user.PhoneNumber,
-            LogDate = DateTime.Now,
+            UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
             Message = $"Пользователь {user} изменил свой пароль"
           });
           return Ok();
@@ -264,10 +258,7 @@ namespace ThirdVendingWebApi.Controllers
           {
             await UserDbProvider.AddLog(new LogUsr
             {
-              UserId = user.Id,
-              Email = user.Email,
-              Phone = user.PhoneNumber,
-              LogDate = DateTime.Now,
+              UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
               Message = $"Пользователь {user} изменил свой пароль"
             });
             return Ok();
@@ -281,10 +272,7 @@ namespace ThirdVendingWebApi.Controllers
 
       await UserDbProvider.AddLog(new LogUsr
       {
-        UserId = user.Id,
-        Email = user.Email,
-        Phone = user.PhoneNumber,
-        LogDate = DateTime.Now,
+        UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
         Message = $"Пользователь {user} изменил свои учетные данные"
       });
       return Ok();
@@ -340,7 +328,7 @@ namespace ThirdVendingWebApi.Controllers
           {
             owner = await _userManager.FindByIdAsync(invite.OwnerId);
             if (owner == null) { return BadRequest("Отправитель с таким email не существует!"); }
-            
+
             user.CountryId = owner.CountryId;
 
             if ((role == Roles.Admin) || (role == Roles.Dealer)) ownerId = null;
@@ -370,10 +358,7 @@ namespace ThirdVendingWebApi.Controllers
           if (invite != null) InviteDbProvider.RemoveInvite(invite.Id);
           await UserDbProvider.AddLog(new LogUsr
           {
-            UserId = userApp.Id,
-            Email = userApp.Email,
-            Phone = userApp.PhoneNumber,
-            LogDate = DateTime.Now,
+            UserId = userApp.Id, Email = userApp.Email, Phone = userApp.PhoneNumber, LogDate = DateTime.Now,
             Message = $"Пользователь {userApp} зарегистрирован"
           });
           return Ok();
@@ -431,10 +416,7 @@ namespace ThirdVendingWebApi.Controllers
 
         await UserDbProvider.AddLog(new LogUsr
         {
-          UserId = user.Id,
-          Email = user.Email,
-          Phone = user.PhoneNumber,
-          LogDate = DateTime.Now,
+          UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
           Message = $"Пользователь {user} подал заявку на сброс пароля"
         });
 
@@ -472,10 +454,7 @@ namespace ThirdVendingWebApi.Controllers
 
         await UserDbProvider.AddLog(new LogUsr
         {
-          UserId = user.Id,
-          Email = user.Email,
-          Phone = user.PhoneNumber,
-          LogDate = DateTime.Now,
+          UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
           Message = $"Пользователь {user} изменил свой пароль через сброс"
         });
 
@@ -516,10 +495,7 @@ namespace ThirdVendingWebApi.Controllers
       {
         await UserDbProvider.AddLog(new LogUsr
         {
-          UserId = user.Id,
-          Email = user.Email,
-          Phone = user.PhoneNumber,
-          LogDate = DateTime.Now,
+          UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
           Message = $"Пользователь {user} изменил свои данные"
         });
         return Ok();
@@ -581,13 +557,8 @@ namespace ThirdVendingWebApi.Controllers
         countryId = userApp.CountryId;
         ownerEmail = userApp.Email;
       }
-      
-      var retData = new InviteData
-      {
-        Email = invite.Email,
-        CountryId = countryId,
-        OwnerEmail = ownerEmail
-      };
+
+      var retData = new InviteData {Email = invite.Email, CountryId = countryId, OwnerEmail = ownerEmail};
 
       return new ObjectResult(retData);
     }
@@ -601,7 +572,7 @@ namespace ThirdVendingWebApi.Controllers
         var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user == null) return NotFound("Пользователь не найден!");
         if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
-        
+
         InviteDbProvider.RemoveAllOldInvitations();
         var inviteRole = Roles.RolesPermissions.Find(f => f.Name == invite.Role);
         if (inviteRole == null) return NotFound("Роль не найдена!");
@@ -622,7 +593,7 @@ namespace ThirdVendingWebApi.Controllers
         var sch = HttpContext.Request.Scheme;
         var callbackUrl = $"{sch}://{host}/Account/Register?code={id}";
         var message = new StringBuilder();
-        message.AppendLine($"<div>Вас пригласили присоединиться с системе третий кран!</div><br />");
+        message.AppendLine("<div>Вас пригласили присоединиться с системе третий кран!</div><br />");
         message.AppendLine("<div>Для регистрации перейдите по ");
         try
         {
@@ -631,10 +602,7 @@ namespace ThirdVendingWebApi.Controllers
 
           await UserDbProvider.AddLog(new LogUsr
           {
-            UserId = user.Id,
-            Email = user.Email,
-            Phone = user.PhoneNumber,
-            LogDate = DateTime.Now,
+            UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
             Message = $"Пользователь {user} отослал приглашение [{invite.Email}] на роль [{invite.Role}]"
           });
           return Ok();
@@ -645,9 +613,86 @@ namespace ThirdVendingWebApi.Controllers
           return BadRequest(ex.Message);
         }
       }
+      catch (Exception ex) { return BadRequest(ex.Message); }
+    }
+
+    [HttpPut("setInfos")]
+    [Authorize]
+    public async Task<IActionResult> SetInfos([FromBody] UserInfoAlert userEdit)
+    {
+      try
+      {
+        var user = await _userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return NotFound("Пользователь не найден!");
+        if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+
+        string emails = null;
+        if ((userEdit.InfoEmails != null) && (userEdit.InfoEmails.Length > 0))
+        {
+          var em = new StringBuilder();
+          for (var i = 0; i < userEdit.InfoEmails.Length; i++)
+          {
+            if (userEdit.InfoEmails[i].ToUpper() == user.Email.ToUpper()) continue;
+
+            em.Append(userEdit.InfoEmails[i]);
+            if (i != userEdit.InfoEmails.Length - 1) em.Append(',');
+          }
+
+          emails = em.ToString();
+        }
+
+        user.InfoEmails = emails;
+
+        var alerts = 0;
+        if ((userEdit.UserAlerts != null) && (userEdit.UserAlerts.Length > 0))
+        {
+          foreach (var alert in userEdit.UserAlerts)
+          {
+            if (alert.Type == "NO_LINK")
+            {
+              if (alert.Active) alerts = alerts.SetBitTo1(0);
+              else alerts = alerts.SetBitTo0(0);
+            }
+
+            if (alert.Type == "TANK_EMPTY")
+            {
+              if (alert.Active) alerts = alerts.SetBitTo1(1);
+              else alerts = alerts.SetBitTo0(1);
+            }
+
+            if (alert.Type == "NO_SALES")
+            {
+              if (alert.Active) alerts = alerts.SetBitTo1(2);
+              else alerts = alerts.SetBitTo0(2);
+            }
+
+            if (alert.Type == "REPORT")
+            {
+              if (alert.Active) alerts = alerts.SetBitTo1(3);
+              else alerts = alerts.SetBitTo0(3);
+            }
+          }
+        }
+
+        user.UserAlerts = alerts;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+          await UserDbProvider.AddLog(new LogUsr
+          {
+            UserId = user.Id, Email = user.Email, Phone = user.PhoneNumber, LogDate = DateTime.Now,
+            Message = $"Пользователь {user} изменил данные рассылки оповещений"
+          });
+          return Ok(user);
+        }
+
+        return new BadRequestResult();
+      }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        Console.WriteLine(ex);
+        return StatusCode(500, $"Internal server error: {ex}");
       }
     }
   }

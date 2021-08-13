@@ -1,0 +1,10 @@
+Formatter/MqttPacketFormatterAdapter.cs  
+132 var protocolLevel = receivedMqttPacket.BodyReader.ReadByte() & 0x7;
+151 if (protocolLevel == 3 || protocolLevel == 131)
+
+Formatter/v3/MqttV310PacketFormatter.cs 
+241 var protocolVersion = body.ReadByte() & 0x7;
+248 if (protocolVersion != 3 && protocolVersion != 4 && protocolVersion != 131)
+
+Formatter/v5/MqttV500PacketDecoder.cs
+55  var protocolVersion = body.ReadByte() & 0x7;

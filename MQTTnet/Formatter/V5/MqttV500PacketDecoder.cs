@@ -52,7 +52,7 @@ namespace MQTTnet.Formatter.V5
             var packet = new MqttConnectPacket();
 
             var protocolName = body.ReadStringWithLengthPrefix();
-            var protocolVersion = body.ReadByte();
+            var protocolVersion = body.ReadByte() & 0x7;
 
             if (protocolName != "MQTT" && protocolVersion != 5)
             {

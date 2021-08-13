@@ -138,6 +138,7 @@
                             document.getElementById("deleteFileCaption").innerHTML = messageHtml;
                             document.getElementById("deleteFileId").value = file.id;
                             const delError = document.getElementById("deleteFileError");
+                            $('#deleteFileBtn').prop('disabled', true);
                             $("#chkFile").prop("checked", false);
                             
                             delError.style.display = "none";

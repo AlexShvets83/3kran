@@ -238,7 +238,7 @@ namespace MQTTnet.Formatter.V3
             ThrowIfBodyIsEmpty(body);
 
             var protocolName = body.ReadStringWithLengthPrefix();
-            var protocolVersion = body.ReadByte();
+            var protocolVersion = body.ReadByte() & 0x7;
 
             if (protocolName != "MQTT" && protocolName != "MQIsdp")
             {
