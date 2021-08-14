@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using CommonVending;
 
 namespace ThirdVendingWebApi.Controllers
 {
@@ -35,8 +36,8 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       var imei = i.ToString();
       if (string.IsNullOrEmpty(imei) || (imei.Length < 15) || (imei.Length > 17)) BadRequest("Неверный формат imei!");
 
+      //var result = true;
       var device = DeviceDbProvider.GetDeviceByImei(imei);
-      var result = true;
       if (device == null)
       {
         return NotFound();
@@ -50,14 +51,10 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
         //};
         //result = await DeviceDbProvider.AddOrEditDevice(device);
       }
-
-      device = DeviceDbProvider.GetDeviceByImei(imei);
+      
       var lastState = StatusDbProvider.GetDeviceLastStatus(device.Id);
 
-      //var lastAlert = DeviceDbProvider.GetDeviceLastAlert(device.Id);
-
-      //var date = DateTime.Now;
-      //var msgDate = date.ToUniversalTime().AddHours(device.TimeZone);
+      //var lastAlert = AlertsDbProvider.GetDeviceLastAlert(device.Id);
       var msgDate = DateTime.UtcNow.AddHours(device.TimeZone);
 
       var newState = new DevStatus
@@ -272,6 +269,16 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
           }
         }
       }
+    }
+
+    [HttpGet("/unixtimestamp")]
+    [AllowAnonymous]
+    public IActionResult GetTimestamp()
+    {
+      var dateNow = DateTime.UtcNow;
+      var timestamp = Main.ConvertToUnixTimestamp(dateNow);
+      var ret = new {timestamp};
+      return Ok(ret);
     }
   }
 }
