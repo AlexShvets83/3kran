@@ -1,13 +1,14 @@
 {
+  "MainHost": "monitoring3voda.ru",
   "ConnectionStrings": {
     "Password": "qwerty"
   },
   "SmtpClientSettings": {
-    "Host": "smtp.gmail.com",
-    "Port": 587,
+    "Host": "smtp.yandex.ru",
+    "Port": 25,
     "EnableSsl": true,
-    "UserName": "3karan.supp@gmail.com",
-    "Password": "!Qw12345"
+    "UserName": "post@monitoring3voda.ru",
+    "Password": "owdbjuevredecjlc"
   },
   "AuthOptions": {
     "JwtIssuer": "ThirdVendingAuthServer",

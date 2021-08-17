@@ -7,6 +7,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using DeviceDbModel;
 using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
@@ -24,32 +25,16 @@ namespace CommonVending
         //chain   -- errror
         //cert
         //fullchain
-        var pathCert = "/etc/letsencrypt/live/monitoring3voda.ru/fullchain.pem";
-        var pathKey = "/etc/letsencrypt/live/monitoring3voda.ru/privkey.pem";
+        var host = MainSettings.Settings.MainHost;
+        var pathCert = $"/etc/letsencrypt/live/{host}/fullchain.pem";
+        var pathKey = $"/etc/letsencrypt/live/{host}/privkey.pem";
 
-#if DEBUG
-        pathCert = "d:\\!Projects\\!3Cran\\SSL\\monitoring3voda.ru\\cert.pem";
-        pathKey = "d:\\!Projects\\!3Cran\\SSL\\monitoring3voda.ru\\privkey.pem";
-#endif
         var fc = await File.ReadAllTextAsync(pathCert);
         var fk = await File.ReadAllTextAsync(pathKey);
 
         var certificate = X509Certificate2.CreateFromPem(fc, fk);
-
-        //var fc = await File.ReadAllTextAsync("/etc/letsencrypt/live/monitoring3voda.ru/mqtt.csr");
-        //var fk = await File.ReadAllTextAsync("/etc/letsencrypt/live/monitoring3voda.ru/mqtt.key");
-        //var certificate = X509Certificate2.CreateFromPem(fc, fk);
-
-        //var currentPath = "/etc/letsencrypt/live/monitoring3voda.ru/";
-        //var certificate = new X509Certificate2(Path.Combine(currentPath ?? string.Empty, "certificate.pfx"), "qwerty", X509KeyStorageFlags.Exportable);
-
-        //var certifOption = new MqttServerOptions();
-        //certifOption.
-        //certifOption.TlsEndpointOptions.Certificate = certificate.Export(X509ContentType.Pfx);
-        //certifOption.TlsEndpointOptions.IsEnabled = true;
-
         var optionsBuilder = new MqttServerOptionsBuilder().WithConnectionBacklog(2000)
-          .WithClientId("monitoring3voda.ru")
+          .WithClientId(host)
           ////.WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
           .WithEncryptedEndpoint()
 

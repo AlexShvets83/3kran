@@ -35,12 +35,7 @@ namespace CommonVending
 
         var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(payLoad).WithExactlyOnceQoS().WithRetainFlag().Build();
         var options = new MqttClientOptionsBuilder()
-#if RELEASE
           .WithTcpServer("localhost", 8883)
-#endif
-          .WithTcpServer("monitoring3voda.ru", 8883)
-
-          //.WithTcpServer("127.0.0.1", 8883)
           .WithClientId("device_settings")
           .WithCredentials("3voda", "Leimnoj8Knod")
           .WithTls(new MqttClientOptionsBuilderTlsParameters

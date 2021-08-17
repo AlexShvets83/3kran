@@ -12,33 +12,33 @@ namespace ThirdVendingWebApi
   /// </summary>
   public static class AuthOptions
   {
-    private static readonly IConfiguration JwtSection;
+    private static readonly IConfiguration jwtSection;
 
     static AuthOptions()
     {
       IConfiguration config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(MainSettings.JsonPath).Build();
-      JwtSection = config.GetSection("AuthOptions");
+      jwtSection = config.GetSection("AuthOptions");
     }
 
     /// <summary>
     ///   издатель токена
     /// </summary>
-    public static string JwtIssuer => JwtSection["JwtIssuer"];
+    public static string JwtIssuer => jwtSection["JwtIssuer"];
 
     /// <summary>
     ///   потребитель токена
     /// </summary>
-    public static string JwtAudience => JwtSection["JwtAudience"];
+    public static string JwtAudience => jwtSection["JwtAudience"];
 
     /// <summary>
     ///   ключ для шифрования
     /// </summary>
-    private static string JwtKey => JwtSection["JwtAudience"];
+    private static string JwtKey => jwtSection["JwtAudience"];
 
     /// <summary>
     ///   время жизни токена
     /// </summary>
-    public static int JwtExpireMinutes => Convert.ToInt32(JwtSection["JwtExpireMinutes"]);
+    public static int JwtExpireMinutes => Convert.ToInt32(jwtSection["JwtExpireMinutes"]);
 
     /// <summary>
     ///   Get Symmetric Security Key
