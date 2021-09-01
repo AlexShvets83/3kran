@@ -9,12 +9,16 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommonVending.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using MQTTnet.Client;
 
 namespace CommonVending
 {
   public static class DeviceMqtt
   {
+    private static readonly IEmailSender sender = new AuthMessageSender();
+
     public static async Task SubscriptionHandler(string topic, string payLoad)
     {
       IMqttClient mqttClient = null;
@@ -161,6 +165,7 @@ namespace CommonVending
 
                       //todo send emails NO SALES
                       AlertsDbProvider.InsertDeviceAlert(alert);
+                      await sender.SendNoSales(device);
                     }
                   }
                 }
@@ -176,6 +181,9 @@ namespace CommonVending
 
                 //todo send emails TANK EMPTY
                 AlertsDbProvider.InsertDeviceAlert(alert);
+
+                //IEmailSender sender = new AuthMessageSender();
+                await sender.SendTankEmpty(device);
               }
             }
             else

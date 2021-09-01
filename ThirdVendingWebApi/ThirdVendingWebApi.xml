@@ -103,6 +103,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:ThirdVendingWebApi.Controllers.DataController.#ctor(Microsoft.AspNetCore.Identity.UI.Services.IEmailSender)">
+            <summary>
+              Constructor
+            </summary>
+            <param name = "emailSender"></param>
+        </member>
         <member name="T:ThirdVendingWebApi.Controllers.DevicesController">
             <summary>
             </summary>

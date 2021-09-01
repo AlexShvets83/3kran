@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ThirdVendingWebApi.Services
+namespace CommonVending.Services
 {
   public interface ISmsSender
   {

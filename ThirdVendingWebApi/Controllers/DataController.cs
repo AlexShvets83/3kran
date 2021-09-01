@@ -1,10 +1,12 @@
-﻿using CommonVending.DbProvider;
+﻿using CommonVending;
+using CommonVending.DbProvider;
+using CommonVending.Services;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using CommonVending;
 
 namespace ThirdVendingWebApi.Controllers
 {
@@ -12,7 +14,16 @@ namespace ThirdVendingWebApi.Controllers
   [ApiController]
   public class DataController : ControllerBase
   {
-    //public static StringBuilder Log { get; } = new StringBuilder();
+    private readonly IEmailSender _emailSender;
+
+    /// <summary>
+    ///   Constructor
+    /// </summary>
+    /// <param name = "emailSender"></param>
+    public DataController(IEmailSender emailSender)
+    {
+      _emailSender = emailSender;
+    }
 
     /*
      Протокол HTTP для старых автоматов
@@ -98,6 +109,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
         {
           var alert = new DevAlert {DeviceId = device.Id, MessageDate = msgDate, CodeType = -2, Message = "Бак пуст"};
           AlertsDbProvider.InsertDeviceAlert(alert);
+          await _emailSender.SendTankEmpty(device);
         }
       }
       else
@@ -204,19 +216,19 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
 
           StatusDbProvider.WriteDeviceErrorStatus(errorState);
 
-          // todo eror to anothe table
+          // todo error to anothe table
           lastState.Status = te;
           lastState.MessageDate = msgDate;
           StatusDbProvider.WriteDeviceLastStatus(lastState);
         }
         else
         {
-          CheckSaleError(device.Id, msgDate);
+          if (CheckSaleError(device.Id, msgDate)) await _emailSender.SendNoSales(device);
         }
       }
       else //if ((tm != 0) || (ts != 0))
       {
-        CheckSaleError(device.Id, msgDate);
+        if (CheckSaleError(device.Id, msgDate)) await _emailSender.SendNoSales(device);
 
         //// mybe it's FIRST sale
         //var lastSaleAlert = AlertsDbProvider.GetLastSaleAlert(device.Id);
@@ -237,11 +249,11 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
         //}
       }
       
-      if (i == 869640058515506)
-      {
-        var ip = Request.HttpContext.Connection.RemoteIpAddress;
-        Console.WriteLine($"ip={ip} imei={i} tm={tm} ts={ts} te={te}");
-      }
+      //if (i == 869640058515506)
+      //{
+      //  var ip = Request.HttpContext.Connection.RemoteIpAddress;
+      //  Console.WriteLine($"ip={ip} imei={i} tm={tm} ts={ts} te={te}");
+      //}
 
       //Console.WriteLine($"ip={ip} imei={i} tm={tm} ts={ts} te={te}");
      
@@ -251,7 +263,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       //return BadRequest();
     }
 
-    private void CheckSaleError(string dviceId, DateTime msgDate)
+    private bool CheckSaleError(string dviceId, DateTime msgDate)
     {
       var lastSale = SalesDbProvider.GetLastSale(dviceId);
       if (lastSale != null)
@@ -266,9 +278,12 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
             //eror sales
             var alert = new DevAlert {DeviceId = dviceId, MessageDate = msgDate, CodeType = 0, Message = "Нет продаж"};
             AlertsDbProvider.InsertDeviceAlert(alert);
+            return true;
           }
         }
       }
+
+      return false;
     }
 
     [HttpGet("/unixtimestamp")]

@@ -2,7 +2,7 @@
 using DeviceDbModel;
 using Microsoft.Extensions.Configuration;
 
-namespace ThirdVendingWebApi.Services
+namespace CommonVending.Services
 {
   public class SmtpClientSettings
   {

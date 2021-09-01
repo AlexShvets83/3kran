@@ -179,9 +179,9 @@ function popupSales() {
     header.innerHTML = '<i class="fa fa-shopping-cart text-warning"></i>&nbsp;&nbsp;Продажи за период';
     $('#alertsPopup').modal('toggle');
 
-    //var gd = $("#gridAlerts").dxDataGrid("instance");
-    //if (gd) { $("#gridAlerts").dxDataGrid("dispose");}
-    // $("#gridAlerts").remove();
+    var tooltipInstance = $("#tooltipContainer").dxTooltip({
+        position: "right"
+    }).dxTooltip("instance");
 
     $("#gridAlerts").dxDataGrid({
         //showColumnLines: true,
@@ -205,12 +205,11 @@ function popupSales() {
         hoverStateEnabled: true,
         rowAlternationEnabled: true,
         loadPanel: { enabled: true },
-        onCellPrepared: function (options) {
-                //const fieldData = options.value;
+        onCellPrepared: function (e) {
                 var fieldHtml = "";
-                const column = options.column;
-                if (options.rowType === "data" && column.dataField === "paymentType") {
-                    const sale = options.data;
+                const column = e.column;
+                if (e.rowType === "data" && column.dataField === "paymentType") {
+                    const sale = e.data;
                     switch (sale.paymentType) {
                     case 0:
                         fieldHtml = '<i class="fa fa-money text-success"></i>';
@@ -223,7 +222,23 @@ function popupSales() {
                         break;
                     }
 
-                    options.cellElement.html(fieldHtml);
+                    e.cellElement.html(fieldHtml);
+
+                    //todo finish up and uncomment 
+                    //var coins = sale.coins !== null ? sale.coins.length : 0;
+                    //var bills = sale.bills !== null ? sale.bills.length : 0;
+                    //e.cellElement.mouseover(function (arg) {
+                    //    tooltipInstance.option("contentTemplate", function (contentElement) {
+                    //        contentElement.html(`<div class='tooltipContent'><div><b>Coins:</b> ${coins}</div>` + 
+                    //            `<div><b>Bills:</b> ${bills}</div></div>`);
+                    //    });
+
+                    //    tooltipInstance.show(arg.target);
+                    //});
+
+                    //e.cellElement.mouseout(function (arg) {
+                    //    tooltipInstance.hide();
+                    //});
                 }
             },
         columns: [

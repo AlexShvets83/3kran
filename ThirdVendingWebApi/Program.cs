@@ -11,6 +11,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using CommonVending.DbProvider;
+using CommonVending.TaskScheduler;
 
 namespace ThirdVendingWebApi
 {
@@ -44,29 +45,31 @@ namespace ThirdVendingWebApi
       ApplicationSettings.Set(settings);
 
       //var initDev = new InitDevice();
+      var devScheduler = new DevScheduler();
+      devScheduler.Start();
 
       await host.RunAsync();
     }
 
-    public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-      .ConfigureWebHostDefaults(webBuilder =>
-      {
-//#if RELEASE
-        //webBuilder.UseKestrel();
-//#endif
-
-        webBuilder.ConfigureKestrel((context, options) =>
+    public static IHostBuilder CreateHostBuilder(string[] args)
+    {
+      return Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
         {
-          options.Limits.MaxRequestBodySize = int.MaxValue;
+          //#if RELEASE
+          //webBuilder.UseKestrel();
+          //#endif
+
+          webBuilder.ConfigureKestrel((context, options) => { options.Limits.MaxRequestBodySize = int.MaxValue; });
+          webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
+          webBuilder.UseIISIntegration();
+          webBuilder.UseStartup<Startup>();
+        })
+        .ConfigureAppConfiguration((hostingContext, config) =>
+        {
+          config.SetBasePath(Directory.GetCurrentDirectory());
+          config.AddJsonFile(MainSettings.JsonPath, false, false);
         });
-        webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
-        webBuilder.UseIISIntegration();
-        webBuilder.UseStartup<Startup>();
-      })
-      .ConfigureAppConfiguration((hostingContext, config) =>
-      {
-        config.SetBasePath(Directory.GetCurrentDirectory());
-        config.AddJsonFile(MainSettings.JsonPath, false, false);
-      });
+    }
   }
 }

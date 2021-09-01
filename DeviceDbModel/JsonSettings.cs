@@ -23,7 +23,7 @@
 #if DEBUG
         host = "Host=95.183.10.198;";
 #endif
-        host += $"Port=5432;Database=devicedb_clear;Username=kran;Password={Password}";
+        host += $"Port=5432;Database=devicedb;Username=kran;Password={Password}";
         return host;
       }
     }

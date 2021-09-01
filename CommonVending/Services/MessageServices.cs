@@ -1,10 +1,9 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace ThirdVendingWebApi.Services
+namespace CommonVending.Services
 {
   public class AuthMessageSender : IEmailSender, ISmsSender
   {
@@ -21,6 +20,7 @@ namespace ThirdVendingWebApi.Services
         Credentials = new NetworkCredential(smtp.UserName, smtp.Password),
       };
       var messageSend = new MailMessage(smtp.UserName, email, subject, message) {IsBodyHtml = true};
+      //messageSend.Priority = MailPriority.High;
       return client.SendMailAsync(messageSend);
     }
 
