@@ -142,7 +142,9 @@ namespace CommonVending.Services
         {
           // проверяем нужна ли рассылка, если нужна, тогда брем еще и добавочные адреса
 
-          if ((((user.UserAlerts >> 3) & 1) != 1) || !user.CommerceVisible) continue;
+          if (((user.UserAlerts >> 3) & 1) != 1) continue;
+
+          if ((user.Role == Roles.Technician) && !user.CommerceVisible) continue;
 
           if (!string.IsNullOrEmpty(emailList)) emailList += ",";
           emailList += user.Email;
