@@ -1,0 +1,38 @@
+.admin-dashboard {
+    padding-top: 20px;
+    background: #fff;
+    /*min-height: 100vh !important;*/
+    /*min-height: calc(100vh) !important;*/
+    /*height: 900px !important;*/
+    /*min-height: calc(100vh + 650px) !important;*/
+    /*min-height: calc(100vh - 250px);*/
+    /*min-height: calc(100vh - 170px);*/
+}
+
+.icon-column {
+    padding: 0.75rem 2px;
+}
+
+.icon-column button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+}
+
+.address-wrapper {
+    max-height: 32px;
+    overflow: hidden;
+    display: block;
+    line-height: 16px;
+    padding: 0;
+}
+
+.files_list-description {
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+
+dropzone .dz-message {
+    height: 100px;
+}

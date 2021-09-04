@@ -1,0 +1,19 @@
+{
+  "MainHost": "monitoring3voda.ru",
+  "ConnectionStrings": {
+    "Password": "qwerty"
+  },
+  "SmtpClientSettings": {
+    "Host": "smtp.yandex.ru",
+    "Port": 25,
+    "EnableSsl": true,
+    "UserName": "post@monitoring3voda.ru",
+    "Password": "owdbjuevredecjlc"
+  },
+  "AuthOptions": {
+    "JwtIssuer": "ThirdVendingAuthServer",
+    "JwtAudience": "http://3kran.ru/",
+    "JwtKey": "_9chCek!L{\n.y6ZQ)&6X@P?25?>H2Kb",
+    "JwtExpireMinutes": "600"
+  }
+}
