@@ -117,7 +117,6 @@
             <summary>
             </summary>
             <param name = "userManager"></param>
-            <param name = "signInManager"></param>
         </member>
         <member name="M:ThirdVendingWebApi.Controllers.DevicesController.Get">
             <summary>

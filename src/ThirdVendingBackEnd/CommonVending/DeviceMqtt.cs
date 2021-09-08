@@ -163,8 +163,9 @@ namespace CommonVending
                       //eror sales
                       var alert = new DevAlert {DeviceId = device.Id, MessageDate = msgDate, CodeType = 0, Message = "Нет продаж"};
 
-                      //todo send emails NO SALES
                       AlertsDbProvider.InsertDeviceAlert(alert);
+                      
+                      //send emails NO SALES
                       await sender.SendNoSales(device);
                     }
                   }
@@ -179,10 +180,9 @@ namespace CommonVending
               {
                 var alert = new DevAlert {DeviceId = device.Id, MessageDate = msgDate, CodeType = -2, Message = "Бак пуст"};
 
-                //todo send emails TANK EMPTY
                 AlertsDbProvider.InsertDeviceAlert(alert);
-
-                //IEmailSender sender = new AuthMessageSender();
+ 
+                //send emails TANK EMPTY
                 await sender.SendTankEmpty(device);
               }
             }

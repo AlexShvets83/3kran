@@ -41,8 +41,6 @@ namespace CommonVending.TaskScheduler
     {
       var now = DateTime.Now;
       double timeToNextHour = (((60 - now.Hour) * 1000 * 60) - ((60 - now.Second) * 1000) - now.Millisecond) + 15;
-
-      //double timeToNextMin = (((60 - now.Second) * 1000) - now.Millisecond) + 15;
       _nextIntervalTick = now.Ticks + ((long) timeToNextHour * TicksInMillisecond);
       if ((timeToNextHour > 0) && (timeToNextHour < int.MaxValue)) return timeToNextHour;
 

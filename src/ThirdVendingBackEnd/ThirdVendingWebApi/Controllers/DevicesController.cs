@@ -31,7 +31,6 @@ namespace ThirdVendingWebApi.Controllers
     /// <summary>
     /// </summary>
     /// <param name = "userManager"></param>
-    /// <param name = "signInManager"></param>
     public DevicesController(UserManager<ApplicationUser> userManager) //, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
     {
       _userManager = userManager;
