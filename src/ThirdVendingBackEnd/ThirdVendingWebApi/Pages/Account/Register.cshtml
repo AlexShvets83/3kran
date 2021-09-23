@@ -68,8 +68,8 @@
 
         <div class="form-row">
             <div class="col-md-6 mb-3">
-                <label for="email"><b>Email</b></label>
-                <div id="email" name="email"></div>
+                <label for="userEmail"><b>Email</b></label>
+                <div id="userEmail" name="userEmail"></div>
             </div>
 
             <div class="col-md-6 mb-3">
@@ -265,8 +265,14 @@
                 }
             ]
         });
+
+        //$("#userEmail").dxTextBox({
+        //    //disabled: isInvite,
+        //    placeholder: "Email",
+            
+        //});
         
-        $("#email").dxTextBox({
+        $("#userEmail").dxTextBox({
                 disabled: isInvite,
                 placeholder: "Email"
             })
@@ -413,7 +419,7 @@
                     var dlc = $("#dealer").dxSelectBox("instance");
                     dlc.option("dataSource", scrOwn);
                     dlc.option("value", ownerEmail);
-                    $("#email").dxTextBox("instance").option("value", data.email);
+                    $("#userEmail").dxTextBox("instance").option("value", data.email);
                 });
 
         }
@@ -442,7 +448,7 @@
             & $("#lastName").dxValidator("instance").validate().isValid
             & $("#firstName").dxValidator("instance").validate().isValid
             & $("#patronymic").dxValidator("instance").validate().isValid
-            & $("#email").dxValidator("instance").validate().isValid
+            & $("#userEmail").dxValidator("instance").validate().isValid
             & $("#phone").dxValidator("instance").validate().isValid
             & $("#city").dxValidator("instance").validate().isValid
             & $("#password").dxValidator("instance").validate().isValid
@@ -452,7 +458,7 @@
         //var summ = $("#summary").dxValidationSummary("instance");
         if (!valid) return;
         
-        var email = $("#email").dxTextBox("instance").option('value');
+        var email = $("#userEmail").dxTextBox("instance").option('value');
 
         const formData =
         {

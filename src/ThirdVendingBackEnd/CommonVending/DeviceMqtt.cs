@@ -91,6 +91,7 @@ namespace CommonVending
         var device = DeviceDbProvider.GetDeviceByImei(imei);
         if (device == null)
         {
+          Console.WriteLine($"[MQTT] Device [{imei}] not found!");
           return;
 
           //device = new Device

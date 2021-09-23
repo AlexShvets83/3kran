@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using CommonVending.DbProvider;
+﻿using CommonVending.DbProvider;
+using DeviceDbModel;
 using DeviceDbModel.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using ThirdVendingWebApi.Tools;
 
 namespace ThirdVendingWebApi.Controllers
@@ -12,24 +13,33 @@ namespace ThirdVendingWebApi.Controllers
   [ApiController]
   public class LogController : ControllerBase
   {
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public LogController(UserManager<ApplicationUser> userManager) { _userManager = userManager; }
+
+    [Authorize]
     [HttpGet("/api/log!1231easdda!11!2@")]
-    public string Getlog()
+    public async Task<IActionResult> Getlog()
     {
+      var admin = await _userManager.GetUserAsync(HttpContext.User);
+      if (admin == null) return NotFound("Пользователь не найден!");
+      if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+      if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено просматривать журнал!");
+      
       var info = DeviceTool.WriteCommand("journalctl -u 3kran-web.service");
-      var list = info.Split("\r\n");
-      var db = new StringBuilder();
-      Array.Reverse(list);
-
-      foreach (var str in list) { db.AppendLine(str.Trim('\n')); }
-
-      //var newList = list.Reverse();
-      return db.ToString();
+      return new ObjectResult(info);
     }
 
     [HttpGet("getLog")]
-    public List<LogUsr> GetUsersLog()
+    [Authorize]
+    public async Task<IActionResult> GetUsersLog()
     {
-      return UserDbProvider.GetUserLog();
+      var admin = await _userManager.GetUserAsync(HttpContext.User);
+      if (admin == null) return NotFound("Пользователь не найден!");
+      if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+      if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено просматривать журнал!");
+
+      return new ObjectResult(UserDbProvider.GetUserLog());
     }
   }
 }
