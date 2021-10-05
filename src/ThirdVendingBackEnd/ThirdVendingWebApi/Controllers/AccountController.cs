@@ -441,7 +441,7 @@ namespace ThirdVendingWebApi.Controllers
       if (pswModel.ExpiryDateTime < DateTime.Now) return BadRequest("Время жизни ссылки истекло!");
 
       var user = await _userManager.FindByIdAsync(pswModel.Id);
-      if ((user == null) && (user.NormalizedEmail != pswModel.Email.ToUpper())) { return BadRequest("Пользователь не найден!"); }
+      if ((user == null) || (user.NormalizedEmail != pswModel.Email.ToUpper())) { return BadRequest("Пользователь не найден!"); }
 
       var passwordValidator = HttpContext.RequestServices.GetService(typeof(IPasswordValidator<ApplicationUser>)) as IPasswordValidator<ApplicationUser>;
       var passwordHasher = HttpContext.RequestServices.GetService(typeof(IPasswordHasher<ApplicationUser>)) as IPasswordHasher<ApplicationUser>;
