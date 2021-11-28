@@ -243,7 +243,7 @@ function popupSales() {
             },
         columns: [
             {
-                width: '8%',
+                width: '5%',
                 alignment: "center",
                 dataField: "paymentType",
                 allowSorting: false,
@@ -279,7 +279,7 @@ function popupSales() {
                 }
             },
             {
-                width: '19%',
+                width: '15%',
                 allowSorting: false,
                 allowHeaderFiltering: false,
                 dataField: "messageDate",
@@ -291,7 +291,7 @@ function popupSales() {
                     }
             },
             {
-                width: '14%',
+                width: '15%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -306,7 +306,7 @@ function popupSales() {
                     }
             },
             {
-                width: '14%',
+                width: '12%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -321,7 +321,7 @@ function popupSales() {
                     }
             },
             {
-                width: '14%',
+                width: '12%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -336,7 +336,7 @@ function popupSales() {
                     }
             },
             {
-                width: '14%',
+                width: '15%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -364,6 +364,21 @@ function popupSales() {
                 headerCellTemplate: function (header, info) {
                         setHeader(header, info);
                     }
+            },
+            {
+                width: '11%',
+                alignment: "right",
+                allowSorting: false,
+                allowHeaderFiltering: false,
+                dataField: "rest",
+                caption: "Сдача",
+                format: {
+                    type: "fixedPoint",
+                    precision: 2
+                },
+                headerCellTemplate: function (header, info) {
+                    setHeader(header, info);
+                }
             }
         ],
         summary: {
@@ -419,6 +434,15 @@ function popupSales() {
                         type: "fixedPoint",
                         precision: 2
                     }
+                },
+                {
+                    column: "rest",
+                    summaryType: "sum",
+                    displayFormat: "{0}",
+                    valueFormat: {
+                        type: "fixedPoint",
+                        precision: 2
+                    }
                 }
             ]
         }
@@ -462,7 +486,7 @@ function popupEncash() {
         loadPanel: { enabled: true },
         columns: [
             {
-                width: '25%',
+                width: '20%',
                 allowSorting: false,
                 allowHeaderFiltering: false,
                 dataField: "messageDate",
@@ -474,7 +498,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '25%',
+                width: '20%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -489,7 +513,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '25%',
+                width: '20%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -504,7 +528,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '25%',
+                width: '20%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -517,6 +541,21 @@ function popupEncash() {
                 headerCellTemplate: function (header, info) {
                         setHeader(header, info);
                     }
+            },
+            {
+                width: '20%',
+                alignment: "right",
+                allowSorting: false,
+                allowHeaderFiltering: false,
+                dataField: "rest",
+                caption: "Сдача",
+                format: {
+                    type: "fixedPoint",
+                    precision: 2
+                },
+                headerCellTemplate: function (header, info) {
+                    setHeader(header, info);
+                }
             }
         ],
         summary: {
@@ -546,9 +585,17 @@ function popupEncash() {
                         precision: 2
                     }
                 },
-
                 {
                     column: "amountCoin",
+                    summaryType: "sum",
+                    displayFormat: "{0}",
+                    valueFormat: {
+                        type: "fixedPoint",
+                        precision: 2
+                    }
+                },
+                {
+                    column: "rest",
                     summaryType: "sum",
                     displayFormat: "{0}",
                     valueFormat: {
@@ -621,7 +668,7 @@ function popupAlerts() {
             },
         columns: [
             {
-                width: "10%",
+                width: "5%",
                 alignment: "center",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -632,7 +679,7 @@ function popupAlerts() {
                     }
             },
             {
-                width: "30%",
+                width: "15%",
                 allowSorting: false,
                 allowHeaderFiltering: false,
                 dataField: "messageDate",
@@ -668,8 +715,18 @@ function popupAlerts() {
                         }
                     }
             }
+        ],
+        summary: {
+        totalItems: [
+            {
+                column: "messageDate",
+                summaryType: "count",
+                customizeText: function (obj) {
+                    return `Зап.: ${obj.value}`;
+                }
+            }
         ]
-        //summary: null
+    }
     });
 
     const startDate = $('#dateRangePicker').data('daterangepicker').startDate;

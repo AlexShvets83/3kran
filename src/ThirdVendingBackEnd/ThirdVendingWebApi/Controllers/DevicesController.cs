@@ -246,15 +246,14 @@ namespace ThirdVendingWebApi.Controllers
     [Authorize]
     public async Task<IActionResult> GetSettings(string id) //Get(int size)
     {
-      //var user = await _userManager.GetUserAsync(HttpContext.User);
-      //if (user == null) return NotFound("Пользователь не найден!");
-      //if (!user.Activated) return StatusCode(403, "Пользователь деактивирован!");
+      return await Task.Factory.StartNew(() =>
+      {
+        var lastSettings = DeviceDbProvider.GetLastSettings(id, 0);
+        if (lastSettings == null) return new ObjectResult(null);
 
-      var lastSettings = DeviceDbProvider.GetLastSettings(id, 0);
-      if (lastSettings == null) return new ObjectResult(null);
-
-      var settings = JsonConvert.DeserializeObject<MqttDeviceSettings>(lastSettings.Payload);
-      return new ObjectResult(settings);
+        var settings = JsonConvert.DeserializeObject<MqttDeviceSettings>(lastSettings.Payload);
+        return new ObjectResult(settings);
+      });
     }
 
     [HttpPut("/api/device/settings/{imei}")]
@@ -325,10 +324,7 @@ namespace ThirdVendingWebApi.Controllers
       catch (Exception ex)
       {
         Console.WriteLine(ex);
-        return BadRequest(ex.Message);
-
-        //Response.StatusCode = 400;
-        //await Response.WriteAsync(ex.Message);
+        return StatusCode(500, $"Internal server error: {ex}");
       }
     }
 
@@ -336,46 +332,49 @@ namespace ThirdVendingWebApi.Controllers
     [Authorize]
     public async Task<IActionResult> GetInfo(string id)
     {
-      try
+      return await Task.Factory.StartNew(() =>
       {
-        var infos = DeviceDbProvider.GetDeviceInfos(id);
-        var retList = infos.Select(Main.GetNewObj<DevInfoView>).ToList();
+        try
+        {
+          var infos = DeviceDbProvider.GetDeviceInfos(id);
+          var retList = infos.Select(Main.GetNewObj<DevInfoView>).ToList();
 
-        var sortedList = new List<DevInfoView>();
-        var elm = retList.Find(f => f.Name == "simBalance");
-        if (elm != null) sortedList.Add(elm);
+          var sortedList = new List<DevInfoView>();
+          var elm = retList.Find(f => f.Name == "simBalance");
+          if (elm != null) sortedList.Add(elm);
 
-        elm = retList.Find(f => f.Name == "signalStrength");
-        if (elm != null) sortedList.Add(elm);
+          elm = retList.Find(f => f.Name == "signalStrength");
+          if (elm != null) sortedList.Add(elm);
 
-        elm = retList.Find(f => f.Name == "energyT1");
-        if (elm != null) sortedList.Add(elm);
+          elm = retList.Find(f => f.Name == "energyT1");
+          if (elm != null) sortedList.Add(elm);
 
-        elm = retList.Find(f => f.Name == "energyT2");
-        if (elm != null) sortedList.Add(elm);
+          elm = retList.Find(f => f.Name == "energyT2");
+          if (elm != null) sortedList.Add(elm);
 
-        elm = retList.Find(f => f.Name == "waterInput");
-        if (elm != null) sortedList.Add(elm);
+          elm = retList.Find(f => f.Name == "waterInput");
+          if (elm != null) sortedList.Add(elm);
 
 
-        //elm = retList.Find(f => f.Name == "tds");
-        //if (elm != null) sortedList.Add(elm);
-        /*
-         new DeviceConstraints('simBalance', 'Баланс SIM', 20.0),
-    new DeviceConstraints('signalStrength', 'Cигнал', 15, 20),
-    new DeviceConstraints('energyT1', 'Тариф 1, КВт&middot;ч', 0.0),
-    new DeviceConstraints('energyT2', 'Тариф 2, КВт&middot;ч', 0.0),
-    new DeviceConstraints('waterInput', 'Водомер, м&sup3;', 0.0),
-    new DeviceConstraints('tds', 'TDS, ppm', 0.0, 0.0, 100.0, 50.0),
-    new DeviceConstraints('temperature', 'Температура, &deg;C', 0.0, 5.0, 50.0, 40.0)
-         */
-        return new ObjectResult(sortedList);
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex);
-        return BadRequest(ex.Message);
-      }
+          //elm = retList.Find(f => f.Name == "tds");
+          //if (elm != null) sortedList.Add(elm);
+          /*
+           new DeviceConstraints('simBalance', 'Баланс SIM', 20.0),
+      new DeviceConstraints('signalStrength', 'Cигнал', 15, 20),
+      new DeviceConstraints('energyT1', 'Тариф 1, КВт&middot;ч', 0.0),
+      new DeviceConstraints('energyT2', 'Тариф 2, КВт&middot;ч', 0.0),
+      new DeviceConstraints('waterInput', 'Водомер, м&sup3;', 0.0),
+      new DeviceConstraints('tds', 'TDS, ppm', 0.0, 0.0, 100.0, 50.0),
+      new DeviceConstraints('temperature', 'Температура, &deg;C', 0.0, 5.0, 50.0, 40.0)
+           */
+          return new ObjectResult(sortedList);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex);
+          return StatusCode(500, $"Internal server error: {ex}");
+        }
+      });
     }
 
     [HttpPut("/api/device/setOwner/{id}")]
@@ -413,7 +412,7 @@ namespace ThirdVendingWebApi.Controllers
       catch (Exception ex)
       {
         Console.WriteLine(ex);
-        return BadRequest(ex.Message);
+        return StatusCode(500, $"Internal server error: {ex}");
 
         //Response.StatusCode = 400;
         //await Response.WriteAsync(ex.Message);

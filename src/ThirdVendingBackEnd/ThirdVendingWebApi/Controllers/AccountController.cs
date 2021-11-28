@@ -117,8 +117,8 @@ namespace ThirdVendingWebApi.Controllers
       }
       catch (Exception ex)
       {
-        Response.StatusCode = 400;
-        await Response.WriteAsync(ex.Message);
+        Response.StatusCode = 500;
+        await Response.WriteAsync($"Internal server error: {ex}");
       }
     }
 
@@ -366,7 +366,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return BadRequest(result.Errors);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     /// <summary>
@@ -425,7 +425,7 @@ namespace ThirdVendingWebApi.Controllers
       catch (Exception ex)
       {
         Console.WriteLine(ex.Message);
-        return BadRequest(ex.Message);
+        return StatusCode(500, $"Internal server error: {ex}");
       }
     }
 
@@ -610,10 +610,10 @@ namespace ThirdVendingWebApi.Controllers
         catch (Exception ex)
         {
           InviteDbProvider.RemoveInvite(id);
-          return BadRequest(ex.Message);
+          return StatusCode(500, $"Internal server error: {ex}");
         }
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     [HttpPut("setInfos")]

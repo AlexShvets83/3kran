@@ -16,7 +16,7 @@ namespace ThirdVendingWebApi.Controllers
   {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
-    
+
     /// <summary>
     ///   Constructor
     /// </summary>
@@ -37,37 +37,27 @@ namespace ThirdVendingWebApi.Controllers
         var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user == null) return NotFound("Пользователь не найден!");
         if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
-        
-        try
-        {
-          var addressees = new StringBuilder();
-          for (var i = 0; i < model.Addressees.Count; i++)
-          {
-            addressees.Append(model.Addressees[i]);
-            if (i != model.Addressees.Count - 1) addressees.Append(',');
-          }
 
-          await _emailSender.SendEmailAsync(addressees.ToString(), model.EmailTheme, model.EmailBody);
-
-          //await UserDbProvider.AddLog(new LogUsr
-          //{
-          //  UserId = user.Id,
-          //  Email = user.Email,
-          //  Phone = user.PhoneNumber,
-          //  LogDate = DateTime.Now,
-          //  Message = $"Пользователь {user} отослал приглашение [{invite.Email}] на роль [{invite.Role}]"
-          //});
-          return Ok();
-        }
-        catch (Exception ex)
+        var addressees = new StringBuilder();
+        for (var i = 0; i < model.Addressees.Count; i++)
         {
-          return BadRequest(ex.Message);
+          addressees.Append(model.Addressees[i]);
+          if (i != model.Addressees.Count - 1) addressees.Append(',');
         }
+
+        await _emailSender.SendEmailAsync(addressees.ToString(), model.EmailTheme, model.EmailBody);
+
+        //await UserDbProvider.AddLog(new LogUsr
+        //{
+        //  UserId = user.Id,
+        //  Email = user.Email,
+        //  Phone = user.PhoneNumber,
+        //  LogDate = DateTime.Now,
+        //  Message = $"Пользователь {user} отослал приглашение [{invite.Email}] на роль [{invite.Role}]"
+        //});
+        return Ok();
       }
-      catch (Exception ex)
-      {
-        return BadRequest(ex.Message);
-      }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
   }
 }

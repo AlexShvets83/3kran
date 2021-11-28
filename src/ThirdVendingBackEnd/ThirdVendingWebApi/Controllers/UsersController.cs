@@ -88,7 +88,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return new ObjectResult(retUsers);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     [HttpGet("getUserById/{id}")]
@@ -108,7 +108,7 @@ namespace ThirdVendingWebApi.Controllers
         //todo check role
         return new ObjectResult(retUser);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     //[HttpGet("Authorities")]
@@ -237,7 +237,7 @@ namespace ThirdVendingWebApi.Controllers
         //retUser.Role = retUserRoles.Count > 0 ? retUserRoles[0] : null;
         return new ObjectResult(retUser);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     /// <summary>
@@ -281,53 +281,22 @@ namespace ThirdVendingWebApi.Controllers
     [HttpGet("getDealers/{countryId}")]
     public async Task<IActionResult> GetDealers(int countryId)
     {
-      try
+      return await Task.Factory.StartNew(() =>
       {
-        //var dealers = new List<ApplicationUser>();
-        //var user = await _userManager.GetUserAsync(HttpContext.User);
-        //if (user != null)
-        //{
-        //  if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
-
-        //  switch (user.Role)
-        //  {
-        //    case Roles.SuperAdmin:
-        //    case Roles.Admin:
-        //      dealers = _userManager.Users.Where(w => w.Role == Roles.Dealer).ToList();
-        //      break;
-        //    case Roles.Dealer:
-        //      dealers = new List<ApplicationUser> {user};
-        //      break;
-        //    case Roles.DealerAdmin:
-        //    case Roles.Technician:
-        //      dealers = _userManager.Users.Where(w => w.Id == user.OwnerId).ToList();
-        //      break;
-        //  }
-        //}
-        //else
-        //{
-        //  dealers = _userManager.Users.Where(w => (w.CountryId == countryId) && (w.Role == Roles.Dealer)).ToList();
-        //}
-
-        //var dealerRole = await _roleManager.FindByNameAsync(Roles.Dealer);
-
-        //var dealers = _userManager.Users.Where(w => w.CountryId == countryId).ToList();
-        var dealers = _userManager.Users.Where(w => (w.CountryId == countryId) && (w.Role == Roles.Dealer)).ToList();
-
-        //var dealers = countryId > 0
-        //                ? _userManager.Users.Where(w => (w.CountryId == countryId) && (w.Role == Roles.Dealer)).ToList()
-        //                : _userManager.Users.Where(w => w.Role == Roles.Dealer).ToList();
-
-        var retDl = new List<DealerModel>();
-        foreach (var dl in dealers)
+        try
         {
-          var name = !string.IsNullOrEmpty(dl.Organization) ? dl.Organization : $"{dl.LastName} {dl.FirstName} {dl.Patronymic}";
-          retDl.Add(new DealerModel {Id = dl.Id, Email = dl.Email, Name = string.IsNullOrEmpty(dl.AddDealerName) ? name : $"{name} {dl.AddDealerName}"});
-        }
+          var dealers = _userManager.Users.Where(w => (w.CountryId == countryId) && (w.Role == Roles.Dealer)).ToList();
+          var retDl = new List<DealerModel>();
+          foreach (var dl in dealers)
+          {
+            var name = !string.IsNullOrEmpty(dl.Organization) ? dl.Organization : $"{dl.LastName} {dl.FirstName} {dl.Patronymic}";
+            retDl.Add(new DealerModel {Id = dl.Id, Email = dl.Email, Name = string.IsNullOrEmpty(dl.AddDealerName) ? name : $"{name} {dl.AddDealerName}"});
+          }
 
-        return new ObjectResult(retDl);
-      }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+          return new ObjectResult(retDl);
+        }
+        catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
+      });
     }
 
     /// <summary>
@@ -377,7 +346,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return new ObjectResult(retDl);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     /// <summary>
@@ -417,7 +386,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return new ObjectResult(retUsers);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     /// <summary>
@@ -444,7 +413,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return new ObjectResult(retOwners);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     /// <summary>
@@ -473,7 +442,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return new ObjectResult(retDealers);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     [HttpPut("setActive/{id}")]
@@ -526,7 +495,7 @@ namespace ThirdVendingWebApi.Controllers
 
         //return new ObjectResult(retUser);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
 
     [HttpDelete("{id}")]
@@ -585,7 +554,7 @@ namespace ThirdVendingWebApi.Controllers
 
         return BadRequest(errors);
       }
-      catch (Exception ex) { return BadRequest(ex.Message); }
+      catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }
     }
   }
 }

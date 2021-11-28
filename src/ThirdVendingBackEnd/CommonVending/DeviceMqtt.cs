@@ -230,7 +230,7 @@ namespace CommonVending
             var encash = new DevEncash
             {
                 DeviceId = device.Id, MessageDate = msgDate, AmountCoin = newEncash.AmountCoin, AmountBill = newEncash.AmountBill,
-                Amount = newEncash.Amount, Coins = JsonConvert.SerializeObject(newEncash.Coins), Bills = JsonConvert.SerializeObject(newEncash.Bills)
+                Amount = newEncash.Amount, Coins = JsonConvert.SerializeObject(newEncash.Coins), Bills = JsonConvert.SerializeObject(newEncash.Bills), Rest = newEncash.Rest
             };
 
             DeviceDbProvider.InsertDeviceEncash(encash);
@@ -241,7 +241,8 @@ namespace CommonVending
             var sale = new DevSale
             {
                 DeviceId = device.Id, MessageDate = msgDate, PaymentType = newSale.PaymentType, Quantity = newSale.Quantity,
-                Price = newSale.Price, Amount = newSale.Amount, Coins = JsonConvert.SerializeObject(newSale.Coins), Bills = JsonConvert.SerializeObject(newSale.Bills)
+                Price = newSale.Price, Amount = newSale.Amount, Coins = JsonConvert.SerializeObject(newSale.Coins), Bills = JsonConvert.SerializeObject(newSale.Bills),
+                Rest = newSale.Rest
             };
 
             SalesDbProvider.InsertDeviceSale(sale);

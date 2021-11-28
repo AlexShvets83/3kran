@@ -1,19 +1,17 @@
-﻿using System;
+﻿using CommonVending;
+using CommonVending.DbProvider;
+using DeviceDbModel;
+using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
-using CommonVending;
-using CommonVending.DbProvider;
-using CommonVending.Model;
-using DeviceDbModel;
-using DeviceDbModel.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using ThirdVendingWebApi.Models;
 
 namespace ThirdVendingWebApi.Controllers
@@ -48,19 +46,15 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet("{id}")]
-    //[Authorize]
+    [AllowAnonymous]
     [Produces(typeof(List<FileViewModel>))]
     public async Task<IActionResult> GetFile(string id)
     {
-      //var user = await _userManager.GetUserAsync(HttpContext.User);
-      //if (user == null) return NotFound("Пользователь не найден!");
-      //if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
-
-      var fileLink = FilesDbProvider.GetFile(id);
-
-      //var mas = await System.IO.File.ReadAllBytesAsync(fileLink.Path);
-      //return File(mas, fileLink.FileType, fileLink.Name);
-      return PhysicalFile(fileLink.Path, fileLink.FileType, fileLink.Name);
+      return await Task.Factory.StartNew(() =>
+      {
+        var fileLink = FilesDbProvider.GetFile(id);
+        return PhysicalFile(fileLink.Path, fileLink.FileType, fileLink.Name);
+      });
     }
     
     [HttpPost]

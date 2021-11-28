@@ -44,6 +44,11 @@ namespace DeviceDbModel.Models
     /// </summary>
     public string Bills { get; set; }
 
+    /// <summary>
+    ///   Объем не выданных средств (общее суммарное значение)
+    /// </summary>
+    public float? Rest { get; set; }
+
     public Device Device { get; set; }
   }
 }

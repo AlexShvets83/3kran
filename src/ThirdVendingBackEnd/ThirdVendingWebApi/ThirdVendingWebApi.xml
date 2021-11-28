@@ -137,17 +137,6 @@
             <param name = "userManager"></param>
             <param name = "emailSender"></param>
         </member>
-        <member name="T:ThirdVendingWebApi.Controllers.ManagementController">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:ThirdVendingWebApi.Controllers.ManagementController.Info">
-            <summary>
-            for front
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:ThirdVendingWebApi.Controllers.UsersController.Put(ThirdVendingWebApi.Models.Users.UserAccountAdminEdit)">
             <summary>
             </summary>
