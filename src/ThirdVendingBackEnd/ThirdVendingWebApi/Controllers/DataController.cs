@@ -44,6 +44,8 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
     [AllowAnonymous]
     public async Task<IActionResult> Send(long i, float tm, float ts, int te)
     {
+      if (!ApplicationSettings.SupportBoard1) return NotFound();
+
       var imei = i.ToString();
       if (string.IsNullOrEmpty(imei) || (imei.Length < 15) || (imei.Length > 17)) BadRequest("Неверный формат imei!");
 

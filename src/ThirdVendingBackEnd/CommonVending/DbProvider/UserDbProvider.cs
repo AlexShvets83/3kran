@@ -63,7 +63,7 @@ WITH RECURSIVE t AS
         SELECT * FROM t";
         if (isInRoleOwner) { query += " where t.role = 'owner'"; }
 
-        query += " Order by id;";
+        query += " Order by activated DESC, id;";
         mainQuery += query;
         mainQuery += @") t1 JOIN ""AspNetUsers"" t2 on t1.owner_id=t2.Id";
 
@@ -104,7 +104,7 @@ WITH RECURSIVE t AS
       {
         using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
         {
-          var log = context.UserLog.ToList();
+          var log = context.UserLog.OrderByDescending(o => o.LogDate).ToList();
           return log;
         }
       }

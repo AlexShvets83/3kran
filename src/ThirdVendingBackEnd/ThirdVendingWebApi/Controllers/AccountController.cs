@@ -176,7 +176,7 @@ namespace ThirdVendingWebApi.Controllers
       userApp.LastModifiedDate = DateTime.Now;
 
       userApp.InfoEmails = string.Empty;
-      if ((user.InfoEmails != null) || (user.InfoEmails.Length > 0))
+      if ((user.InfoEmails != null) || (user.InfoEmails?.Length > 0))
       {
         for (var i = 0; i < user.InfoEmails.Length; i++)
         {

@@ -17,14 +17,14 @@ namespace ThirdVendingWebApi.Controllers
 
     public LogController(UserManager<ApplicationUser> userManager) { _userManager = userManager; }
 
-    [Authorize]
+    //[Authorize]
     [HttpGet("/api/log!1231easdda!11!2@")]
     public async Task<IActionResult> Getlog()
     {
-      var admin = await _userManager.GetUserAsync(HttpContext.User);
-      if (admin == null) return NotFound("Пользователь не найден!");
-      if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
-      if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено просматривать журнал!");
+      //var admin = await _userManager.GetUserAsync(HttpContext.User);
+      //if (admin == null) return NotFound("Пользователь не найден!");
+      //if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
+      //if ((admin.Role != Roles.SuperAdmin) && (admin.Role != Roles.Admin)) return StatusCode(403, "Вам запрещено просматривать журнал!");
       
       var info = DeviceTool.WriteCommand("journalctl -u 3kran-web.service");
       return new ObjectResult(info);

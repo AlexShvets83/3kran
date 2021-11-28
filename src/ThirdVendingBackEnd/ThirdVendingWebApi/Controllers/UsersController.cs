@@ -39,7 +39,7 @@ namespace ThirdVendingWebApi.Controllers
         {
           case Roles.SuperAdmin:
           case Roles.Admin:
-            users = _userManager.Users.OrderBy(s => s.Id).ToList();
+            users = _userManager.Users.OrderByDescending(s => s.Activated).ThenBy(x => x.Id).ToList();
 
             //remove SA
             var sAdm = users.FindAll(f => f.Role == Roles.SuperAdmin);

@@ -22,7 +22,7 @@ namespace ThirdVendingWebApi.Controllers
         var alerts = (from != null) && (to != null) 
                        ? AlertsDbProvider.GetDeviceAlertEvent(deviceId, from.Value, to.Value) 
                        : AlertsDbProvider.GetDeviceAlert(deviceId, 5);
-        var retList = alerts.Select(Main.GetNewObj<DeviceAlert>).ToList();
+        var retList = alerts?.Select(Main.GetNewObj<DeviceAlert>).ToList();
         return new ObjectResult(retList);
       });
     }

@@ -41,6 +41,8 @@ namespace ThirdVendingWebApi.Controllers
                          ? DeviceDbProvider.GetDeviceEncash(deviceId, from.Value, to.Value)
                          : DeviceDbProvider.GetDeviceEncash(deviceId, 5);
         var retListEncashes = new List<DeviceEncashModel>();
+        if (encashes == null) return new ObjectResult(null);
+        
         foreach (var encashe in encashes)
         {
           var enc = new DeviceEncashModel

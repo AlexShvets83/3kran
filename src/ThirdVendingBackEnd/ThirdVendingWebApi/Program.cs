@@ -21,7 +21,7 @@ namespace ThirdVendingWebApi
     {
       AppDomain.CurrentDomain.UnhandledException += (sender, arg) => { Console.WriteLine($"{sender} - {arg.ExceptionObject}"); };
 
-      //CreateHostBuilder(args).Build().Run();
+      AppSettingsDbProvider.GetAppSettings();
       await MqttBroker.MqttInit();
 
       var host = CreateHostBuilder(args).Build();
@@ -40,9 +40,6 @@ namespace ThirdVendingWebApi
           logger.LogError(ex, "An error occurred while seeding the database.");
         }
       }
-
-      var settings = AppSettingsDbProvider.GetAppSettings();
-      ApplicationSettings.Set(settings);
 
       //var initDev = new InitDevice();
       var devScheduler = new DevScheduler();

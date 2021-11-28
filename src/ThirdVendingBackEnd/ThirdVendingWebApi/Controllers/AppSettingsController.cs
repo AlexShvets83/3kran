@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using CommonVending;
 
 namespace ThirdVendingWebApi.Controllers
 {
@@ -30,7 +31,6 @@ namespace ThirdVendingWebApi.Controllers
       if (admin.Role != Roles.SuperAdmin) return StatusCode(403, "Вам запрещено изменять настройки!");
 
       var settings = AppSettingsDbProvider.GetAppSettings();
-      ApplicationSettings.Set(settings);
       return Ok(settings);
     }
 

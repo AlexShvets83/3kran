@@ -1,25 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommonVending.Crypt;
 using DeviceDbModel;
 using MQTTnet;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
+using System;
+using System.IO;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CommonVending
 {
-  public class MqttBroker
+  public static class MqttBroker
   {
     public static async Task MqttInit()
     {
       try
       {
+        await MqttServerAesInit();
+
         //var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         //chain   -- errror
@@ -33,37 +33,25 @@ namespace CommonVending
         var fk = await File.ReadAllTextAsync(pathKey);
 
         var certificate = X509Certificate2.CreateFromPem(fc, fk);
-        var optionsBuilder = new MqttServerOptionsBuilder().WithConnectionBacklog(2000)
-          .WithClientId(host)
-          ////.WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
-          .WithEncryptedEndpoint()
+        var optionsBuilder = new MqttServerOptionsBuilder().WithConnectionBacklog(20000)
+            .WithClientId(host)
+            .WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
+            .WithEncryptedEndpoint()
 
-          //.WithDefaultCommunicationTimeout(TimeSpan.FromMinutes(180))
-          //.WithMultiThreadedApplicationMessageInterceptor()
-          .WithEncryptedEndpointPort(8883)
-          .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
-          //.WithClientCertificate(ClientCertificateValidationCallback)
-          .WithEncryptionSslProtocol(SslProtocols.None)
-          .WithConnectionValidator(ConnectionValidatorCallback)
-          .WithSubscriptionInterceptor(async c =>
-          {
-            c.AcceptSubscription = true;
+            //.WithDefaultCommunicationTimeout(TimeSpan.FromMinutes(180))
+            //.WithMultiThreadedApplicationMessageInterceptor()
+            .WithEncryptedEndpointPort(8883)
+            .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
 
-            //if (c.ClientId.Contains("869640058515506"))
-            //{
-            //  Console.WriteLine($"New connection: {c.ClientId}");
-            //}
-            //await LogSubscription(c, true);
-          })
-          .WithApplicationMessageInterceptor(async c =>
-          {
-            c.AcceptPublish = true;
-            await LogMessage(c);
-          });
-          //.WithDisconnectedInterceptor(c =>
-          //{
-          //  Console.WriteLine("Disconnect: ClientId = {0}, DisconnectType = {1}}", c.ClientId, c.DisconnectType);
-          //});
+            //.WithClientCertificate(ClientCertificateValidationCallback)
+            .WithEncryptionSslProtocol(SslProtocols.None)
+            .WithConnectionValidator(ConnectionValidatorCallback)
+            .WithSubscriptionInterceptor(c => { c.AcceptSubscription = true; })
+            .WithApplicationMessageInterceptor(async c =>
+            {
+              c.AcceptPublish = true;
+              await LogMessage(c);
+            });
 
         var mqttServer = new MqttFactory().CreateMqttServer();
         await mqttServer.StartAsync(optionsBuilder.Build());
@@ -71,13 +59,50 @@ namespace CommonVending
       catch (Exception ex) { Console.WriteLine(ex); }
     }
 
+    private static async Task MqttServerAesInit()
+    {
+      var optionsBuilder = new MqttServerOptionsBuilder().WithConnectionBacklog(2000)
+          .WithClientId("monitoring3voda.ru")
+          .WithDefaultEndpoint()
+          .WithDefaultEndpointPort(1883)
+          .WithConnectionValidator(ConnectionValidatorCallbackAes)
+          .WithSubscriptionInterceptor(c => { c.AcceptSubscription = true; })
+          .WithApplicationMessageInterceptor(async c =>
+          {
+            c.AcceptPublish = true;
+            await LogMessage(c);
+          });
+      var mqttServer = new MqttFactory().CreateMqttServer();
+      await mqttServer.StartAsync(optionsBuilder.Build());
+    }
+
+    private static void ConnectionValidatorCallbackAes(MqttConnectionValidatorContext c)
+    {
+      if (c == null) return;
+      
+      if (!ApplicationSettings.SupportBoard3)
+      {
+        c.ReasonCode = MqttConnectReasonCode.RetainNotSupported;
+        return;
+      }
+
+      if (!c.ClientId.Contains("device_"))
+      {
+        c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
+        return;
+      }
+
+      c.ReasonCode = MqttConnectReasonCode.Success;
+    }
+
     private static void ConnectionValidatorCallback(MqttConnectionValidatorContext c)
     {
       if (c == null) return;
-
-      if (c.ClientId.Contains("869640058515506"))
+      
+      if (!ApplicationSettings.SupportBoard2)
       {
-        Console.WriteLine($"New connection: {c.ClientId}");
+        c.ReasonCode = MqttConnectReasonCode.RetainNotSupported;
+        return;
       }
 
       //Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
@@ -103,7 +128,7 @@ namespace CommonVending
     //  if (certificate != null) { Console.WriteLine("certificate Issuer = {0}", certificate.Issuer); }
 
     //  if (chain != null) { Console.WriteLine("chain ChainPolicy = {0}", chain.ChainPolicy); }
-      
+
     //  Console.WriteLine("SslPolicyErrors = {0}", sslpolicyerrors);
     //  return true;
     //}
@@ -132,9 +157,24 @@ namespace CommonVending
     {
       if (context == null) { return; }
 
-      var payload = context.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(context.ApplicationMessage?.Payload);
+      //var payload = context.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(context.ApplicationMessage?.Payload);
+      var topic = context.ApplicationMessage?.Topic;
+      var payloadBytes = context.ApplicationMessage?.Payload ?? Array.Empty<byte>();
+      var payload = Encoding.UTF8.GetString(payloadBytes);
+      if (!payload.StartsWith("{"))
+      {
+        var hexEnc = new StringBuilder(context.ApplicationMessage.Payload.Length * 2);
+        foreach (var b in payloadBytes) { hexEnc.AppendFormat("{0:x2} ", b); }
 
-      await DeviceMqtt.MessageHandler(context.ApplicationMessage?.Topic, payload);
+        var plainText = CryptoAes.DecryptAes(payloadBytes);
+        payload = plainText;
+        Console.WriteLine("Topic = {0}, Payload = {1}", topic, payload);
+      }
+
+      payload = payload.Replace("\0", string.Empty);
+      payload = payload.Trim();
+
+      await DeviceMqtt.MessageHandler(topic, payload);
 
       //Console.WriteLine("Topic = {0}, Payload = {1}", context.ApplicationMessage?.Topic, payload);
 

@@ -21,6 +21,9 @@ namespace CommonVending.DbProvider
         using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
         {
           var settingsList = context.AppSettings.ToList();
+          var appSet = settingsList[0];
+          ApplicationSettings.Set(appSet);
+
           return settingsList[0];
         }
       }
@@ -39,6 +42,8 @@ namespace CommonVending.DbProvider
         {
           context.AppSettings.Update(record);
           await context.SaveChangesAsync();
+
+          ApplicationSettings.Set(record);
         }
       }
       catch (Exception ex) { Console.WriteLine(ex); }

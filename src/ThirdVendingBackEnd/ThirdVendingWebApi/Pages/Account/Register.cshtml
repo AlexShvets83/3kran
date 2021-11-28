@@ -69,13 +69,14 @@
         <div class="form-row">
             <div class="col-md-6 mb-3">
                 <label for="userEmail"><b>Email</b></label>
-                <div id="userEmail" name="userEmail"></div>
+                <div id="userEmail" name="userEmail" type="Email"></div>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label for="phone"><b>Телефон</b></label>
                 <div id="phone" name="phone"></div>
             </div>
+
             <div class="col-md-6 mb-3">
                 <label for="city"><b>Город</b></label>
                 <div id="city" name="city"></div>
@@ -84,12 +85,14 @@
 
             <div class="col-md-6 mb-3">
                 <label for="organization"><b>Наименование компании</b></label>
-                <div id="organization" name="organization"></div>
+                <div id="organization" name="organization" type="text" autocomplete="off" placeholder="Наименование компании"></div>
             </div>
+
             <div class="col-md-6 mb-3">
                 <label for="password"><b>Пароль</b></label>
-                <div id="password" name="password"></div>
+                <div id="password" name="password" autocomplete="off"></div>
             </div>
+
             <div class="col-md-6 mb-3">
                 <label for="confirmPassword"><b>Подтверждение пароля</b></label>
                 <div id="confirmPassword" name="confirmPassword"></div>
@@ -274,7 +277,8 @@
         
         $("#userEmail").dxTextBox({
                 disabled: isInvite,
-                placeholder: "Email"
+                placeholder: "Email",
+                mode: "email"
             })
             .dxValidator({
                 validationRules: [{

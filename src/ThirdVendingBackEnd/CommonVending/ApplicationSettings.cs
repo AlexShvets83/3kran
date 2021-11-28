@@ -1,16 +1,16 @@
 ﻿using DeviceDbModel.Models;
 
-namespace ThirdVendingWebApi
+namespace CommonVending
 {
   public static class ApplicationSettings
   {
     public static int UserLogDepth { get; set; }
 
-    public static bool SupportBoard1 { get; set; }
+    public static bool SupportBoard1 { get; set; } = true;
 
-    public static bool SupportBoard2 { get; set; }
+    public static bool SupportBoard2 { get; set; } = true;
 
-    public static bool SupportBoard3 { get; set; }
+    public static bool SupportBoard3 { get; set; } = true;
 
     public static long FileMaxUploadLenght { get; set; }
 
@@ -18,6 +18,8 @@ namespace ThirdVendingWebApi
 
     public static void Set(AppSettings data)
     {
+      if (data == null) return;
+
       UserLogDepth = data.UserLogDepth;
       SupportBoard1 = data.SupportBoard1;
       SupportBoard2 = data.SupportBoard2;

@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommonVending.Crypt;
 using CommonVending.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using MQTTnet.Client;
@@ -38,18 +39,17 @@ namespace CommonVending
         if (string.IsNullOrEmpty(imei) || (imei.Length < 15) || (imei.Length > 17)) return;
 
         var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(payLoad).WithExactlyOnceQoS().WithRetainFlag().Build();
-        var options = new MqttClientOptionsBuilder()
-          .WithTcpServer("localhost", 8883)
-          .WithClientId("device_settings")
-          .WithCredentials("3voda", "Leimnoj8Knod")
-          .WithTls(new MqttClientOptionsBuilderTlsParameters
-          {
-            UseTls = true, SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+        var options = new MqttClientOptionsBuilder().WithTcpServer("localhost", 8883)
+            .WithClientId("device_settings")
+            .WithCredentials("3voda", "Leimnoj8Knod")
+            .WithTls(new MqttClientOptionsBuilderTlsParameters
+            {
+                UseTls = true, SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
 
-            //Certificates = certs,
-            AllowUntrustedCertificates = true, IgnoreCertificateChainErrors = true, IgnoreCertificateRevocationErrors = true
-          })
-          .Build();
+                //Certificates = certs,
+                AllowUntrustedCertificates = true, IgnoreCertificateChainErrors = true, IgnoreCertificateRevocationErrors = true
+            })
+            .Build();
 
         // Create a new MQTT client.
         var factory = new MqttFactory();
@@ -59,8 +59,32 @@ namespace CommonVending
         //if (_mqttClient == null) await SubscriptionConnect();
 
         await mqttClient.PublishAsync(message, CancellationToken.None);
+        await SendAesMessage(topic, payLoad);
 
         //Console.WriteLine("Message sent!");
+      }
+      catch (Exception ex) { Console.WriteLine(ex.Message); }
+      finally
+      {
+        await mqttClient?.DisconnectAsync();
+        mqttClient?.Dispose();
+      }
+    }
+
+    private static async Task SendAesMessage(string topic, string payLoad)
+    {
+      IMqttClient mqttClient = null;
+      try
+      {
+        var encrypt = CryptoAes.EncryptAes(payLoad);
+        var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(encrypt).WithAtLeastOnceQoS().WithRetainFlag().Build();
+        var options = new MqttClientOptionsBuilder().WithTcpServer("localhost", 1883).WithClientId("device_settings").Build();
+
+        // Create a new MQTT client.
+        var factory = new MqttFactory();
+        mqttClient = factory.CreateMqttClient();
+        await mqttClient.ConnectAsync(options, CancellationToken.None); // Since 3.0.5 with CancellationToken
+        await mqttClient.PublishAsync(message, CancellationToken.None);
       }
       catch (Exception ex) { Console.WriteLine(ex.Message); }
       finally
@@ -109,7 +133,9 @@ namespace CommonVending
         //var lastAlert = DeviceDbProvider.GetDeviceLastAlert(device.Id);
 
         dynamic jdata = JObject.Parse(message);
-        double timestamp = jdata.timestamp;
+        double timestamp = 0;
+        if (jdata?.timestamp != null) timestamp = jdata.timestamp;
+        if (timestamp == 0) timestamp = Main.ConvertToUnixTimestamp(DateTime.UtcNow);
         var msgDate = Main.ConvertFromUnixTimestamp(timestamp).AddHours(device.TimeZone);
 
         switch (theme)
@@ -165,7 +191,7 @@ namespace CommonVending
                       var alert = new DevAlert {DeviceId = device.Id, MessageDate = msgDate, CodeType = 0, Message = "Нет продаж"};
 
                       AlertsDbProvider.InsertDeviceAlert(alert);
-                      
+
                       //send emails NO SALES
                       await sender.SendNoSales(device);
                     }
@@ -182,7 +208,7 @@ namespace CommonVending
                 var alert = new DevAlert {DeviceId = device.Id, MessageDate = msgDate, CodeType = -2, Message = "Бак пуст"};
 
                 AlertsDbProvider.InsertDeviceAlert(alert);
- 
+
                 //send emails TANK EMPTY
                 await sender.SendTankEmpty(device);
               }
@@ -203,8 +229,8 @@ namespace CommonVending
             var newEncash = JsonConvert.DeserializeObject<MqttEncashModel>(message);
             var encash = new DevEncash
             {
-              DeviceId = device.Id, MessageDate = msgDate, AmountCoin = newEncash.AmountCoin, AmountBill = newEncash.AmountBill,
-              Amount = newEncash.Amount, Coins = JsonConvert.SerializeObject(newEncash.Coins), Bills = JsonConvert.SerializeObject(newEncash.Bills)
+                DeviceId = device.Id, MessageDate = msgDate, AmountCoin = newEncash.AmountCoin, AmountBill = newEncash.AmountBill,
+                Amount = newEncash.Amount, Coins = JsonConvert.SerializeObject(newEncash.Coins), Bills = JsonConvert.SerializeObject(newEncash.Bills)
             };
 
             DeviceDbProvider.InsertDeviceEncash(encash);
@@ -214,8 +240,8 @@ namespace CommonVending
             var newSale = JsonConvert.DeserializeObject<MqttSaleModel>(message);
             var sale = new DevSale
             {
-              DeviceId = device.Id, MessageDate = msgDate, PaymentType = newSale.PaymentType, Quantity = newSale.Quantity,
-              Price = newSale.Price, Amount = newSale.Amount, Coins = JsonConvert.SerializeObject(newSale.Coins), Bills = JsonConvert.SerializeObject(newSale.Bills)
+                DeviceId = device.Id, MessageDate = msgDate, PaymentType = newSale.PaymentType, Quantity = newSale.Quantity,
+                Price = newSale.Price, Amount = newSale.Amount, Coins = JsonConvert.SerializeObject(newSale.Coins), Bills = JsonConvert.SerializeObject(newSale.Bills)
             };
 
             SalesDbProvider.InsertDeviceSale(sale);
@@ -256,8 +282,8 @@ namespace CommonVending
             var lastSettings = DeviceDbProvider.GetLastSettings(device.Id, tpcType);
             var settings = new DevSetting
             {
-              Id = lastSettings?.Id ?? 0, DeviceId = device.Id, MessageDate = msgDate, TopicType = tpcType,
-              Topic = tpc, Payload = message, Md5 = md5
+                Id = lastSettings?.Id ?? 0, DeviceId = device.Id, MessageDate = msgDate, TopicType = tpcType,
+                Topic = tpc, Payload = message, Md5 = md5
             };
 
             //if (lastSettings?.Md5 == settings.Md5) settings.Id = lastSettings.Id;
@@ -276,8 +302,8 @@ namespace CommonVending
             var lastCleanerSettings = DeviceDbProvider.GetLastSettings(device.Id, tpcCleanerType);
             var cleaner = new DevSetting
             {
-              Id = lastCleanerSettings?.Id ?? 0, DeviceId = device.Id, MessageDate = msgDate, TopicType = tpcCleanerType,
-              Topic = tpcCleaner, Payload = message, Md5 = md5Clr
+                Id = lastCleanerSettings?.Id ?? 0, DeviceId = device.Id, MessageDate = msgDate, TopicType = tpcCleanerType,
+                Topic = tpcCleaner, Payload = message, Md5 = md5Clr
             };
 
             //if (lastCleanerSettings?.Md5 == cleaner.Md5) cleaner.Id = lastCleanerSettings.Id;
@@ -294,8 +320,8 @@ namespace CommonVending
         {
           var error = new DevSetting
           {
-            Id = 0, DeviceId = null, MessageDate = DateTime.UtcNow, TopicType = -1,
-            Topic = topic, Payload = message, Md5 = null
+              Id = 0, DeviceId = null, MessageDate = DateTime.UtcNow, TopicType = -1,
+              Topic = topic, Payload = message, Md5 = null
           };
           DeviceDbProvider.WriteDeviceSettings(error);
         }
