@@ -50,7 +50,8 @@ namespace ThirdVendingWebApi.Controllers
             AmountCard = sale.PaymentType == 1 ? sale.Amount : null,
             AmountCash = (sale.PaymentType == 0) || (sale.PaymentType == -1) ? sale.Amount : null,
             Coins = sale.Coins != null ? JsonConvert.DeserializeObject<MqttMoney[]>(sale.Coins) : null,
-            Bills = sale.Bills != null ? JsonConvert.DeserializeObject<MqttMoney[]>(sale.Bills) : null
+            Bills = sale.Bills != null ? JsonConvert.DeserializeObject<MqttMoney[]>(sale.Bills) : null,
+            CoinsChange = sale.CoinsChange, Rest = sale.Rest
           };
           sl.AmountCoin = SummMoney(sl.Coins);
           sl.AmountBill = SummMoney(sl.Bills);

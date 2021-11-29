@@ -15,7 +15,7 @@ namespace DeviceDbModel.Models
     //public double Timestamp { get; set; }
 
     /// <summary>
-    /// Тип продажи 0 - налич., 1 - безнал. (-1) - пополнение карты
+    ///   Тип продажи 0 - налич., 1 - безнал. (-1) - пополнение карты
     /// </summary>
     public int PaymentType { get; set; }
 
@@ -43,6 +43,11 @@ namespace DeviceDbModel.Models
     ///   Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
     /// </summary>
     public string Bills { get; set; }
+
+    /// <summary>
+    ///   Объем выданных средств при сдаче (значение по текущей оплате)
+    /// </summary>
+    public float? CoinsChange { get; set; }
 
     /// <summary>
     ///   Объем не выданных средств (общее суммарное значение)

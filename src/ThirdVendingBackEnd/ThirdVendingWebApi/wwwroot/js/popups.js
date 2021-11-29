@@ -291,7 +291,7 @@ function popupSales() {
                     }
             },
             {
-                width: '15%',
+                width: '12%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -336,7 +336,7 @@ function popupSales() {
                     }
             },
             {
-                width: '15%',
+                width: '12%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -351,7 +351,7 @@ function popupSales() {
                     }
             },
             {
-                width: '15%',
+                width: '12%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -366,12 +366,27 @@ function popupSales() {
                     }
             },
             {
-                width: '11%',
+                width: '10%',
+                alignment: "right",
+                allowSorting: false,
+                allowHeaderFiltering: false,
+                dataField: "coinsChange",
+                caption: "Сдача",
+                format: {
+                    type: "fixedPoint",
+                    precision: 2
+                },
+                headerCellTemplate: function (header, info) {
+                    setHeader(header, info);
+                }
+            },
+            {
+                width: '10%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
                 dataField: "rest",
-                caption: "Сдача",
+                caption: "Остаток",
                 format: {
                     type: "fixedPoint",
                     precision: 2
@@ -436,6 +451,15 @@ function popupSales() {
                     }
                 },
                 {
+                    column: "coinsChange",
+                    summaryType: "sum",
+                    displayFormat: "{0}",
+                    valueFormat: {
+                        type: "fixedPoint",
+                        precision: 2
+                    }
+                },
+                {
                     column: "rest",
                     summaryType: "sum",
                     displayFormat: "{0}",
@@ -486,7 +510,7 @@ function popupEncash() {
         loadPanel: { enabled: true },
         columns: [
             {
-                width: '20%',
+                width: '17%',
                 allowSorting: false,
                 allowHeaderFiltering: false,
                 dataField: "messageDate",
@@ -498,7 +522,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '20%',
+                width: '17%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -513,7 +537,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '20%',
+                width: '17%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -528,7 +552,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '20%',
+                width: '17%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -543,12 +567,28 @@ function popupEncash() {
                     }
             },
             {
-                width: '20%',
+                width: '16%',
+                alignment: "right",
+                allowSorting: false,
+                allowHeaderFiltering: false,
+                dataField: "coinsChange",
+                caption: "Сдача",
+                format: {
+                    type: "fixedPoint",
+                    precision: 2
+                },
+                headerCellTemplate: function (header, info) {
+                    setHeader(header, info);
+                }
+            },
+            {
+                width: '16%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
                 dataField: "rest",
-                caption: "Сдача",
+                caption: "Остаток",
+                //hint: "Объем не выданных средств (значение по текущей оплате)",
                 format: {
                     type: "fixedPoint",
                     precision: 2
@@ -587,6 +627,15 @@ function popupEncash() {
                 },
                 {
                     column: "amountCoin",
+                    summaryType: "sum",
+                    displayFormat: "{0}",
+                    valueFormat: {
+                        type: "fixedPoint",
+                        precision: 2
+                    }
+                },
+                {
+                    column: "coinsChange",
                     summaryType: "sum",
                     displayFormat: "{0}",
                     valueFormat: {

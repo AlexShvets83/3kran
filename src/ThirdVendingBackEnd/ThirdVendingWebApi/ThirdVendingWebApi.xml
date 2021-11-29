@@ -244,6 +244,16 @@
               Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
             </summary>
         </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.CoinsChange">
+            <summary>
+              Объем выданных средств при сдаче (значение по текущей оплате)
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.Rest">
+            <summary>
+              Объем не выданных средств (общее суммарное значение)
+            </summary>
+        </member>
         <member name="T:ThirdVendingWebApi.Models.Device.DeviceSaleModel">
             <summary>
             Модель продаж
@@ -292,6 +302,16 @@
         <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.Bills">
             <summary>
               Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.CoinsChange">
+            <summary>
+              Объем выданных средств при сдаче (значение по текущей оплате)
+            </summary>
+        </member>
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.Rest">
+            <summary>
+              Объем не выданных средств (общее суммарное значение)
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.Device.DeviceStatus.TotalSold">
