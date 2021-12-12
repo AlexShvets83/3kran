@@ -291,7 +291,7 @@ function popupSales() {
                     }
             },
             {
-                width: '12%',
+                width: '10%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -306,7 +306,7 @@ function popupSales() {
                     }
             },
             {
-                width: '12%',
+                width: '10%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -321,7 +321,7 @@ function popupSales() {
                     }
             },
             {
-                width: '12%',
+                width: '10%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -336,7 +336,7 @@ function popupSales() {
                     }
             },
             {
-                width: '12%',
+                width: '10%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -351,7 +351,7 @@ function popupSales() {
                     }
             },
             {
-                width: '12%',
+                width: '10%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -364,6 +364,21 @@ function popupSales() {
                 headerCellTemplate: function (header, info) {
                         setHeader(header, info);
                     }
+            },
+            {
+                width: '10%',
+                alignment: "right",
+                allowSorting: false,
+                allowHeaderFiltering: false,
+                dataField: "nfcCard",
+                caption: "NFC",
+                format: {
+                    type: "fixedPoint",
+                    precision: 2
+                },
+                headerCellTemplate: function (header, info) {
+                    setHeader(header, info);
+                }
             },
             {
                 width: '10%',
@@ -451,6 +466,15 @@ function popupSales() {
                     }
                 },
                 {
+                    column: "nfcCard",
+                    summaryType: "sum",
+                    displayFormat: "{0}",
+                    valueFormat: {
+                        type: "fixedPoint",
+                        precision: 2
+                    }
+                },
+                {
                     column: "coinsChange",
                     summaryType: "sum",
                     displayFormat: "{0}",
@@ -510,7 +534,7 @@ function popupEncash() {
         loadPanel: { enabled: true },
         columns: [
             {
-                width: '17%',
+                width: '16%',
                 allowSorting: false,
                 allowHeaderFiltering: false,
                 dataField: "messageDate",
@@ -522,7 +546,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '17%',
+                width: '15%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -537,7 +561,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '17%',
+                width: '15%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -552,7 +576,7 @@ function popupEncash() {
                     }
             },
             {
-                width: '17%',
+                width: '15%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -567,7 +591,22 @@ function popupEncash() {
                     }
             },
             {
-                width: '16%',
+                width: '13%',
+                alignment: "right",
+                allowSorting: false,
+                allowHeaderFiltering: false,
+                dataField: "nfcCard",
+                caption: "NFC",
+                format: {
+                    type: "fixedPoint",
+                    precision: 2
+                },
+                headerCellTemplate: function (header, info) {
+                    setHeader(header, info);
+                }
+            },
+            {
+                width: '13%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -582,7 +621,7 @@ function popupEncash() {
                 }
             },
             {
-                width: '16%',
+                width: '13%',
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
@@ -627,6 +666,15 @@ function popupEncash() {
                 },
                 {
                     column: "amountCoin",
+                    summaryType: "sum",
+                    displayFormat: "{0}",
+                    valueFormat: {
+                        type: "fixedPoint",
+                        precision: 2
+                    }
+                },
+                {
+                    column: "nfcCard",
                     summaryType: "sum",
                     displayFormat: "{0}",
                     valueFormat: {

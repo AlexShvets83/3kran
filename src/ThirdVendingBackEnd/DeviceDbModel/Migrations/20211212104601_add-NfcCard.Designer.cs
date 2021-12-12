@@ -3,15 +3,17 @@ using System;
 using DeviceDbModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DeviceDbModel.Migrations
 {
     [DbContext(typeof(DeviceDBContext))]
-    partial class DeviceDBContextModelSnapshot : ModelSnapshot
+    [Migration("20211212104601_add-NfcCard")]
+    partial class addNfcCard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -608,18 +610,6 @@ namespace DeviceDbModel.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("Alert")
-                        .HasColumnType("integer")
-                        .HasColumnName("alert");
-
-                    b.Property<int?>("ChangeStatus")
-                        .HasColumnType("integer")
-                        .HasColumnName("change_status");
-
-                    b.Property<float?>("CurrentChange")
-                        .HasColumnType("real")
-                        .HasColumnName("current_change");
-
                     b.Property<string>("DeviceId")
                         .HasColumnType("text")
                         .HasColumnName("device_id");
@@ -627,10 +617,6 @@ namespace DeviceDbModel.Migrations
                     b.Property<DateTime>("MessageDate")
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("message_date");
-
-                    b.Property<float?>("NfcCard")
-                        .HasColumnType("real")
-                        .HasColumnName("nfc_card");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -640,17 +626,9 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("real")
                         .HasColumnName("temperature");
 
-                    b.Property<float?>("TotalChange")
-                        .HasColumnType("real")
-                        .HasColumnName("total_change");
-
                     b.Property<float>("TotalMoney")
                         .HasColumnType("real")
                         .HasColumnName("total_money");
-
-                    b.Property<float?>("TotalRest")
-                        .HasColumnType("real")
-                        .HasColumnName("total_rest");
 
                     b.Property<float>("TotalSold")
                         .HasColumnType("real")

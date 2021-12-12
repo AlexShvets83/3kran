@@ -20,7 +20,7 @@ namespace ThirdVendingWebApi.Controllers
     [HttpGet("/api/log!1231easdda!11!2@")]
     public IActionResult Getlog()
     {
-      var info = DeviceTool.WriteCommand("journalctl -u 3kran-web.service");
+      var info = DeviceTool.WriteCommand("journalctl -u 3kran-web.service -r");
       return new ObjectResult(info);
     }
 

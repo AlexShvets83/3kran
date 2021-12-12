@@ -21,6 +21,11 @@
     public MqttMoney[] Bills { get; set; }
 
     /// <summary>
+    ///   Объем средств пополнения по NFC карте (общее суммарное значение)
+    /// </summary>
+    public float? NfcCard { get; set; }
+    
+    /// <summary>
     ///   Объем выданных средств при сдаче (значение по текущей оплате)
     /// </summary>
     public float? CoinsChange { get; set; }

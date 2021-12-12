@@ -231,7 +231,7 @@ namespace CommonVending
             {
                 DeviceId = device.Id, MessageDate = msgDate, AmountCoin = newEncash.AmountCoin, AmountBill = newEncash.AmountBill,
                 Amount = newEncash.Amount, Coins = JsonConvert.SerializeObject(newEncash.Coins), Bills = JsonConvert.SerializeObject(newEncash.Bills),
-                CoinsChange = newEncash.CoinsChange, Rest = newEncash.Rest
+                NfcCard = newEncash.NfcCard, CoinsChange = newEncash.CoinsChange, Rest = newEncash.Rest
             };
 
             DeviceDbProvider.InsertDeviceEncash(encash);
@@ -243,7 +243,7 @@ namespace CommonVending
             {
                 DeviceId = device.Id, MessageDate = msgDate, PaymentType = newSale.PaymentType, Quantity = newSale.Quantity,
                 Price = newSale.Price, Amount = newSale.Amount, Coins = JsonConvert.SerializeObject(newSale.Coins), Bills = JsonConvert.SerializeObject(newSale.Bills),
-                CoinsChange = newSale.CoinsChange, Rest = newSale.Rest
+                NfcCard = newSale.NfcCard, CoinsChange = newSale.CoinsChange, Rest = newSale.Rest
             };
 
             SalesDbProvider.InsertDeviceSale(sale);
