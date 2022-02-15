@@ -66,7 +66,12 @@ namespace CommonVending
           .WithDefaultEndpoint()
           .WithDefaultEndpointPort(1883)
           .WithConnectionValidator(ConnectionValidatorCallbackAes)
-          .WithSubscriptionInterceptor(c => { c.AcceptSubscription = true; })
+          .WithSubscriptionInterceptor(c =>
+          {
+            c.AcceptSubscription = true;
+
+            LogSubscription(c, true);
+          })
           .WithApplicationMessageInterceptor(async c =>
           {
             c.AcceptPublish = true;
@@ -82,16 +87,19 @@ namespace CommonVending
       
       if (!ApplicationSettings.SupportBoard3)
       {
+        Console.WriteLine("Not supported this board [3]!");
         c.ReasonCode = MqttConnectReasonCode.RetainNotSupported;
         return;
       }
 
       if (!c.ClientId.Contains("device_"))
       {
+        Console.WriteLine("Bad username or password!");
         c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
         return;
       }
 
+      Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
       c.ReasonCode = MqttConnectReasonCode.Success;
     }
 
@@ -101,6 +109,7 @@ namespace CommonVending
       
       if (!ApplicationSettings.SupportBoard2)
       {
+        Console.WriteLine("Not supported this board [2]!");
         c.ReasonCode = MqttConnectReasonCode.RetainNotSupported;
         return;
       }
@@ -133,21 +142,20 @@ namespace CommonVending
     //  return true;
     //}
 
-    ///// <summary>
-    /////   Logs the message from the MQTT subscription interceptor context.
-    ///// </summary>
-    ///// <param name = "context">The MQTT subscription interceptor context.</param>
-    ///// <param name = "successful">A <see cref = "bool" /> value indicating whether the subscription was successful or not.</param>
-    //private static async Task LogSubscription(MqttSubscriptionInterceptorContext context, bool successful)
-    //{
-    //  if (context == null) { return; }
+    /// <summary>
+    ///   Logs the message from the MQTT subscription interceptor context.
+    /// </summary>
+    /// <param name = "context">The MQTT subscription interceptor context.</param>
+    /// <param name = "successful">A <see cref = "bool" /> value indicating whether the subscription was successful or not.</param>
+    private static void LogSubscription(MqttSubscriptionInterceptorContext context, bool successful)
+    {
+      if (context == null) { return; }
 
-    //  //await DeviceMqtt.SubscriptionHandler(context.TopicFilter.Topic);
-    //  var message = successful
-    //                  ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
-    //                  : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";
-    //  Console.WriteLine(message);
-    //}
+      var message = successful
+                        ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
+                        : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";
+      Console.WriteLine(message);
+    }
 
     /// <summary>
     ///   Logs the message from the MQTT message interceptor context.
@@ -155,11 +163,11 @@ namespace CommonVending
     /// <param name = "context">The MQTT message interceptor context.</param>
     private static async Task LogMessage(MqttApplicationMessageInterceptorContext context)
     {
-      if (context == null) { return; }
+      if (context?.ApplicationMessage == null) { return; }
 
       //var payload = context.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(context.ApplicationMessage?.Payload);
-      var topic = context.ApplicationMessage?.Topic;
-      var payloadBytes = context.ApplicationMessage?.Payload ?? Array.Empty<byte>();
+      var topic = context.ApplicationMessage.Topic;
+      var payloadBytes = context.ApplicationMessage.Payload ?? Array.Empty<byte>();
       var payload = Encoding.UTF8.GetString(payloadBytes);
       if (!payload.StartsWith("{"))
       {
@@ -168,7 +176,7 @@ namespace CommonVending
 
         var plainText = CryptoAes.DecryptAes(payloadBytes);
         payload = plainText;
-        Console.WriteLine("Topic = {0}, Payload = {1}", topic, payload);
+        Console.WriteLine("Topic = {0}, Payload = {1}, Qos = {2}", topic, payload.Replace("\0", string.Empty).Trim(), context.ApplicationMessage.QualityOfServiceLevel);
       }
 
       payload = payload.Replace("\0", string.Empty);

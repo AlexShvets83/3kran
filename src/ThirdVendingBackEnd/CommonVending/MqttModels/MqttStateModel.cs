@@ -45,9 +45,9 @@ status
     public float? TotalRest { get; set; }
 
     /// <summary>
-    /// Общий счетчик пополнения по NFC карте (после инкассации)
+    /// Общий счетчик пополнения по Rfid карте (после инкассации)
     /// </summary>
-    public float? NfcCard { get; set; }
+    public float? RfidCard { get; set; }
 
     /// <summary>
     /// 0 - В автомате не установлен монетоприемник со сдачей 

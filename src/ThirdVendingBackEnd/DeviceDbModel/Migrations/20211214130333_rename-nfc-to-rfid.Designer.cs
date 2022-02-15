@@ -3,15 +3,17 @@ using System;
 using DeviceDbModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DeviceDbModel.Migrations
 {
     [DbContext(typeof(DeviceDBContext))]
-    partial class DeviceDBContextModelSnapshot : ModelSnapshot
+    [Migration("20211214130333_rename-nfc-to-rfid")]
+    partial class renamenfctorfid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -628,9 +630,9 @@ namespace DeviceDbModel.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("message_date");
 
-                    b.Property<float?>("RfidCard")
+                    b.Property<float?>("NfcCard")
                         .HasColumnType("real")
-                        .HasColumnName("rfid_card");
+                        .HasColumnName("nfc_card");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")

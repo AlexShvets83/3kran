@@ -370,8 +370,8 @@ function popupSales() {
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
-                dataField: "nfcCard",
-                caption: "NFC",
+                dataField: "rfidCard",
+                caption: "Пополн.",
                 format: {
                     type: "fixedPoint",
                     precision: 2
@@ -466,7 +466,7 @@ function popupSales() {
                     }
                 },
                 {
-                    column: "nfcCard",
+                    column: "rfidCard",
                     summaryType: "sum",
                     displayFormat: "{0}",
                     valueFormat: {
@@ -595,8 +595,8 @@ function popupEncash() {
                 alignment: "right",
                 allowSorting: false,
                 allowHeaderFiltering: false,
-                dataField: "nfcCard",
-                caption: "NFC",
+                dataField: "rfidCard",
+                caption: "Пополнение",
                 format: {
                     type: "fixedPoint",
                     precision: 2
@@ -674,7 +674,7 @@ function popupEncash() {
                     }
                 },
                 {
-                    column: "nfcCard",
+                    column: "rfidCard",
                     summaryType: "sum",
                     displayFormat: "{0}",
                     valueFormat: {

@@ -31,9 +31,9 @@ namespace DeviceDbModel.Models
     public string Bills { get; set; }
     
     /// <summary>
-    ///   Объем средств пополнения по NFC карте (общее суммарное значение)
+    ///   Объем средств пополнения по Rfid карте (общее суммарное значение)
     /// </summary>
-    public float? NfcCard { get; set; }
+    public float? RfidCard { get; set; }
 
     /// <summary>
     ///   Объем выданных средств при сдаче (значение по текущей оплате)

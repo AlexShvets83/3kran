@@ -51,7 +51,7 @@ namespace ThirdVendingWebApi.Controllers
             Amount = encashe.Amount,
             Coins = encashe.Coins != null ? JsonConvert.DeserializeObject<MqttMoney[]>(encashe.Coins) : null,
             Bills = encashe.Bills != null ? JsonConvert.DeserializeObject<MqttMoney[]>(encashe.Bills) : null,
-            NfcCard = encashe.NfcCard, CoinsChange = encashe.CoinsChange, Rest = encashe.Rest
+            RfidCard = encashe.RfidCard, CoinsChange = encashe.CoinsChange, Rest = encashe.Rest
           };
 
           enc.AmountCoin = SalesController.SummMoney(enc.Coins);

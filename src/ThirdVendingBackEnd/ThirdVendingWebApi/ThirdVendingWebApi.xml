@@ -244,9 +244,9 @@
               Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.NfcCard">
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.RfidCard">
             <summary>
-              Объем средств пополнения по NFC карте (общее суммарное значение)
+              Объем средств пополнения по Rfid карте (общее суммарное значение)
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.Device.DeviceEncashModel.CoinsChange">
@@ -309,9 +309,9 @@
               Количество и номинал принятых купюр [{"value":50.000,"amount":1}]
             </summary>
         </member>
-        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.NfcCard">
+        <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.RfidCard">
             <summary>
-              Объем средств пополнения по NFC карте (общее суммарное значение)
+              Объем средств пополнения по Rfid карте (общее суммарное значение)
             </summary>
         </member>
         <member name="P:ThirdVendingWebApi.Models.Device.DeviceSaleModel.CoinsChange">
