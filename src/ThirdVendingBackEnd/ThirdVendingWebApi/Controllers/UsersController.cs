@@ -58,7 +58,6 @@ namespace ThirdVendingWebApi.Controllers
 
             break;
           case Roles.Technician:
-            //users = new List<ApplicationUser>();
             if (!string.IsNullOrEmpty(admin.OwnerId))
             {
               users.Add(await _userManager.FindByIdAsync(admin.OwnerId));
@@ -67,25 +66,7 @@ namespace ThirdVendingWebApi.Controllers
             break;
         }
 
-        //var users = _userManager.Users.OrderBy(s => s.Id).ToList();
         var retUsers = users.Select(user => user.GetNewObj<UserAccount>()).ToList();
-
-        //_userManager.GetUsersInRoleAsync(Roles.Technician);
-        //todo check role
-
-        //var superadmin = retUsers.FindAll(f => f.Role == Roles.SuperAdmin);
-        //foreach (var sa in superadmin)
-        //{
-        //  retUsers.Remove(sa);
-        //}
-
-        //   </api/devices?page=0&size=1000>; rel="last",</api/devices?page=0&size=1000>; rel="first"
-        //var headerStr = $@"</api/users?page=1&size={size}>; rel=""next"",</api/users?page=5&size={size}>; rel=""last"",</api/users?page=0&size={size}>; rel=""first""";
-        //Response.Headers.Add("Link", headerStr);
-        //Response.Headers.Add("X-Total-Count", retUsers.Count.ToString());
-
-        //retUsers.Sort((x, y) => string.Compare(x.Id, y.Id, StringComparison.Ordinal));
-
         return new ObjectResult(retUsers);
       }
       catch (Exception ex) { return StatusCode(500, $"Internal server error: {ex}"); }

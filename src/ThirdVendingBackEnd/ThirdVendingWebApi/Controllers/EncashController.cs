@@ -59,7 +59,7 @@ namespace ThirdVendingWebApi.Controllers
 
           retListEncashes.Add(enc);
         }
-        //var retList = encashes.Select(Main.GetNewObj<DevEncashView>).ToList();
+
         return new ObjectResult(retListEncashes);
       });
     }

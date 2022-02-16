@@ -35,6 +35,7 @@ namespace ThirdVendingWebApi.Controllers
       if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
       if ((user.Role == Roles.Technician) && !user.CommerceVisible) return new ObjectResult(null);
+      
       //todo check role and permitions
       return await Task.Factory.StartNew(() =>
       {
@@ -58,7 +59,7 @@ namespace ThirdVendingWebApi.Controllers
 
           retListSales.Add(sl);
         }
-        //var retList = sales.Select(Main.GetNewObj<DevSaleView>).ToList();
+
         return new ObjectResult(retListSales);
       });
     }
@@ -82,6 +83,7 @@ namespace ThirdVendingWebApi.Controllers
         if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
         if ((user.Role == Roles.Technician) && !user.CommerceVisible) return new ObjectResult(null);
+        
         //todo check role and permitions
         var device = DeviceDbProvider.GetDeviceById(id);
         if (device == null) return NotFound("Автомат не найден!");

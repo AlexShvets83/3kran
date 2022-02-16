@@ -19,31 +19,20 @@ namespace CommonVending
       try
       {
         await MqttServerAesInit();
-
-        //var currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-        //chain   -- errror
-        //cert
-        //fullchain
+        
         var host = MainSettings.Settings.MainHost;
         var pathCert = $"/etc/letsencrypt/live/{host}/fullchain.pem";
         var pathKey = $"/etc/letsencrypt/live/{host}/privkey.pem";
-
         var fc = await File.ReadAllTextAsync(pathCert);
         var fk = await File.ReadAllTextAsync(pathKey);
-
         var certificate = X509Certificate2.CreateFromPem(fc, fk);
+        
         var optionsBuilder = new MqttServerOptionsBuilder().WithConnectionBacklog(20000)
             .WithClientId(host)
             .WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
             .WithEncryptedEndpoint()
-
-            //.WithDefaultCommunicationTimeout(TimeSpan.FromMinutes(180))
-            //.WithMultiThreadedApplicationMessageInterceptor()
             .WithEncryptedEndpointPort(8883)
-            .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx))
-
-            //.WithClientCertificate(ClientCertificateValidationCallback)
+            .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx)) //.WithClientCertificate(ClientCertificateValidationCallback)
             .WithEncryptionSslProtocol(SslProtocols.None)
             .WithConnectionValidator(ConnectionValidatorCallback)
             .WithSubscriptionInterceptor(c => { c.AcceptSubscription = true; })
@@ -114,8 +103,6 @@ namespace CommonVending
         return;
       }
 
-      //Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
-
       if (c.Username != "3voda")
       {
         c.ReasonCode = MqttConnectReasonCode.BadUserNameOrPassword;
@@ -128,6 +115,7 @@ namespace CommonVending
         return;
       }
 
+      //Console.WriteLine("New connection: ClientId = {0}, Endpoint = {1}, Username = {2}, CleanSession = {3}", c.ClientId, c.Endpoint, c.Username, c.CleanSession);
       //Console.WriteLine($"New connection: {c.ClientId}");
       c.ReasonCode = MqttConnectReasonCode.Success;
     }
@@ -163,9 +151,8 @@ namespace CommonVending
     /// <param name = "context">The MQTT message interceptor context.</param>
     private static async Task LogMessage(MqttApplicationMessageInterceptorContext context)
     {
-      if (context?.ApplicationMessage == null) { return; }
+      if (context?.ApplicationMessage == null) return;
 
-      //var payload = context.ApplicationMessage?.Payload == null ? null : Encoding.UTF8.GetString(context.ApplicationMessage?.Payload);
       var topic = context.ApplicationMessage.Topic;
       var payloadBytes = context.ApplicationMessage.Payload ?? Array.Empty<byte>();
       var payload = Encoding.UTF8.GetString(payloadBytes);
@@ -185,8 +172,8 @@ namespace CommonVending
       await DeviceMqtt.MessageHandler(topic, payload);
 
       //Console.WriteLine("Topic = {0}, Payload = {1}", context.ApplicationMessage?.Topic, payload);
-
-      //Console.WriteLine("Message: ClientId = {0}, Topic = {1}, Payload = {2}, QoS = {3}, Retain-Flag = {4}", context.ClientId, context.ApplicationMessage?.Topic, payload,
+      //Console.WriteLine("Message: ClientId = {0}, Topic = {1}, Payload = {2}, QoS = {3}, Retain-Flag = {4}",
+      //context.ClientId, context.ApplicationMessage?.Topic, payload,
       //context.ApplicationMessage?.QualityOfServiceLevel, context.ApplicationMessage?.Retain);
     }
   }

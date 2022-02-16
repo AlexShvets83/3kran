@@ -35,9 +35,6 @@ namespace ThirdVendingWebApi.Controllers
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailSender _emailSender;
 
-    //private readonly IConfiguration _configuration;
-    //private readonly RoleManager<IdentityRole> _roleManager;
-
     /// <summary>
     ///   Constructor
     /// </summary>
@@ -45,16 +42,10 @@ namespace ThirdVendingWebApi.Controllers
     /// <param name = "signInManager"></param>
     /// <param name = "emailSender"></param>
     public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender)
-
-      //RoleManager<IdentityRole> roleManager,
-      //IConfiguration configuration)
     {
       _userManager = userManager;
       _signInManager = signInManager;
       _emailSender = emailSender;
-
-      //_roleManager = roleManager;
-      //_configuration = configuration;
     }
 
     /// <summary>
@@ -69,8 +60,7 @@ namespace ThirdVendingWebApi.Controllers
     {
       try
       {
-        var appUser = //_userManager.Users.SingleOrDefault(r => r.UserName == person.UserName) ??
-          _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper()) ?? _userManager.Users.SingleOrDefault(r => r.PhoneNumber == person.UserName);
+        var appUser = _userManager.Users.SingleOrDefault(r => r.NormalizedEmail == person.UserName.ToUpper()) ?? _userManager.Users.SingleOrDefault(r => r.PhoneNumber == person.UserName);
 
         if ((appUser != null) && appUser.Activated.GetValueOrDefault())
         {
@@ -378,39 +368,25 @@ namespace ThirdVendingWebApi.Controllers
     {
       try
       {
-        //string email;
-        //using (var bodyStream = new StreamReader(Request.Body)) { email = await bodyStream.ReadToEndAsync(); }
-
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
-          //var resp = new {type = "https://www.jhipster.tech/problem/email-not-found", title = "Email address not registered", status = 400};
           return BadRequest();
         }
 
         var model = new ChangePasswordInitModel {Id = user.Id, Email = user.Email, ExpiryDateTime = DateTime.Now.AddDays(1)};
         var strModel = JsonConvert.SerializeObject(model);
 
-        //var code = Crypto.Encrypt(user.Id);
         var code = Crypto.Encrypt(strModel);
         var ecode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
         var host = HttpContext.Request.Host;
         var sch = HttpContext.Request.Scheme;
-
-        //var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-        //var callbackUrl = Url.Page(
-        //                           "/reset/finish",
-        //                           pageHandler: null,
-        //                           values: new {key = code},
-        //                           protocol: Request.Scheme);
-
-        //var message = $"Уважаемый {user.FirstName} {user.LastName}\r\nДля вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.Чтобы сбросить пароль нажмите на";
+        
         var message = new StringBuilder();
         message.AppendLine($"<div>Уважаемый {user.FirstName} {user.Patronymic}!</div><br />");
         message.AppendLine("<div>Для вашего аккаунта в системе мониторинга «Третий кран» был запрошен сброс пароля.</div><br />");
         message.AppendLine("<div>Чтобы сбросить пароль нажмите на");
 
-        //var callbackUrl = $"{sch}://{host}/#/reset/finish?key={ecode}";
         var callbackUrl = $"{sch}://{host}/Account/ResetPsw?key={ecode}";
         await _emailSender.SendEmailAsync(email, "Запрос на сброс пароля", $"{message} <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>ссылку</a>.</div>");
 
@@ -464,7 +440,6 @@ namespace ThirdVendingWebApi.Controllers
       var errors = new StringBuilder();
       foreach (var error in result.Errors)
       {
-        //ModelState.AddModelError(string.Empty, error.Description);
         errors.AppendLine(error.Description);
       }
 
@@ -533,10 +508,8 @@ namespace ThirdVendingWebApi.Controllers
     public IActionResult GetCountries()
     {
       var countries = DeviceDbProvider.GetCountries();
-      var returnList = new List<CountryModel>();
-      foreach (var country in countries) { returnList.Add(new CountryModel {Id = country.Id, Name = country.Name}); }
+      var returnList = countries.Select(country => new CountryModel {Id = country.Id, Name = country.Name}).ToList();
 
-      //var countries = await new TaskFactory().StartNew(DeviceDbProvider.GetCountries);
       return new ObjectResult(returnList);
     }
 
@@ -648,29 +621,13 @@ namespace ThirdVendingWebApi.Controllers
         {
           foreach (var alert in userEdit.UserAlerts)
           {
-            if (alert.Type == "NO_LINK")
-            {
-              if (alert.Active) alerts = alerts.SetBitTo1(0);
-              else alerts = alerts.SetBitTo0(0);
-            }
+            if (alert.Type == "NO_LINK") { alerts = alert.Active ? alerts.SetBitTo1(0) : alerts.SetBitTo0(0); }
 
-            if (alert.Type == "TANK_EMPTY")
-            {
-              if (alert.Active) alerts = alerts.SetBitTo1(1);
-              else alerts = alerts.SetBitTo0(1);
-            }
+            if (alert.Type == "TANK_EMPTY") { alerts = alert.Active ? alerts.SetBitTo1(1) : alerts.SetBitTo0(1); }
 
-            if (alert.Type == "NO_SALES")
-            {
-              if (alert.Active) alerts = alerts.SetBitTo1(2);
-              else alerts = alerts.SetBitTo0(2);
-            }
+            if (alert.Type == "NO_SALES") { alerts = alert.Active ? alerts.SetBitTo1(2) : alerts.SetBitTo0(2); }
 
-            if (alert.Type == "REPORT")
-            {
-              if (alert.Active) alerts = alerts.SetBitTo1(3);
-              else alerts = alerts.SetBitTo0(3);
-            }
+            if (alert.Type == "REPORT") { alerts = alert.Active ? alerts.SetBitTo1(3) : alerts.SetBitTo0(3); }
           }
         }
 

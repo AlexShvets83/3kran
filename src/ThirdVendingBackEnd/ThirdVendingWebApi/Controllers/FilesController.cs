@@ -3,7 +3,6 @@ using CommonVending.DbProvider;
 using DeviceDbModel;
 using DeviceDbModel.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -29,10 +28,6 @@ namespace ThirdVendingWebApi.Controllers
     [Produces(typeof(List<FileViewModel>))]
     public async Task<IActionResult> Get(int size)
     {
-      //Link: </api/files?page=0&size=1000>; rel="last",</api/files?page=0&size=1000>; rel="first"
-      //var headerStr = $@"</api/files?page=1&size={size}>; rel=""last"",</api/files?page=0&size={size}>; rel=""first""";
-      //Response.Headers.Add("Link", headerStr);
-      //Response.Headers.Add("X-Total-Count", "0");
       var admin = await _userManager.GetUserAsync(HttpContext.User);
       if (admin == null) return NotFound("Пользователь не найден!");
       if (!admin.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
@@ -75,14 +70,10 @@ namespace ThirdVendingWebApi.Controllers
 
         var folderName = "download_files";
         var pathToSave = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).ToString(), folderName);
-
-        //var folderName = Path.Combine("Resources", "Images");
-        //var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
         if (file.Length > 0)
         {
           var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
           var fullPath = Path.Combine(pathToSave, fileName);
-          var dbPath = Path.Combine(folderName, fileName);
           using (var stream = new FileStream(fullPath, FileMode.Create)) { await file.CopyToAsync(stream); }
 
           var fileModel = new FileModel
@@ -92,6 +83,7 @@ namespace ThirdVendingWebApi.Controllers
           };
 
           var result = await FilesDbProvider.AddFile(fileModel);
+          if (!result) return BadRequest();
 
           //await UserDbProvider.AddLog(new LogUsr
           //{

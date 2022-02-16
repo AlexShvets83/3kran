@@ -138,7 +138,7 @@ $.deleteObj = function(url) {
             "Authorization": `Bearer ${token}`
         },
         type: "DELETE",
-        url: url,
+        url: url
     });
 };
 
@@ -241,14 +241,11 @@ function check_capslock_form(where) {
 function getCurrencySign(device) {
     switch (device.currency) {
     case 'RUB':
-        return `&#x20BD;`;
-        return '₽';
+        return `&#x20BD;`; // '₽'
     case 'KZT':
-        return '&#x20B8;';
-        return '₸';
+        return '&#x20B8;'; // '₸'
     case 'AZN':
-        return '&#x20BC;';
-        return '₼';
+        return '&#x20BC;'; // '₼'
     case 'UZS':
         return 'сўм';
     case 'BYR':
