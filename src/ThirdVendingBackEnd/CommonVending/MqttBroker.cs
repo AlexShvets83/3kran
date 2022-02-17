@@ -14,33 +14,34 @@ namespace CommonVending
 {
   public static class MqttBroker
   {
+    private static readonly string host = MainSettings.Settings.MainHost;
+
     public static async Task MqttInit()
     {
       try
       {
         await MqttServerAesInit();
-        
-        var host = MainSettings.Settings.MainHost;
+
         var pathCert = $"/etc/letsencrypt/live/{host}/fullchain.pem";
         var pathKey = $"/etc/letsencrypt/live/{host}/privkey.pem";
         var fc = await File.ReadAllTextAsync(pathCert);
         var fk = await File.ReadAllTextAsync(pathKey);
         var certificate = X509Certificate2.CreateFromPem(fc, fk);
-        
+
         var optionsBuilder = new MqttServerOptionsBuilder().WithConnectionBacklog(20000)
-            .WithClientId(host)
-            .WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
-            .WithEncryptedEndpoint()
-            .WithEncryptedEndpointPort(8883)
-            .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx)) //.WithClientCertificate(ClientCertificateValidationCallback)
-            .WithEncryptionSslProtocol(SslProtocols.None)
-            .WithConnectionValidator(ConnectionValidatorCallback)
-            .WithSubscriptionInterceptor(c => { c.AcceptSubscription = true; })
-            .WithApplicationMessageInterceptor(async c =>
-            {
-              c.AcceptPublish = true;
-              await LogMessage(c);
-            });
+          .WithClientId(host)
+          .WithoutDefaultEndpoint() // This call disables the default unencrypted endpoint on port 1883
+          .WithEncryptedEndpoint()
+          .WithEncryptedEndpointPort(8883)
+          .WithEncryptionCertificate(certificate.Export(X509ContentType.Pfx)) //.WithClientCertificate(ClientCertificateValidationCallback)
+          .WithEncryptionSslProtocol(SslProtocols.None)
+          .WithConnectionValidator(ConnectionValidatorCallback)
+          .WithSubscriptionInterceptor(c => { c.AcceptSubscription = true; })
+          .WithApplicationMessageInterceptor(async c =>
+          {
+            c.AcceptPublish = true;
+            await LogMessage(c);
+          });
 
         var mqttServer = new MqttFactory().CreateMqttServer();
         await mqttServer.StartAsync(optionsBuilder.Build());
@@ -51,21 +52,21 @@ namespace CommonVending
     private static async Task MqttServerAesInit()
     {
       var optionsBuilder = new MqttServerOptionsBuilder().WithConnectionBacklog(2000)
-          .WithClientId("monitoring3voda.ru")
-          .WithDefaultEndpoint()
-          .WithDefaultEndpointPort(1883)
-          .WithConnectionValidator(ConnectionValidatorCallbackAes)
-          .WithSubscriptionInterceptor(c =>
-          {
-            c.AcceptSubscription = true;
+        .WithClientId(host)
+        .WithDefaultEndpoint()
+        .WithDefaultEndpointPort(1883)
+        .WithConnectionValidator(ConnectionValidatorCallbackAes)
+        .WithSubscriptionInterceptor(c =>
+        {
+          c.AcceptSubscription = true;
 
-            LogSubscription(c, true);
-          })
-          .WithApplicationMessageInterceptor(async c =>
-          {
-            c.AcceptPublish = true;
-            await LogMessage(c);
-          });
+          LogSubscription(c, true);
+        })
+        .WithApplicationMessageInterceptor(async c =>
+        {
+          c.AcceptPublish = true;
+          await LogMessage(c);
+        });
       var mqttServer = new MqttFactory().CreateMqttServer();
       await mqttServer.StartAsync(optionsBuilder.Build());
     }
@@ -73,7 +74,7 @@ namespace CommonVending
     private static void ConnectionValidatorCallbackAes(MqttConnectionValidatorContext c)
     {
       if (c == null) return;
-      
+
       if (!ApplicationSettings.SupportBoard3)
       {
         Console.WriteLine("Not supported this board [3]!");
@@ -95,7 +96,7 @@ namespace CommonVending
     private static void ConnectionValidatorCallback(MqttConnectionValidatorContext c)
     {
       if (c == null) return;
-      
+
       if (!ApplicationSettings.SupportBoard2)
       {
         Console.WriteLine("Not supported this board [2]!");
@@ -140,8 +141,8 @@ namespace CommonVending
       if (context == null) { return; }
 
       var message = successful
-                        ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
-                        : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";
+                      ? $"New subscription: ClientId = {context.ClientId}, TopicFilter = {context.TopicFilter}"
+                      : $"Subscription failed for clientId = {context.ClientId}, TopicFilter = {context.TopicFilter}";
       Console.WriteLine(message);
     }
 
