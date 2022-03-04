@@ -17,17 +17,14 @@ namespace ThirdVendingWebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class SalesController : ControllerBase
   {
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public SalesController(UserManager<ApplicationUser> userManager)
-    {
-      _userManager = userManager;
-    }
+    public SalesController(UserManager<ApplicationUser> userManager) { _userManager = userManager; }
 
     [HttpGet("info")]
-    [Authorize]
     public async Task<IActionResult> Get(string deviceId, DateTime? from, DateTime? to)
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -35,7 +32,7 @@ namespace ThirdVendingWebApi.Controllers
       if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
       if ((user.Role == Roles.Technician) && !user.CommerceVisible) return new ObjectResult(null);
-      
+
       //todo check role and permitions
       return await Task.Factory.StartNew(() =>
       {
@@ -45,14 +42,10 @@ namespace ThirdVendingWebApi.Controllers
         {
           var sl = new DeviceSaleModel
           {
-            MessageDate = sale.MessageDate,
-            Quantity = sale.Quantity,
-            PaymentType = sale.PaymentType,
-            AmountCard = sale.PaymentType == 1 ? sale.Amount : null,
+            MessageDate = sale.MessageDate, Quantity = sale.Quantity, PaymentType = sale.PaymentType, AmountCard = sale.PaymentType == 1 ? sale.Amount : null,
             AmountCash = (sale.PaymentType == 0) || (sale.PaymentType == -1) ? sale.Amount : null,
             Coins = sale.Coins != null ? JsonConvert.DeserializeObject<MqttMoney[]>(sale.Coins) : null,
-            Bills = sale.Bills != null ? JsonConvert.DeserializeObject<MqttMoney[]>(sale.Bills) : null,
-            RfidCard = sale.RfidCard, CoinsChange = sale.CoinsChange, Rest = sale.Rest
+            Bills = sale.Bills != null ? JsonConvert.DeserializeObject<MqttMoney[]>(sale.Bills) : null, RfidCard = sale.RfidCard, CoinsChange = sale.CoinsChange, Rest = sale.Rest
           };
           sl.AmountCoin = SummMoney(sl.Coins);
           sl.AmountBill = SummMoney(sl.Bills);
@@ -62,15 +55,6 @@ namespace ThirdVendingWebApi.Controllers
 
         return new ObjectResult(retListSales);
       });
-    }
-
-    internal static float? SummMoney(MqttMoney[] saleMonies)
-    {
-      if (!(saleMonies?.Length > 0)) return null;
-
-      var retSumm = saleMonies.Sum(sm => (sm.Amount * sm.Value));
-
-      return retSumm > 0.0 ? retSumm : null;
     }
 
     [HttpGet("/api/sales-graph/{id}")]
@@ -83,7 +67,7 @@ namespace ThirdVendingWebApi.Controllers
         if (!user.Activated.GetValueOrDefault()) return StatusCode(403, "Пользователь деактивирован!");
 
         if ((user.Role == Roles.Technician) && !user.CommerceVisible) return new ObjectResult(null);
-        
+
         //todo check role and permitions
         var device = DeviceDbProvider.GetDeviceById(id);
         if (device == null) return NotFound("Автомат не найден!");
@@ -177,6 +161,15 @@ namespace ThirdVendingWebApi.Controllers
         Console.WriteLine(ex);
         return StatusCode(500, ex);
       }
+    }
+
+    internal static float? SummMoney(MqttMoney[] saleMonies)
+    {
+      if (!(saleMonies?.Length > 0)) return null;
+
+      var retSumm = saleMonies.Sum(sm => sm.Amount * sm.Value);
+
+      return retSumm > 0.0 ? retSumm : null;
     }
   }
 }

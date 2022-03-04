@@ -9,6 +9,7 @@ namespace ThirdVendingWebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class AlertUserController : ControllerBase
   {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -19,7 +20,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Get()
     {
       try

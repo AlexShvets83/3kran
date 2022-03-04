@@ -17,6 +17,7 @@ namespace ThirdVendingWebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class FilesController : ControllerBase
   {
     private readonly UserManager<ApplicationUser> _userManager;

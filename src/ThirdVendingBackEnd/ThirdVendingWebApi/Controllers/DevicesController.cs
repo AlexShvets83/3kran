@@ -21,6 +21,7 @@ namespace ThirdVendingWebApi.Controllers
   /// </summary>
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class DevicesController : ControllerBase
   {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -37,7 +38,6 @@ namespace ThirdVendingWebApi.Controllers
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Get()
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -79,7 +79,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpPost("/api/device")]
-    [Authorize]
     public async Task<IActionResult> Add([FromBody] DeviceAddModel dev)
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -111,7 +110,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpPut("/api/device/{id}")]
-    [Authorize]
     public async Task<IActionResult> Edit(string id, [FromBody] DeviceAddModel dev)
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -148,7 +146,6 @@ namespace ThirdVendingWebApi.Controllers
     /// <param name = "id"></param>
     /// <returns></returns>
     [HttpDelete("/api/device/{id}")]
-    [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
       var user = await _userManager.GetUserAsync(HttpContext.User);
@@ -178,7 +175,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet("/api/device/settings/{id}")]
-    [Authorize]
     public async Task<IActionResult> GetSettings(string id)
     {
       return await Task.Factory.StartNew(() =>
@@ -192,7 +188,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpPut("/api/device/settings/{imei}")]
-    [Authorize]
     public async Task<IActionResult> SetSettings(string imei, [FromBody] PayLoadValue payLoad)
     {
       try
@@ -264,7 +259,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet("/api/device/info/{id}")]
-    [Authorize]
     public async Task<IActionResult> GetInfo(string id)
     {
       return await Task.Factory.StartNew(() =>
@@ -310,7 +304,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpPut("/api/device/setOwner/{id}")]
-    [Authorize]
     public async Task<IActionResult> SetOwner(string id, [FromBody] string ownerId)
     {
       try

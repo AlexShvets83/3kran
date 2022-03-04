@@ -11,10 +11,10 @@ namespace ThirdVendingWebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class AlertsController : ControllerBase
   {
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Get(string deviceId, DateTime? from, DateTime? to)
     {
       return await Task.Factory.StartNew(() =>

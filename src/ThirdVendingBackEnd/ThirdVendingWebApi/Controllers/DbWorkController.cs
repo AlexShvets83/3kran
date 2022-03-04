@@ -14,6 +14,7 @@ namespace ThirdVendingWebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class DbWorkController : ControllerBase
   {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -21,7 +22,6 @@ namespace ThirdVendingWebApi.Controllers
     public DbWorkController(UserManager<ApplicationUser> userManager) { _userManager = userManager; }
     
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Get(int size)
     {
       try
@@ -45,7 +45,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Post()
     {
       try
@@ -71,7 +70,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpPut]
-    [Authorize]
     public async Task<IActionResult> Put([FromBody] string file)
     {
       try
@@ -94,7 +92,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet("getDate")]
-    [Authorize]
     public async Task<IActionResult> GetDate()
     {
       try
@@ -123,7 +120,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpDelete]
-    [Authorize]
     public async Task<IActionResult> Delete(DateTime startDate, DateTime endDate)
     {
       var admin = await _userManager.GetUserAsync(HttpContext.User);

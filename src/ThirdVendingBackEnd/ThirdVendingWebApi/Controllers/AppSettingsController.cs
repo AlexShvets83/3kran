@@ -11,6 +11,7 @@ namespace ThirdVendingWebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
+  [Authorize]
   public class AppSettingsController : ControllerBase
   {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -21,7 +22,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Get()
     {
       var admin = await _userManager.GetUserAsync(HttpContext.User);
@@ -36,7 +36,6 @@ namespace ThirdVendingWebApi.Controllers
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Post(AppSettings data)
     {
       var admin = await _userManager.GetUserAsync(HttpContext.User);
