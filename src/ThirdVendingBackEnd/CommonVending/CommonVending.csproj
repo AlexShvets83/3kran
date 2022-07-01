@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapster" Version="7.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DeviceDbModel\DeviceDbModel.csproj" />
     <ProjectReference Include="..\MQTTnet\MQTTnet.csproj" />
   </ItemGroup>

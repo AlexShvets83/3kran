@@ -1,14 +1,12 @@
-﻿using System;
-using DeviceDbModel.DataDb;
+﻿using DeviceDbModel.DataDb;
 using DeviceDbModel.Models;
 using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 
 namespace DeviceDbModel
 {
@@ -41,8 +39,6 @@ namespace DeviceDbModel
 
     public DbSet<InviteRegistration> InviteRegistrations { get; set; }
 
-    //public DbSet<DevStatus> DeviceStatus { get; set; }
-
     public DbSet<DevStatus> DeviceLastStatus { get; set; }
 
     public DbSet<DevErrorStatus> DeviceErrorStatus { get; set; }
@@ -63,7 +59,11 @@ namespace DeviceDbModel
 
     public DbSet<AppSettings> AppSettings { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { optionsBuilder.UseSnakeCaseNamingConvention(); }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSnakeCaseNamingConvention();
+        //optionsBuilder.LogTo(Console.WriteLine);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

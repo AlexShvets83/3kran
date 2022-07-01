@@ -53,7 +53,7 @@ http://monitoring.3voda.ru/send?i=123456787654321&tm=1000&ts=500&te=0
       var device = DeviceDbProvider.GetDeviceByImei(imei);
       if (device == null)
       {
-        Console.WriteLine($"Device [{imei}] not found!");
+        Console.WriteLine($"Type: [1] Device [{imei}] not found!");
         return NotFound();
 
         //device = new Device

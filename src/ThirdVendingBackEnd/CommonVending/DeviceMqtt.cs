@@ -13,12 +13,13 @@ using CommonVending.Crypt;
 using CommonVending.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using MQTTnet.Client;
+using MQTTnet.Server;
 
 namespace CommonVending
 {
   public static class DeviceMqtt
   {
-    private static readonly IEmailSender sender = new AuthMessageSender();
+    private static readonly IEmailSender Sender = new AuthMessageSender();
 
     public static async Task SubscriptionHandler(string topic, string payLoad)
     {
@@ -66,7 +67,7 @@ namespace CommonVending
       catch (Exception ex) { Console.WriteLine(ex.Message); }
       finally
       {
-        await mqttClient?.DisconnectAsync();
+        await mqttClient?.DisconnectAsync()!;
         mqttClient?.Dispose();
       }
     }
@@ -89,12 +90,12 @@ namespace CommonVending
       catch (Exception ex) { Console.WriteLine(ex.Message); }
       finally
       {
-        await mqttClient?.DisconnectAsync();
+        await mqttClient?.DisconnectAsync()!;
         mqttClient?.Dispose();
       }
     }
 
-    public static async Task MessageHandler(string topic, string message)
+    public static async Task MessageHandler(string topic, string message, MqttApplicationMessageInterceptorContext context)
     {
       if (topic.Contains("settings/todevice")) return;
       if (topic.Contains("pay/response")) return;
@@ -116,6 +117,7 @@ namespace CommonVending
         if (device == null)
         {
           Console.WriteLine($"[MQTT] Device [{imei}] not found!");
+          context.CloseConnection = true;
           return;
 
           //device = new Device
@@ -193,7 +195,7 @@ namespace CommonVending
                       AlertsDbProvider.InsertDeviceAlert(alert);
 
                       //send emails NO SALES
-                      await sender.SendNoSales(device);
+                      await Sender.SendNoSales(device);
                     }
                   }
                 }
@@ -210,7 +212,7 @@ namespace CommonVending
                 AlertsDbProvider.InsertDeviceAlert(alert);
 
                 //send emails TANK EMPTY
-                await sender.SendTankEmpty(device);
+                await Sender.SendTankEmpty(device);
               }
             }
             else
@@ -328,14 +330,6 @@ namespace CommonVending
           DeviceDbProvider.WriteDeviceSettings(error);
         }
       }
-
-      //finally
-      //{
-      //  if (topic.Contains("869640058515506"))
-      //  {
-      //    Console.WriteLine($"Topic - {topic} Message - {message}");
-      //  }
-      //}
     }
   }
 }

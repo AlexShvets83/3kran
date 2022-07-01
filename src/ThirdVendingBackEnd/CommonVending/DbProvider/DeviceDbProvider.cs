@@ -1,28 +1,27 @@
-﻿using System;
+﻿using CommonVending.Model;
+using DeviceDbModel;
+using DeviceDbModel.Models;
+using Mapster;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CommonVending.Model;
-using CommonVending.MqttModels;
-using DeviceDbModel;
-using DeviceDbModel.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace CommonVending.DbProvider
 {
   public static class DeviceDbProvider
   {
-    static DeviceDbProvider() { DeviceDBContextFactory = new DeviceDBContextFactory(); }
+    static DeviceDbProvider() { DeviceDbContextFactory = new DeviceDBContextFactory(); }
 
-    public static DeviceDBContextFactory DeviceDBContextFactory { get; }
+    public static DeviceDBContextFactory DeviceDbContextFactory { get; }
     
     public static List<Country> GetCountries()
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var list = context.Countries.OrderBy(o => o.Id).ToList();
           return list;
@@ -39,7 +38,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var list = context.Devices.OrderBy(o => o.Id).ToList();
           return list;
@@ -56,61 +55,116 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
-          var query = from device in context.Set<Device>()
-                      join person in context.Set<ApplicationUser>() on device.OwnerId equals person.Id into grouping
-                      //join p in context.Set<ApplicationUser>()
-                      //  on b.BlogId equals p.BlogId into grouping
-                      from person in grouping.DefaultIfEmpty()
-                      orderby device.Id
-                      select new DevView
-                      {
-                        Id = device.Id, Imei = device.Imei, OwnerId = device.OwnerId, Address = device.Address,
-                        TimeZone = device.TimeZone, Currency = device.Currency, Phone = device.Phone, OwnerName = person.LastName,
-                        OwnerEmail = person.Email
-                      };
-          if (users != null)
+          List<Device> devices;
+          if (users == null || users.Count == 0)
           {
-            query = from device in context.Set<Device>()
-                    join person in context.Set<ApplicationUser>() on device.OwnerId equals person.Id into grouping
-                    //join p in context.Set<ApplicationUser>()
-                    //  on b.BlogId equals p.BlogId into grouping
-                    from person in grouping.DefaultIfEmpty()
-                    where users.Contains(device.OwnerId)
-                    orderby device.Id
-                    select new DevView
-                    {
-                      Id = device.Id, Imei = device.Imei, OwnerId = device.OwnerId, Address = device.Address,
-                      TimeZone = device.TimeZone, Currency = device.Currency, Phone = device.Phone, OwnerName = person.LastName,
-                      OwnerEmail = person.Email
-                    };
+            devices = context.Devices
+                .Include(x => x.User)
+                .Include(s => s.DevStatuses)
+                .Include(x => x.DevSales.OrderByDescending(sale => sale.Id))
+                .Include(x => x.DevSettings.Where(w => w.TopicType == 1).OrderByDescending(o => o.Id)).ToList();
+
+          }
+          else
+          {
+            devices = context.Devices
+              .Include(x => x.User)
+              .Include(s => s.DevStatuses)
+              .Include(x => x.DevSales.OrderByDescending(sale => sale.Id))
+              .Include(x => x.DevSettings.Where(w => w.TopicType == 1).OrderByDescending(o => o.Id))
+              .Where(x => users.Contains(x.OwnerId)).ToList();
           }
 
-          var devList = query.AsEnumerable().ToList();
-          foreach (var dev in devList)
+          var devList = new List<DevView>();
+          foreach (var dev in devices)
           {
+            var devView = dev.Adapt<DevView>();
+
             var currDate = DateTime.UtcNow.AddHours(dev.TimeZone);
             var alerts = new List<string>();
-            var lastStatus = context.DeviceLastStatus.Where(w => w.DeviceId == dev.Id).OrderByDescending(o => o.MessageDate).Take(1).ToList();
-            dev.LastStatus = lastStatus.Count > 0 ? lastStatus[0].GetNewObj<DevStatusView>() : null;
-            if ((dev.LastStatus == null) || (dev.LastStatus.MessageDate.AddMinutes(32) < currDate)) { alerts.Add("NO_LINK"); }
+            
+            devView.LastStatus = dev.DevStatuses?.Count > 0 ? dev.DevStatuses.ToList()[0].Adapt<DevStatusView>() : null;
+            if ((devView.LastStatus == null) || (devView.LastStatus.MessageDate.AddMinutes(32) < currDate)) { alerts.Add("NO_LINK"); }
 
-            if ((dev.LastStatus != null) && (dev.LastStatus.Status == 1)) { alerts.Add("TANK_EMPTY"); }
+            if (devView.LastStatus is {Status: 1}) { alerts.Add("TANK_EMPTY"); }
 
-            var lastSale = context.DeviceSales.Where(w => w.DeviceId == dev.Id).OrderByDescending(o => o.MessageDate).Take(1).ToList();
-            dev.LastSale = (lastSale.Count > 0) && isCommerce ? lastSale[0].GetNewObj<DevSaleView>() : null;
-            if ((dev.LastSale == null) || (dev.LastSale.MessageDate.AddHours(2) < currDate)) { alerts.Add("NO_SALES"); }
+            devView.LastSale = dev.DevSales?.Count > 0 ? dev.DevSales.ToList()[0].Adapt<DevSaleView>() : null;
+            if ((devView.LastSale == null) || (devView.LastSale.MessageDate.AddHours(2) < currDate)) { alerts.Add("NO_SALES"); }
 
-            dev.Alerts = alerts.Count > 0 ? alerts.ToArray() : null;
+            devView.Alerts = alerts.Count > 0 ? alerts.ToArray() : null;
 
-            var clList = context.DeviceSettings.Where(w => (w.DeviceId == dev.Id) && (w.TopicType == 1)).OrderByDescending(o => o.MessageDate).Take(1).ToList();
-            var lastCln = clList.Count > 0 ? JsonConvert.DeserializeObject<CleanerStatusView>(clList[0].Payload) : null;
-            if (lastCln != null) lastCln.MessageDate = clList[0].MessageDate;
-            dev.LastCleanerStatus = lastCln;
+            var lastSetting = dev.DevSettings?.Count > 0 ? dev.DevSettings.ToList()[0] : null;
+            if (lastSetting != null)
+            {
+              var lastCln = JsonConvert.DeserializeObject<CleanerStatusView>(lastSetting.Payload);
+              if (lastCln != null) lastCln.MessageDate = lastSetting.MessageDate;
+              devView.LastCleanerStatus = lastCln;
+            }
+
+            devView.OwnerName = dev.User.LastName;
+            devView.OwnerEmail = dev.User.Email;
+            devList.Add(devView);
           }
 
           return devList;
+          
+          //var query = from device in context.Set<Device>()
+          //            join person in context.Set<ApplicationUser>() on device.OwnerId equals person.Id into grouping
+          //            //join p in context.Set<ApplicationUser>()
+          //            //  on b.BlogId equals p.BlogId into grouping
+          //            from person in grouping.DefaultIfEmpty()
+          //            orderby device.Id
+          //            select new DevView
+          //            {
+          //              Id = device.Id, Imei = device.Imei, OwnerId = device.OwnerId, Address = device.Address,
+          //              TimeZone = device.TimeZone, Currency = device.Currency, Phone = device.Phone, OwnerName = person.LastName,
+          //              OwnerEmail = person.Email
+          //            };
+          //if (users != null)
+          //{
+          //  query = from device in context.Set<Device>()
+          //          join person in context.Set<ApplicationUser>() on device.OwnerId equals person.Id into grouping
+          //          //join p in context.Set<ApplicationUser>()
+          //          //  on b.BlogId equals p.BlogId into grouping
+          //          from person in grouping.DefaultIfEmpty()
+          //          where users.Contains(device.OwnerId)
+          //          orderby device.Id
+          //          select new DevView
+          //          {
+          //            Id = device.Id, Imei = device.Imei, OwnerId = device.OwnerId, Address = device.Address,
+          //            TimeZone = device.TimeZone, Currency = device.Currency, Phone = device.Phone, OwnerName = person.LastName,
+          //            OwnerEmail = person.Email
+          //          };
+          //}
+
+          //var devList = query.AsEnumerable().ToList();
+          //stopWatch.Stop();
+          //stopWatch.Restart();
+          //foreach (var dev in devList)
+          //{
+          //  var currDate = DateTime.UtcNow.AddHours(dev.TimeZone);
+          //  var alerts = new List<string>();
+          //  var lastStatus = context.DeviceLastStatus.Where(w => w.DeviceId == dev.Id).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          //  dev.LastStatus = lastStatus.Count > 0 ? lastStatus[0].GetNewObj<DevStatusView>() : null;
+          //  if ((dev.LastStatus == null) || (dev.LastStatus.MessageDate.AddMinutes(32) < currDate)) { alerts.Add("NO_LINK"); }
+
+          //  if ((dev.LastStatus != null) && (dev.LastStatus.Status == 1)) { alerts.Add("TANK_EMPTY"); }
+
+          //  var lastSale = context.DeviceSales.Where(w => w.DeviceId == dev.Id).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          //  dev.LastSale = (lastSale.Count > 0) && isCommerce ? lastSale[0].GetNewObj<DevSaleView>() : null;
+          //  if ((dev.LastSale == null) || (dev.LastSale.MessageDate.AddHours(2) < currDate)) { alerts.Add("NO_SALES"); }
+
+          //  dev.Alerts = alerts.Count > 0 ? alerts.ToArray() : null;
+
+          //  var clList = context.DeviceSettings.Where(w => (w.DeviceId == dev.Id) && (w.TopicType == 1)).OrderByDescending(o => o.MessageDate).Take(1).ToList();
+          //  var lastCln = clList.Count > 0 ? JsonConvert.DeserializeObject<CleanerStatusView>(clList[0].Payload) : null;
+          //  if (lastCln != null) lastCln.MessageDate = clList[0].MessageDate;
+          //  dev.LastCleanerStatus = lastCln;
+          //}
+          //stopWatch.Stop();
+          //return devList;
         }
       }
       catch (Exception ex)
@@ -124,7 +178,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var list = context.Devices.Where(w => w.Imei == emei).ToList();
           return list.Count == 1 ? list[0] : null;
@@ -141,7 +195,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var list = context.Devices.Where(w => w.Id == id).ToList();
           return list.Count == 1 ? list[0] : null;
@@ -158,7 +212,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           if (!string.IsNullOrEmpty(dev.Id)) { context.Devices.Update(dev); }
           else
@@ -173,7 +227,7 @@ namespace CommonVending.DbProvider
       }
       catch (Exception ex)
       {
-        Console.WriteLine(ex);
+        Console.WriteLine($"{ex} Error device IMEI: {dev.Imei}");
         return false;
       }
     }
@@ -182,7 +236,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var updDevice = new Device
           {
@@ -207,7 +261,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           if (device != null)
           {
@@ -243,7 +297,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var record = context.DeviceSales.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
           return record.Count == 0 ? null : record[0];
@@ -260,7 +314,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var record = context.DeviceEncashes.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(1).ToList();
           return record.Count == 0 ? null : record[0];
@@ -277,7 +331,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var record = context.DeviceInfos.Where(w => (w.DeviceId == devId) && (w.Name == name)).OrderByDescending(o => o.MessageDate).Take(1).ToList();
           return record.Count == 0 ? null : record[0];
@@ -294,7 +348,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var record = context.DeviceSettings.Where(w => (w.DeviceId == devId) && (w.TopicType == topicType)).OrderByDescending(o => o.MessageDate).Take(1).ToList();
           return record.Count == 0 ? null : record[0];
@@ -311,7 +365,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           if (record.Id != 0) { context.DeviceInfos.Update(record); }
           else { context.DeviceInfos.Add(record); }
@@ -326,7 +380,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           if (record.Id != 0) { context.DeviceSettings.Update(record); }
           else { context.DeviceSettings.Add(record); }
@@ -341,7 +395,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           context.DeviceEncashes.Add(record);
           context.SaveChanges();
@@ -354,7 +408,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var record = context.DeviceEncashes.Where(w => w.DeviceId == devId).OrderByDescending(o => o.MessageDate).Take(limit).ToList();
           return record;
@@ -371,7 +425,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var record = context.DeviceEncashes.Where(w => (w.DeviceId == devId) && (w.MessageDate >= from) && (w.MessageDate <= to)).OrderByDescending(o => o.MessageDate).ToList();
           return record;
@@ -388,7 +442,7 @@ namespace CommonVending.DbProvider
     {
       try
       {
-        using (var context = DeviceDBContextFactory.CreateDbContext(new string[1]))
+        using (var context = DeviceDbContextFactory.CreateDbContext(new string[1]))
         {
           var record = context.DeviceInfos.Where(w => (w.DeviceId == devId)).OrderByDescending(o => o.Name).ToList();
           return record;
